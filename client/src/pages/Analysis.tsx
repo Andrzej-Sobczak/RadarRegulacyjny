@@ -394,7 +394,7 @@ const Analysis: React.FC = () => {
       <div className="mb-8">
         <h2 className="text-xl font-medium mb-2">Opis systemów</h2>
         <p className="text-sm text-gray-500 mb-4">
-          Załaduj pliki PDF opisujące architekturę systemów IT, które będą analizowane pod kątem zgodności z wymaganiami.
+          Załaduj pliki PDF opisujące architekturę systemów IT, które będą analizowane pod kątem wpływu zmian w przepisach prawa.
           {systems.length > 0 && (
             <span className="ml-2 text-[#3498DB]">Aktualnie wczytano {systems.length} systemów.</span>
           )}

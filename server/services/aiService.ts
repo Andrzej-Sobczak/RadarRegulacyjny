@@ -170,10 +170,8 @@ class AIService {
       const openai = await this.getOpenAIInstance();
       
       const prompt = `
-      ## 2. Prompt dla analizy wpływu wymagań regulacyjnych na systemy IT
-      
-      Jesteś ekspertem ds. zgodności IT. Twoim zadaniem jest analiza wpływu wymagań regulacyjnych na systemy IT.
-      
+      Jesteś ekspertem w zakresie prawa i analiz zgodności IT. Twoim zadaniem jest analiza dokumentów prawnych i określenie szczegółowego wpływu wymagań regulacyjnych na systemy IT w środowisku korporacyjnym. Skup się wyłącznie na zmianach mających wpływ na systemy przedsiębiorstw.
+
       DANE WEJŚCIOWE:
       1. OPIS ARCHITEKTURY SYSTEMÓW:
       ${JSON.stringify(limitedSystems, null, 2)}
@@ -183,6 +181,42 @@ class AIService {
       
       ZADANIE:
       Wykonaj szczegółową analizę mapowania, aby określić, jak każde wymaganie regulacyjne wpływa na opisaną architekturę IT. Uwzględnij bezpośrednie wpływy, pośrednie zależności i wyzwania integracyjne.
+      
+      PODEJŚCIE ANALITYCZNE:
+      Dla KAŻDEGO komponentu systemu zidentyfikowanego w opisie architektury:
+      
+      1. IDENTYFIKACJA SYSTEMU:
+         - Nazwa systemu i jego główna funkcja
+         - Aktualne możliwości związane z wymaganiami regulacyjnymi
+         - Kluczowe zależności z innymi systemami
+      
+      2. OCENA WPŁYWU:
+         - Lista wszystkich wymagań regulacyjnych wpływających na ten system (z odniesieniem do ID wymagań)
+         - Dla każdego istotnego wymagania:
+           a. Poziom wpływu (Krytyczny/Wysoki/Średni/Niski/Brak) z uzasadnieniem
+           b. Typ wpływu: Struktura danych, Funkcjonalność, Bezpieczeństwo, Integracja, Wydajność, Interfejs użytkownika, Raportowanie, Inne
+           c. Analiza luki: opis konkretnej różnicy między obecnymi możliwościami a wymaganiami regulacyjnymi
+      
+      3. WYMAGANE MODYFIKACJE:
+         - Niezbędne zmiany funkcjonalne (konkretne funkcje lub możliwości)
+         - Wymagane zmiany modelu/struktury danych
+         - Niezbędne modyfikacje API/interfejsu
+         - Adaptacje mechanizmów bezpieczeństwa
+      
+      4. ZALEŻNOŚCI SYSTEMOWE:
+         - Systemy nadrzędne, które muszą dostarczać dane/funkcjonalność
+         - Systemy podrzędne, które wykorzystują dane/funkcjonalność
+         - Punkty integracji wymagające modyfikacji
+      
+      5. OCENA ZŁOŻONOŚCI WDROŻENIA:
+         - Szacowany poziom złożoności (Bardzo wysoki/Wysoki/Średni/Niski) z uzasadnieniem
+         - Przewidywane kluczowe wyzwania techniczne
+         - Wymagana specjalistyczna wiedza
+      
+      6. CZYNNIKI PRIORYTETYZACJI:
+         - Uwarunkowania związane z terminem prawnym
+         - Wymagania wstępne/zależności wdrożeniowe
+         - Znaczenie operacyjne
       
       WAŻNE: Musisz zwrócić odpowiedź w formacie JSON, gdzie głównym elementem jest tablica "impacts". Każdy element tej tablicy musi zawierać następujące pola:
       
@@ -203,6 +237,12 @@ class AIService {
           }
         ]
       }
+      
+      DODATKOWE WSKAZÓWKI:
+      - Uwzględnij zarówno bezpośredni wpływ (system bezpośrednio obsługuje regulowane dane/procesy), jak i pośredni wpływ (system integruje się z bezpośrednio dotkniętymi systemami)
+      - Zwróć szczególną uwagę na przepływy danych, zwłaszcza w przypadku danych wrażliwych
+      - Uwzględnij implikacje bezpieczeństwa w całej analizie
+      - Przeanalizuj, jak wymagania mogą być sprzeczne z istniejącymi zasadami architektury
       
       Zwróć analizę wpływu przynajmniej 3 różnych wymagań na przynajmniej 2 różne systemy.
       Wszystkie odpowiedzi muszą być w języku polskim.
