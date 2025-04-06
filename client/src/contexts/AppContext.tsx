@@ -165,26 +165,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setAnalysisStatus({ isProcessing: false, progress: 0, message: "" });
       
       // Wyślij zapytania API o usunięcie danych - najpierw te wartości na serwerze
-      await apiRequest({
-        url: '/api/requirements/reset',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: {},
-      });
-      
-      await apiRequest({
-        url: '/api/systems/reset',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: {},
-      });
-      
-      await apiRequest({
-        url: '/api/impact/reset',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: {},
-      });
+      try {
+        await apiRequest({
+          url: '/api/requirements/reset',
+          method: 'POST',
+        });
+        
+        await apiRequest({
+          url: '/api/systems/reset',
+          method: 'POST',
+        });
+        
+        await apiRequest({
+          url: '/api/impact/reset',
+          method: 'POST',
+        });
+      } catch (err) {
+        console.error("Błąd API podczas resetowania:", err);
+      }
       
       // Następnie wyczyść lokalną pamięć podręczną React Query
       queryClient.setQueryData(['/api/requirements'], []);
