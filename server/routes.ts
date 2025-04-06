@@ -192,29 +192,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { requirementIds, systemIds } = req.body;
       
+      console.log("Otrzymano żądanie analizy z:", {
+        requirementIds,
+        systemIds,
+        body: req.body
+      });
+      
       if (!requirementIds || !Array.isArray(requirementIds)) {
-        return res.status(400).json({ message: "Invalid requirement IDs" });
+        return res.status(400).json({ message: "Nieprawidłowe ID wymagań" });
       }
       
       if (!systemIds || !Array.isArray(systemIds)) {
-        return res.status(400).json({ message: "Invalid system IDs" });
+        return res.status(400).json({ message: "Nieprawidłowe ID systemów" });
       }
       
-      const requirements = await Promise.all(
-        requirementIds.map(id => storage.getRequirement(id))
-      );
+      // Pobierz wszystkie wymagania, jeśli nie zadziałał wybór
+      let requirements = [];
+      if (requirementIds.length > 0) {
+        requirements = await Promise.all(
+          requirementIds.map(id => storage.getRequirement(id))
+        );
+      } else {
+        // Jeśli nie ma wybranych, pobierz wszystkie
+        requirements = await storage.getAllRequirements();
+      }
       
-      const systems = await Promise.all(
-        systemIds.map(id => storage.getSystem(id))
-      );
+      // Pobierz wszystkie systemy, jeśli nie zadziałał wybór
+      let systems = [];
+      if (systemIds.length > 0) {
+        systems = await Promise.all(
+          systemIds.map(id => storage.getSystem(id))
+        );
+      } else {
+        // Jeśli nie ma wybranych, pobierz wszystkie
+        systems = await storage.getAllSystems();
+      }
+      
+      // Logowanie pobranych danych
+      console.log(`Pobrano ${requirements.length} wymagań i ${systems.length} systemów do analizy`);
       
       // Filter out nulls
-      const validRequirements = requirements.filter(Boolean);
-      const validSystems = systems.filter(Boolean);
+      const validRequirements = requirements.filter(req => req !== undefined && req !== null);
+      const validSystems = systems.filter(sys => sys !== undefined && sys !== null);
       
+      if (validRequirements.length === 0) {
+        return res.status(400).json({ message: "Nie znaleziono żadnych wymagań do analizy" });
+      }
+      
+      if (validSystems.length === 0) {
+        return res.status(400).json({ message: "Nie znaleziono żadnych systemów do analizy" });
+      }
+      
+      // Logi dla wymagań i systemów
+      console.log("Analizuję następujące wymagania:", validRequirements.map(r => r.id));
+      console.log("Analizuję następujące systemy:", validSystems.map(s => s.id));
+      
+      // Analiza wpływu
       const impacts = await aiService.analyzeImpact(validRequirements, validSystems);
       
       // Store the impacts
+      console.log(`Zapisuję ${impacts.length} wyników analizy wpływu`);
       for (const impact of impacts) {
         await storage.createImpact(impact);
       }
@@ -222,7 +259,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(impacts);
     } catch (err) {
       console.error("Error analyzing impact:", err);
-      res.status(500).json({ message: "Error analyzing impact" });
+      res.status(500).json({ 
+        message: "Błąd podczas analizy wpływu", 
+        error: err instanceof Error ? err.message : String(err)
+      });
     }
   });
   

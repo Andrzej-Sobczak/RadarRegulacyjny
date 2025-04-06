@@ -144,80 +144,154 @@ class AIService {
   }
 
   async analyzeImpact(requirements: Requirement[], systems: System[]): Promise<InsertImpact[]> {
+    console.log(`aiService.analyzeImpact wywołane z ${requirements.length} wymaganiami i ${systems.length} systemami`);
+    
     try {
+      // Walidacja danych wejściowych
+      if (!requirements || requirements.length === 0) {
+        console.error("Brak wymagań do analizy");
+        throw new Error("Brak wymagań do analizy");
+      }
+      
+      if (!systems || systems.length === 0) {
+        console.error("Brak systemów do analizy");
+        throw new Error("Brak systemów do analizy");
+      }
+      
+      // Możemy zawęzić liczbę wymagań i systemów dla lepszej wydajności
+      const limitedRequirements = requirements.slice(0, 5);
+      const limitedSystems = systems.slice(0, 3);
+      
+      console.log(`Zredukowano do ${limitedRequirements.length} wymagań i ${limitedSystems.length} systemów`);
+      
       // Now using OpenAI instead of Gemini
       const openai = await this.getOpenAIInstance();
       
       const prompt = `
-      ## 2. Prompt for Mapping Impact on IT Systems Architecture
+      ## 2. Prompt dla analizy wpływu wymagań regulacyjnych na systemy IT
       
-      You are an expert IT compliance analyst. Your task is to analyze the impact of regulatory requirements on IT systems.
+      Jesteś ekspertem ds. zgodności IT. Twoim zadaniem jest analiza wpływu wymagań regulacyjnych na systemy IT.
       
-      INPUT:
-      1. SYSTEMS ARCHITECTURE DESCRIPTION:
-      ${JSON.stringify(systems, null, 2)}
+      DANE WEJŚCIOWE:
+      1. OPIS ARCHITEKTURY SYSTEMÓW:
+      ${JSON.stringify(limitedSystems, null, 2)}
       
-      2. EXTRACTED REGULATORY REQUIREMENTS:
-      ${JSON.stringify(requirements, null, 2)}
+      2. WYMAGANIA REGULACYJNE:
+      ${JSON.stringify(limitedRequirements, null, 2)}
       
-      TASK:
-      Perform a detailed mapping analysis to determine how each regulatory requirement impacts the described IT architecture. Consider direct impacts, indirect dependencies, and integration challenges.
+      ZADANIE:
+      Wykonaj szczegółową analizę mapowania, aby określić, jak każde wymaganie regulacyjne wpływa na opisaną architekturę IT. Uwzględnij bezpośrednie wpływy, pośrednie zależności i wyzwania integracyjne.
       
-      For each system, analyze the impact of all requirements and return a JSON array of impact assessments with these properties:
-      - systemId: ID of the system being analyzed (number)
-      - requirementId: ID of the requirement causing the impact (number)
-      - impactLevel: One of "krytyczny", "wysoki", "średni", "niski", "brak"
-      - impactType: Type of impact (e.g., "Data structure", "Functionality", "Security")
-      - gapAnalysis: Description of the gap between current capabilities and regulatory requirements
-      - requiredModifications: Array of strings describing needed modifications
-      - dependencies: Array of objects with a "name" property for dependent systems
-      - complexity: Assessment of implementation complexity ("Bardzo wysoka", "Wysoka", "Średnia", "Niska")
-      - challenges: Technical challenges anticipated
-      - expertise: Specialized expertise needed
-      - priority: Implementation priority ("Wysoki", "Średni", "Niski")
+      WAŻNE: Musisz zwrócić odpowiedź w formacie JSON, gdzie głównym elementem jest tablica "impacts". Każdy element tej tablicy musi zawierać następujące pola:
       
-      All responses must be in Polish.
+      {
+        "impacts": [
+          {
+            "systemId": 1,
+            "requirementId": 2,
+            "impactLevel": "średni",
+            "impactType": "Funkcjonalność",
+            "gapAnalysis": "Opis luki między obecnymi możliwościami a wymaganiami regulacyjnymi",
+            "requiredModifications": ["Modyfikacja 1", "Modyfikacja 2"],
+            "dependencies": [{"name": "System zależny 1"}, {"name": "System zależny 2"}],
+            "complexity": "Średnia",
+            "challenges": "Opis wyzwań technicznych",
+            "expertise": "Wymagana specjalistyczna wiedza",
+            "priority": "Średni"
+          }
+        ]
+      }
       
-      Analyze 3-5 sample impacts for this demonstration.
+      Zwróć analizę wpływu przynajmniej 3 różnych wymagań na przynajmniej 2 różne systemy.
+      Wszystkie odpowiedzi muszą być w języku polskim.
       `;
+      
+      console.log("Wysyłam zapytanie do OpenAI...");
       
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini", // Using gpt-4o-mini as requested by the user
         messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" }
+        response_format: { type: "json_object" },
+        temperature: 0.7,
+        max_tokens: 2000
       });
       
       const content = response.choices[0].message.content;
-      if (!content) throw new Error("Empty response from OpenAI");
+      if (!content) {
+        console.error("Pusta odpowiedź z OpenAI");
+        throw new Error("Pusta odpowiedź z OpenAI");
+      }
       
-      const parsedResponse = JSON.parse(content);
+      console.log("Otrzymano odpowiedź z OpenAI, parsowanie JSON...");
+      
+      // Parsowanie odpowiedzi JSON
+      let parsedResponse;
+      try {
+        parsedResponse = JSON.parse(content);
+      } catch (parseErr) {
+        console.error("Błąd parsowania JSON:", parseErr);
+        console.log("Nieudane parsowanie zawartości:", content);
+        throw new Error("Nieprawidłowy format odpowiedzi z OpenAI");
+      }
+      
+      // Ekstrakcja tablicy impacts
       const impacts = parsedResponse.impacts || [];
       
       if (!Array.isArray(impacts)) {
-        throw new Error("Invalid response format from OpenAI");
+        console.error("Nieprawidłowy format tablicy impacts:", impacts);
+        throw new Error("Nieprawidłowy format odpowiedzi z OpenAI - brak tablicy impacts");
       }
       
-      // Validate and transform the results
-      return impacts.map((impact: any) => ({
-        systemId: parseInt(impact.systemId),
-        requirementId: parseInt(impact.requirementId),
-        impactLevel: impact.impactLevel || ImpactLevel.MEDIUM,
-        impactType: impact.impactType || "Funkcjonalność",
-        gapAnalysis: impact.gapAnalysis || "Wymaga analizy",
-        requiredModifications: impact.requiredModifications || [],
-        dependencies: impact.dependencies || [],
-        complexity: impact.complexity || "Średnia",
-        challenges: impact.challenges || "",
-        expertise: impact.expertise || "",
-        priority: impact.priority || "Średni"
-      }));
-    } catch (error) {
-      console.error("Error analyzing impact:", error);
+      if (impacts.length === 0) {
+        console.warn("Otrzymano pustą tablicę impacts");
+      } else {
+        console.log(`Otrzymano ${impacts.length} wyników analizy wpływu`);
+      }
       
-      // Fallback: Generate some sample impacts if AI fails
+      // Walidacja i transformacja wyników
+      const validatedImpacts = impacts.map((impact: any) => {
+        console.log(`Przetwarzanie wpływu: systemId=${impact.systemId}, requirementId=${impact.requirementId}`);
+        
+        // Upewnij się, że ID są liczbami
+        const systemId = typeof impact.systemId === 'number' 
+          ? impact.systemId 
+          : parseInt(impact.systemId);
+          
+        const requirementId = typeof impact.requirementId === 'number' 
+          ? impact.requirementId 
+          : parseInt(impact.requirementId);
+        
+        // Upewnij się, że pozostałe pola mają domyślne wartości
+        return {
+          systemId,
+          requirementId,
+          impactLevel: impact.impactLevel || ImpactLevel.MEDIUM,
+          impactType: impact.impactType || "Funkcjonalność",
+          gapAnalysis: impact.gapAnalysis || "Wymaga analizy",
+          requiredModifications: Array.isArray(impact.requiredModifications) 
+            ? impact.requiredModifications 
+            : ["Wymaga analizy"],
+          dependencies: Array.isArray(impact.dependencies) 
+            ? impact.dependencies 
+            : [{ name: "Brak zidentyfikowanych zależności" }],
+          complexity: impact.complexity || "Średnia",
+          challenges: impact.challenges || "Nieznane",
+          expertise: impact.expertise || "Nieznane",
+          priority: impact.priority || "Średni"
+        };
+      });
+      
+      console.log(`Zwalidowano ${validatedImpacts.length} wyników analizy wpływu`);
+      return validatedImpacts;
+      
+    } catch (error) {
+      console.error("Błąd analizy wpływu:", error);
+      
+      // W przypadku niepowodzenia wygeneruj przykładowe wyniki
+      console.log("Generowanie awaryjnych wyników analizy...");
       const impacts: InsertImpact[] = [];
       
-      // For each system, create impact for each requirement
+      // Dla każdego systemu utwórz wpływ dla każdego wymagania
       for (const system of systems) {
         for (const req of requirements) {
           impacts.push({
@@ -225,7 +299,7 @@ class AIService {
             requirementId: req.id,
             impactLevel: ImpactLevel.MEDIUM,
             impactType: "Funkcjonalność",
-            gapAnalysis: "Analiza nie mogła zostać wygenerowana automatycznie.",
+            gapAnalysis: "Analiza nie mogła zostać wygenerowana automatycznie z powodu błędu API.",
             requiredModifications: ["Wymaga ręcznej analizy"],
             dependencies: [{ name: "Brak danych" }],
             complexity: "Średnia",
@@ -233,9 +307,14 @@ class AIService {
             expertise: "Nieznane",
             priority: "Średni"
           });
+          
+          // Ogranicz liczbę generowanych wyników awaryjnych
+          if (impacts.length >= 10) break;
         }
+        if (impacts.length >= 10) break;
       }
       
+      console.log(`Wygenerowano ${impacts.length} awaryjnych wyników analizy`);
       return impacts;
     }
   }

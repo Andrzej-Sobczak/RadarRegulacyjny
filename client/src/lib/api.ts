@@ -93,8 +93,13 @@ export async function getSystems(): Promise<System[]> {
 
 // Impact analysis functions
 export async function analyzeImpact(requirementIds: number[], systemIds: number[]): Promise<Impact[]> {
+  console.log("Wysyłam zapytanie o analizę wpływu z parametrami:", { requirementIds, systemIds });
+  
   const response = await apiRequest("POST", "/api/impact/analyze", { requirementIds, systemIds });
-  return await response.json();
+  const result = await response.json();
+  
+  console.log("Otrzymano wyniki analizy:", result.length);
+  return result;
 }
 
 export async function getImpacts(): Promise<Impact[]> {

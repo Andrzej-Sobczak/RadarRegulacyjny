@@ -82,20 +82,47 @@ const Analysis: React.FC = () => {
 
   // Analysis mutation
   const analysisMutation = useMutation({
-    mutationFn: () => 
-      analyzeImpact(
-        requirements.map(r => r.id),
-        systems.map(s => s.id)
-      ),
+    mutationFn: async () => {
+      // Upewnij się, że masz poprawne dane do analizy
+      if (!requirements || requirements.length === 0) {
+        console.warn("Brak wymagań do analizy");
+        throw new Error("Brak wymagań do analizy");
+      }
+      
+      if (!systems || systems.length === 0) {
+        console.warn("Brak systemów do analizy");
+        throw new Error("Brak systemów do analizy");
+      }
+      
+      const reqIds = requirements.map(r => r.id);
+      const sysIds = systems.map(s => s.id);
+      
+      console.log("Rozpoczynam analizę z następującymi danymi:", {
+        requirementIds: reqIds,
+        systemIds: sysIds,
+        requirements,
+        systems
+      });
+      
+      try {
+        // Wykonaj analizę wpływu
+        return await analyzeImpact(reqIds, sysIds);
+      } catch (err) {
+        console.error("Błąd w funkcji analyzeImpact:", err);
+        throw err;
+      }
+    },
     onSuccess: (data) => {
+      console.log("Analiza zakończona sukcesem, otrzymano wyniki:", data);
       queryClient.setQueryData(['/api/impact'], data);
       setShowResults(true);
       toast({
         title: "Analiza zakończona",
-        description: "Analiza wpływu została zakończona pomyślnie.",
+        description: `Analiza wpływu została zakończona pomyślnie. Znaleziono ${data.length} punktów wpływu.`,
       });
     },
     onError: (error) => {
+      console.error("Błąd analizy:", error);
       toast({
         title: "Błąd podczas analizy",
         description: `${error}`,
@@ -149,6 +176,9 @@ const Analysis: React.FC = () => {
   };
 
   const handleAnalyzeImpact = () => {
+    console.log("Liczba wymagań:", requirements.length);
+    console.log("Liczba systemów:", systems.length);
+    
     if (requirements.length === 0 || systems.length === 0) {
       toast({
         title: "Brak danych",
@@ -158,7 +188,29 @@ const Analysis: React.FC = () => {
       return;
     }
     
-    analysisMutation.mutate();
+    try {
+      // Pobierz ID wszystkich wymagań i systemów
+      const reqIds = requirements.map(req => req.id);
+      const sysIds = systems.map(sys => sys.id);
+      
+      console.log("Wysyłam do analizy wymagania z ID:", reqIds);
+      console.log("Wysyłam do analizy systemy z ID:", sysIds);
+      
+      // Wywołaj analizę
+      analysisMutation.mutate();
+      
+      toast({
+        title: "Rozpoczęto analizę",
+        description: `Analizuję wpływ ${reqIds.length} wymagań na ${sysIds.length} systemów.`,
+      });
+    } catch (error) {
+      console.error("Błąd podczas analizy wpływu:", error);
+      toast({
+        title: "Błąd analizy",
+        description: "Wystąpił nieoczekiwany błąd podczas analizy. Spróbuj ponownie.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleExportAnalysis = () => {

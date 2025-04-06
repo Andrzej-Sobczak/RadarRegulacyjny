@@ -1,0 +1,102 @@
+[
+  {
+    "identifier": "Artykuł 5, ustęp 1",
+    "requirementText": "Dane osobowe muszą być przetwarzane zgodnie z prawem, rzetelnie i w sposób przejrzysty dla osoby, której dane dotyczą.",
+    "category": "Data processing and storage",
+    "subjectMatter": "Przetwarzanie danych osobowych klientów",
+    "complianceObjective": "Przetwarzanie danych osobowych musi odbywać się zgodnie z prawem i wymogami przejrzystości, co oznacza, że system musi umożliwiać zbieranie zgód oraz informowanie użytkowników o sposobie przetwarzania ich danych.",
+    "technicalImplications": "Systemy muszą implementować mechanizmy uzyskiwania zgody i archiwizacji informacji dotyczących zgód użytkowników.",
+    "implementationTimeline": "Nie podano konkretnego terminu, jednak oczekuje się natychmiastowej zgodności z wymogami w momencie ich wejścia w życie.",
+    "crossReferences": [
+      "Artykuł 7, ustęp 1"
+    ],
+    "keyTerms": [
+      "zgodność",
+      "przyzwolenie",
+      "przejrzystość"
+    ],
+    "source": "GDPR",
+    "id": 1,
+    "createdAt": "2025-04-06T16:39:58.448Z"
+  },
+  {
+    "identifier": "Artykuł 32, ustęp 1",
+    "requirementText": "Administrator i podmiot przetwarzający muszą wdrożyć odpowiednie środki techniczne i organizacyjne, aby zapewnić odpowiedni poziom bezpieczeństwa.",
+    "category": "Security and access control",
+    "subjectMatter": "Bezpieczeństwo systemów informatycznych przetwarzających dane osobowe",
+    "complianceObjective": "Zastosowanie środków bezpieczeństwa, takich jak szyfrowanie, kontrola dostępu oraz regularne testy bezpieczeństwa systemów.",
+    "technicalImplications": "Systemy muszą implementować szyfrowanie danych, kontrole dostępu oparte na rolach oraz mechanizmy raportowania incydentów bezpieczeństwa.",
+    "implementationTimeline": "Nie podano konkretnego terminu, lecz zmiany powinny być wdrożone jak najszybciej po wejściu w życie przepisów.",
+    "crossReferences": [
+      "Artykuł 30, ustęp 1"
+    ],
+    "keyTerms": [
+      "środki techniczne",
+      "środki organizacyjne",
+      "poziom bezpieczeństwa"
+    ],
+    "source": "GDPR",
+    "id": 2,
+    "createdAt": "2025-04-06T16:39:58.448Z"
+  },
+  {
+    "identifier": "Artykuł 15, ustęp 1",
+    "requirementText": "Osoba, której dane dotyczą, ma prawo dostępu do danych osobowych jej dotyczących.",
+    "category": "User rights and consent management",
+    "subjectMatter": "Mechanizmy dostępu do danych osobowych przez użytkowników",
+    "complianceObjective": "Umożliwić użytkownikom dostęp do ich danych osobowych poprzez proste i zrozumiałe procedury.",
+    "technicalImplications": "System musi implementować funkcjonalność umożliwiającą użytkownikom pobieranie kopii ich danych osobowych oraz narzędzia do weryfikacji ich tożsamości.",
+    "implementationTimeline": "Wymagania powinny być spełnione w momencie wejścia regulacji w życie.",
+    "crossReferences": [
+      "Artykuł 12, ustęp 1"
+    ],
+    "keyTerms": [
+      "prawo dostępu",
+      "dane osobowe",
+      "procedura weryfikacji"
+    ],
+    "source": "GDPR",
+    "id": 3,
+    "createdAt": "2025-04-06T16:39:58.448Z"
+  },
+  {
+    "identifier": "Artykuł 17, ustęp 1",
+    "requirementText": "Osoba, której dane dotyczą, ma prawo żądania usunięcia danych osobowych jej dotyczących.",
+    "category": "Data retention and deletion",
+    "subjectMatter": "Mechanizmy usuwania danych w systemach IT",
+    "complianceObjective": "System musi umożliwiać usuwanie danych osobowych na żądanie użytkownika w określonym czasie.",
+    "technicalImplications": "System powinien zawierać funkcje do odnajdywania i usuwania danych użytkownika w odpowiedzi na żądanie usunięcia.",
+    "implementationTimeline": "Usuwania danych należy dokonywać w rozsądnym terminie, nie później niż 30 dni od zgłoszenia żądania.",
+    "crossReferences": [
+      "Artykuł 12, ustęp 3"
+    ],
+    "keyTerms": [
+      "prawo do usunięcia",
+      "dane osobowe",
+      "czas reakcji"
+    ],
+    "source": "GDPR",
+    "id": 4,
+    "createdAt": "2025-04-06T16:39:58.448Z"
+  },
+  {
+    "identifier": "Artykuł 33, ustęp 1",
+    "requirementText": "W przypadku naruszenia ochrony danych osobowych administrator ma obowiązek zgłosić to naruszenie organowi nadzorczemu.",
+    "category": "Reporting and documentation",
+    "subjectMatter": "Zgłaszanie naruszeń danych osobowych",
+    "complianceObjective": "Wprowadzenie procedur do szybkiego zgłaszania naruszeń danych do organu nadzoru w ciągu 72 godzin.",
+    "technicalImplications": "System musi umożliwiać automatyczne generowanie raportów o naruszeniach oraz ich przesyłanie do odpowiednich organów.",
+    "implementationTimeline": "Obowiązek zgłoszenia dotyczy naruszeń występujących po wejściu regulacji w życie; zgłoszenie musi być dokonane w ciągu 72 godzin.",
+    "crossReferences": [
+      "Artykuł 34, ustęp 1"
+    ],
+    "keyTerms": [
+      "naruszenie danych",
+      "zgłoszenie",
+      "organ nadzorczy"
+    ],
+    "source": "GDPR",
+    "id": 5,
+    "createdAt": "2025-04-06T16:39:58.448Z"
+  }
+]
