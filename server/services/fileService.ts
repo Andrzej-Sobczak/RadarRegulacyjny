@@ -23,23 +23,40 @@ class FileService {
   // Process uploaded system description file (PDF)
   async processSystemFile(filePath: string): Promise<string> {
     try {
-      // In a real application, we would extract text from PDF
-      // and potentially create system entities
+      // Weryfikacja, czy plik istnieje
+      await fs.access(filePath).catch((err) => {
+        console.error(`File access error: ${err.message}`);
+        console.error(`File path: ${filePath}`);
+        console.error(`Current directory: ${process.cwd()}`);
+        throw new Error(`Plik nie jest dostępny: ${err.message}`);
+      });
       
       // For this implementation, we'll create a sample system
       const fileId = path.basename(filePath);
       
       // Create a sample system based on the filename
-      const fileName = path.basename(filePath, ".pdf");
+      // Obsługa różnych rozszerzeń plików
+      let fileName = path.basename(filePath);
+      const extPattern = /\.(pdf|PDF)$/;
+      if (extPattern.test(fileName)) {
+        fileName = fileName.replace(extPattern, "");
+      }
+      
+      // Generowanie unikatowego ID systemu
+      const randomId = Math.floor(Math.random() * 1000);
+      
+      // Tworzenie przykładowego systemu
       const sampleSystem: InsertSystem = {
-        name: `System ${fileName}`,
+        name: `System ${fileName.substring(0, 20)}`,
         description: "System informatyczny przedsiębiorstwa",
         function: "Zarządzanie danymi i procesami biznesowymi",
         capabilities: "Przechowywanie danych, raportowanie, integracja",
         dependencies: "System CRM, System ERP"
       };
       
-      await storage.createSystem(sampleSystem);
+      // Zapis systemu do bazy danych
+      const createdSystem = await storage.createSystem(sampleSystem);
+      console.log(`Created system with ID: ${createdSystem.id}`);
       
       return fileId;
     } catch (error) {

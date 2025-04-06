@@ -47,11 +47,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post("/api/uploads/systems", upload.single("file"), async (req, res) => {
     try {
+      console.log("Processing system file upload...");
+      console.log("Request body:", req.body);
+      console.log("Request file:", req.file);
+      
       if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
+        console.error("No file uploaded");
+        return res.status(400).json({ message: "Nie przesłano pliku" });
       }
       
+      console.log(`File uploaded at: ${req.file.path}`);
+      
       const fileId = await fileService.processSystemFile(req.file.path);
+      console.log(`System file processed with ID: ${fileId}`);
+      
+      // Pobierz wszystkie systemy, aby sprawdzić, czy zostały dodane
+      const systems = await storage.getAllSystems();
+      console.log(`Total systems in storage: ${systems.length}`);
       
       res.json({ 
         id: fileId, 
@@ -59,7 +71,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (err) {
       console.error("Error uploading system file:", err);
-      res.status(500).json({ message: "Error processing file" });
+      res.status(500).json({ 
+        message: "Błąd podczas przetwarzania pliku", 
+        error: err instanceof Error ? err.message : String(err) 
+      });
     }
   });
   

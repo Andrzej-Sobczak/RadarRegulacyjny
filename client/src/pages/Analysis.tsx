@@ -185,7 +185,13 @@ const Analysis: React.FC = () => {
   return (
     <div>
       <div className="mb-8">
-        <h2 className="text-xl font-medium mb-6">Wymagania na systemy IT</h2>
+        <h2 className="text-xl font-medium mb-2">Wymagania na systemy IT</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Załaduj plik JSON zawierający wymagania regulacyjne lub wybierz wymagania wczytane w poprzednim kroku.
+          {requirements.length > 0 && (
+            <span className="ml-2 text-[#3498DB]">Aktualnie wczytano {requirements.length} wymagań.</span>
+          )}
+        </p>
         <FileUpload 
           onFileSelected={handleReqFileUpload} 
           fileType="JSON" 
@@ -193,7 +199,13 @@ const Analysis: React.FC = () => {
       </div>
 
       <div className="mb-8">
-        <h2 className="text-xl font-medium mb-6">Opis systemów</h2>
+        <h2 className="text-xl font-medium mb-2">Opis systemów</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Załaduj pliki PDF opisujące architekturę systemów IT, które będą analizowane pod kątem zgodności z wymaganiami.
+          {systems.length > 0 && (
+            <span className="ml-2 text-[#3498DB]">Aktualnie wczytano {systems.length} systemów.</span>
+          )}
+        </p>
         <FileUpload 
           onFileSelected={handleSysFileUpload} 
           fileType="PDF" 

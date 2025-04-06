@@ -23,8 +23,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: fileType === "PDF" 
-      ? { 'application/pdf': ['.pdf'] }
-      : { 'application/json': ['.json'] }
+      ? { 'application/pdf': ['.pdf'], 'application/octet-stream': ['.pdf'] }
+      : { 'application/json': ['.json'] },
+    multiple: true
   });
   
   return (
@@ -54,7 +55,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 ? "Upuść pliki tutaj..."
                 : "Przeciągnij pliki lub wybierz pliki"}
             </p>
-            <p className="text-sm text-gray-500 mb-4">{fileType}</p>
+            <p className="text-sm text-gray-500 mb-4">
+              {fileType === "PDF" 
+                ? "Obsługiwane formaty: PDF" 
+                : "Obsługiwane formaty: JSON"}
+            </p>
           </>
         )}
         <button 
