@@ -201,44 +201,60 @@ const Analysis: React.FC = () => {
   // Effect do synchronizacji danych przy przełączaniu zakładek
   useEffect(() => {
     setShowResults(impacts.length > 0);
-  }, [impacts]);
+    
+    // Sprawdź dane z serwera
+    if (systems.length === 0) {
+      queryClient.invalidateQueries({ queryKey: ['/api/systems'] });
+    }
+    
+    if (requirements.length === 0) {
+      queryClient.invalidateQueries({ queryKey: ['/api/requirements'] });
+    }
+  }, [impacts, systems.length, requirements.length, queryClient]);
   
   const handleAnalyzeImpact = () => {
     console.log("Liczba wymagań:", requirements.length);
     console.log("Liczba systemów:", systems.length);
     
-    if (requirements.length === 0 || systems.length === 0) {
-      toast({
-        title: "Brak danych",
-        description: "Proszę wczytać pliki z wymaganiami i opisami systemów przed przeprowadzeniem analizy.",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Najpierw odśwież dane z serwera
+    queryClient.invalidateQueries({ queryKey: ['/api/systems'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/requirements'] });
     
-    try {
-      // Pobierz ID wszystkich wymagań i systemów
-      const reqIds = requirements.map(req => req.id);
-      const sysIds = systems.map(sys => sys.id);
+    // Opóźnienie potrzebne na przetworzenie zapytań do API
+    setTimeout(() => {
+      if (requirements.length === 0 || systems.length === 0) {
+        toast({
+          title: "Brak danych",
+          description: "Proszę wczytać pliki z wymaganiami i opisami systemów przed przeprowadzeniem analizy.",
+          variant: "destructive",
+        });
+        return;
+      }
       
-      console.log("Wysyłam do analizy wymagania z ID:", reqIds);
-      console.log("Wysyłam do analizy systemy z ID:", sysIds);
-      
-      // Wywołaj analizę
-      analysisMutation.mutate();
-      
-      toast({
-        title: "Rozpoczęto analizę",
-        description: `Analizuję wpływ ${reqIds.length} wymagań na ${sysIds.length} systemów.`,
-      });
-    } catch (error) {
-      console.error("Błąd podczas analizy wpływu:", error);
-      toast({
-        title: "Błąd analizy",
-        description: "Wystąpił nieoczekiwany błąd podczas analizy. Spróbuj ponownie.",
-        variant: "destructive",
-      });
-    }
+      try {
+        // Pobierz ID wszystkich wymagań i systemów
+        const reqIds = requirements.map(req => req.id);
+        const sysIds = systems.map(sys => sys.id);
+        
+        console.log("Wysyłam do analizy wymagania z ID:", reqIds);
+        console.log("Wysyłam do analizy systemy z ID:", sysIds);
+        
+        // Wywołaj analizę
+        analysisMutation.mutate();
+        
+        toast({
+          title: "Rozpoczęto analizę",
+          description: `Analizuję wpływ ${reqIds.length} wymagań na ${sysIds.length} systemów.`,
+        });
+      } catch (error) {
+        console.error("Błąd podczas analizy wpływu:", error);
+        toast({
+          title: "Błąd analizy",
+          description: "Wystąpił nieoczekiwany błąd podczas analizy. Spróbuj ponownie.",
+          variant: "destructive",
+        });
+      }
+    }, 500);
   };
 
   const handleExportAnalysis = () => {

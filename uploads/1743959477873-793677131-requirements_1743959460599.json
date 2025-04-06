@@ -1,0 +1,65 @@
+[
+  {
+    "identifier": "Art. 5, par. 1(a)",
+    "requirementText": "Dane osobowe muszą być przetwarzane zgodnie z zasadami legalności, rzetelności i przejrzystości w odniesieniu do osoby, której dane dotyczą.",
+    "category": [
+      "Data processing and storage",
+      "User rights and consent management"
+    ],
+    "subjectMatter": "Przechowywanie danych osobowych klientów",
+    "complianceObjective": "Zagwarantowanie, że wszystkie operacje przetwarzania danych są zgodne z wymogami prawnymi oraz odpowiednio udokumentowane.",
+    "technicalImplications": "Wdrożenie procedur i systemów, które zapewnią uzyskiwanie zgody użytkowników na przetwarzanie ich danych osobowych, oraz możliwości udokumentowania tego procesu.",
+    "implementationTimeline": "Inferred deadline based on context: Ustawienia powinny być wdrożone przed rozpoczęciem przetwarzania danych osobowych.",
+    "crossReferences": "Art. 7 w odniesieniu do zgody na przetwarzanie danych.",
+    "keyTerms": [
+      "zgodność",
+      "przetwarzanie danych",
+      "transfer danych osobowych"
+    ],
+    "source": "Rozporządzenie o Ochronie Danych Osobowych (GDPR)",
+    "id": 1,
+    "createdAt": "2025-04-06T17:10:53.840Z"
+  },
+  {
+    "identifier": "Art. 32",
+    "requirementText": "Administrator i procesor danych muszą wdrożyć odpowiednie środki techniczne i organizacyjne, aby zapewnić bezpieczeństwo przetwarzanych danych.",
+    "category": [
+      "Security and access control",
+      "System functionality"
+    ],
+    "subjectMatter": "Bezpieczeństwo systemów przetwarzających dane",
+    "complianceObjective": "Implementacja ścisłych środków ochrony danych w celu zminimalizowania ryzyka nieautoryzowanego dostępu lub utraty danych.",
+    "technicalImplications": "Resulting in encryption technologies, regular security audits, and access control mechanisms that properly authenticate users accessing sensitive data.",
+    "implementationTimeline": "Explicit deadline mentioned in text: Wdrażanie środków bezpieczeństwa musi odbywać się na bieżąco, przy każdej aktualizacji systemu.",
+    "crossReferences": "Art. 25 dotyczący ochrony danych przez projektowanie.",
+    "keyTerms": [
+      "środki techniczne",
+      "środki organizacyjne",
+      "bezpieczeństwo danych"
+    ],
+    "source": "Rozporządzenie o Ochronie Danych Osobowych (GDPR)",
+    "id": 2,
+    "createdAt": "2025-04-06T17:10:53.840Z"
+  },
+  {
+    "identifier": "Art. 15",
+    "requirementText": "Osoba, której dane dotyczą, ma prawo dostępu do swoich danych osobowych oraz informacji o tym, jak są one przetwarzane.",
+    "category": [
+      "User rights and consent management",
+      "Reporting and documentation"
+    ],
+    "subjectMatter": "Dostęp do danych dla użytkowników",
+    "complianceObjective": "Zapewnić możliwość użytkownikom uzyskania raportów o przetwarzaniu ich danych w ciągu miesiąca od złożenia wniosku.",
+    "technicalImplications": "Systemy muszą umożliwiać generowanie raportów z danymi oraz rejestrować wszystkie żądania dostępu użytkowników.",
+    "implementationTimeline": "Explicit deadline mentioned in text: Odpowiedź na wniosek musi nastąpić w ciągu 30 dni.",
+    "crossReferences": "Art. 12 dotyczący przejrzystości",
+    "keyTerms": [
+      "prawo dostępu",
+      "dane osobowe",
+      "raportowanie danych"
+    ],
+    "source": "Rozporządzenie o Ochronie Danych Osobowych (GDPR)",
+    "id": 3,
+    "createdAt": "2025-04-06T17:10:53.840Z"
+  }
+]
