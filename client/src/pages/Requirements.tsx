@@ -10,16 +10,38 @@ import {
   deleteRequirement,
   exportRequirements
 } from "../lib/api";
-import { Requirement } from "@shared/schema";
+import { Requirement, RequirementCategory } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Download, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from "../contexts/AppContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useForm } from "react-hook-form";
 
 const Requirements: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [uploadedFileIds, setUploadedFileIds] = useState<string[]>([]);
   const [showRequirements, setShowRequirements] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [currentRequirement, setCurrentRequirement] = useState<Requirement | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { 
@@ -222,10 +244,38 @@ const Requirements: React.FC = () => {
     extractMutation.mutate(uploadedFileIds);
   };
   
+  // Formularz dla edycji wymagania
+  const form = useForm<Requirement>({
+    defaultValues: {
+      id: 0,
+      identifier: "",
+      requirementText: "",
+      category: "",
+      subjectMatter: "",
+      complianceObjective: "",
+      technicalImplications: "",
+      implementationTimeline: "",
+      crossReferences: "",
+      keyTerms: "",
+      createdAt: new Date().toISOString(),
+    }
+  });
+
+  // Obsługa otwarcia modala edycji
   const handleEditRequirement = (requirement: Requirement) => {
-    // In a real application, this would open a modal or form for editing
-    // For simplicity, we'll just update with the existing data
-    updateMutation.mutate(requirement);
+    setCurrentRequirement(requirement);
+    form.reset(requirement);
+    setEditDialogOpen(true);
+  };
+  
+  // Obsługa zapisu edytowanego wymagania
+  const handleSaveRequirement = (data: Requirement) => {
+    updateMutation.mutate(data, {
+      onSuccess: () => {
+        setEditDialogOpen(false);
+        setCurrentRequirement(null);
+      }
+    });
   };
   
   const handleDeleteRequirement = (id: number) => {
@@ -261,6 +311,182 @@ const Requirements: React.FC = () => {
   
   return (
     <div>
+      {/* Modal edycji wymagania */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Edytuj wymaganie</DialogTitle>
+            <DialogDescription>
+              Wprowadź zmiany w wymaganiu i kliknij Zapisz, aby zatwierdzić.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSaveRequirement)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="identifier"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Identyfikator</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="requirementText"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tekst wymagania</FormLabel>
+                    <FormControl>
+                      <Textarea rows={3} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kategoria</FormLabel>
+                    <Select 
+                      defaultValue={field.value} 
+                      onValueChange={field.onChange}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Wybierz kategorię" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.values(RequirementCategory).map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="subjectMatter"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Obszar</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="implementationTimeline"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Termin wdrożenia</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <FormField
+                control={form.control}
+                name="complianceObjective"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cel zgodności</FormLabel>
+                    <FormControl>
+                      <Textarea rows={2} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="technicalImplications"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Implikacje techniczne</FormLabel>
+                    <FormControl>
+                      <Textarea rows={2} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="crossReferences"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Odniesienia</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="keyTerms"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Kluczowe terminy</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditDialogOpen(false)}
+                >
+                  Anuluj
+                </Button>
+                <Button 
+                  type="submit"
+                  disabled={updateMutation.isPending}
+                >
+                  {updateMutation.isPending ? "Zapisywanie..." : "Zapisz zmiany"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
       <div className="mb-8">
         <h2 className="text-xl font-medium mb-6">Przepisy</h2>
         <FileUpload 
