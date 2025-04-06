@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const Analysis: React.FC = () => {
+const Analysis = () => {
   const [uploadedReqFiles, setUploadedReqFiles] = useState<File[]>([]);
   const [uploadedSysFiles, setUploadedSysFiles] = useState<File[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -291,9 +291,7 @@ const Analysis: React.FC = () => {
     // Najpierw odśwież dane z serwera
     queryClient.invalidateQueries({ queryKey: ['/api/systems'] });
     queryClient.invalidateQueries({ queryKey: ['/api/requirements'] });
-    
-    // Opóźnienie potrzebne na przetworzenie zapytań do API
-    setTimeout(() => {
+      // Sprawdź, czy dane są dostępne
       if (requirements.length === 0 || systems.length === 0) {
         toast({
           title: "Brak danych",
@@ -326,7 +324,6 @@ const Analysis: React.FC = () => {
           variant: "destructive",
         });
       }
-    }, 500);
   };
 
   const handleExportAnalysis = () => {
