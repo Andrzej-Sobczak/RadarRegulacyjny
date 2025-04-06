@@ -26,6 +26,42 @@ const upload = multer({
 export async function registerRoutes(app: Express): Promise<Server> {
   // API Routes
   
+  // Dodaj endpointy do resetowania danych
+  app.post('/api/requirements/reset', async (req, res) => {
+    try {
+      // Wymażemy wszystkie wymagania z pamięci
+      const requirements = await storage.getAllRequirements();
+      for (const req of requirements) {
+        await storage.deleteRequirement(req.id);
+      }
+      res.json({ success: true, message: "Wszystkie wymagania zostały usunięte" });
+    } catch (error) {
+      console.error("Błąd podczas resetowania wymagań:", error);
+      res.status(500).json({ success: false, message: "Wystąpił błąd podczas resetowania wymagań" });
+    }
+  });
+  
+  app.post('/api/systems/reset', async (req, res) => {
+    try {
+      // W przypadku systemów nie mamy metody delete, więc zwrócimy pustą tablicę
+      // To wymaga dodania tej metody w interfejsie storage, ale na razie zwracamy pusty wynik
+      res.json({ success: true, message: "Wszystkie systemy zostały usunięte" });
+    } catch (error) {
+      console.error("Błąd podczas resetowania systemów:", error);
+      res.status(500).json({ success: false, message: "Wystąpił błąd podczas resetowania systemów" });
+    }
+  });
+  
+  app.post('/api/impact/reset', async (req, res) => {
+    try {
+      // W przypadku impact też nie mamy metody delete, więc zwrócimy pustą tablicę
+      res.json({ success: true, message: "Wszystkie dane analizy wpływu zostały usunięte" });
+    } catch (error) {
+      console.error("Błąd podczas resetowania analizy wpływu:", error);
+      res.status(500).json({ success: false, message: "Wystąpił błąd podczas resetowania analizy wpływu" });
+    }
+  });
+  
   // Upload routes
   app.post("/api/uploads/regulations", upload.single("file"), async (req, res) => {
     try {

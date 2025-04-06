@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getRequirements, getSystems, getImpacts, getApiSettings } from '../lib/api';
+import { apiRequest } from '../lib/queryClient';
 import { Requirement, System, Impact } from '@shared/schema';
 
 type FileInfo = {
@@ -156,21 +157,55 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
   
   // Funkcja resetująca całą analizę - czyści wszystkie dane, ale zachowuje klucz API
-  const resetAllAnalysis = () => {
-    // Resetuj wszystkie dane w pamięci
-    queryClient.setQueryData(['/api/requirements'], []);
-    queryClient.setQueryData(['/api/systems'], []);
-    queryClient.setQueryData(['/api/impact'], []);
-    
-    // Wyczyść wszystkie załadowane pliki
-    setUploadedFiles([]);
-    
-    // Odśwież wszystkie zapytania
-    queryClient.invalidateQueries({ queryKey: ['/api/requirements'] });
-    queryClient.invalidateQueries({ queryKey: ['/api/systems'] });
-    queryClient.invalidateQueries({ queryKey: ['/api/impact'] });
-    
-    console.log("Zresetowano całą analizę. Wszystkie dane zostały wyczyszczone.");
+  const resetAllAnalysis = async () => {
+    try {
+      // Resetuj dane w komponentach UI - najpierw settery, żeby użytkownik od razu zobaczył efekt
+      setUploadedFiles([]);
+      setExtractionStatus({ isProcessing: false, progress: 0, message: "" });
+      setAnalysisStatus({ isProcessing: false, progress: 0, message: "" });
+      
+      // Wyślij zapytania API o usunięcie danych - najpierw te wartości na serwerze
+      await apiRequest({
+        url: '/api/requirements/reset',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: {},
+      });
+      
+      await apiRequest({
+        url: '/api/systems/reset',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: {},
+      });
+      
+      await apiRequest({
+        url: '/api/impact/reset',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: {},
+      });
+      
+      // Następnie wyczyść lokalną pamięć podręczną React Query
+      queryClient.setQueryData(['/api/requirements'], []);
+      queryClient.setQueryData(['/api/systems'], []);
+      queryClient.setQueryData(['/api/impact'], []);
+            
+      // Odśwież wszystkie zapytania z serwera
+      await queryClient.invalidateQueries({ queryKey: ['/api/requirements'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/systems'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/impact'] });
+      
+      console.log("Zresetowano całą analizę. Wszystkie dane zostały wyczyszczone.");
+    } catch (error) {
+      console.error("Błąd podczas resetowania analizy:", error);
+      
+      // Alternatywne podejście, jeśli API nie zadziała
+      queryClient.setQueryData(['/api/requirements'], []);
+      queryClient.setQueryData(['/api/systems'], []);
+      queryClient.setQueryData(['/api/impact'], []);
+      setUploadedFiles([]);
+    }
   };
   
   // Debugowanie danych
