@@ -482,7 +482,7 @@ const Analysis = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <Button
             className="w-full py-3 bg-[#3498DB] text-white hover:bg-[#3498DB]/90"
             onClick={handleAnalyzeImpact}
@@ -499,26 +499,6 @@ const Analysis = () => {
             variant="outline"
           >
             <Download className="mr-2 h-4 w-4" /> Pobierz raport z analizy
-          </Button>
-          <Button
-            className="w-full py-3 border border-red-500 text-red-500 bg-white hover:bg-red-50"
-            onClick={() => {
-              // Resetuj całą analizę i wszystkie dane
-              resetAllAnalysis();
-              
-              // Pokaz powiadomienie
-              toast({
-                title: "Analiza zresetowana",
-                description: "Wszystkie dane zostały wyczyszczone. Możesz teraz wczytać nowe pliki.",
-                variant: "default",
-              });
-              
-              // Ukryj wyniki analizy
-              setShowResults(false);
-            }}
-            variant="outline"
-          >
-            <Trash2 className="mr-2 h-4 w-4" /> Resetuj analizę
           </Button>
         </div>
       </div>
