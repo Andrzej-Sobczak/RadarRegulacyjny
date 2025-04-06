@@ -31,7 +31,7 @@ const Analysis: React.FC = () => {
   const [impactFilter, setImpactFilter] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { uploadedFiles: contextFiles, addUploadedFile, removeUploadedFile } = useAppContext();
+  const { uploadedFiles: contextFiles, addUploadedFile, removeUploadedFile, isApiConfigured } = useAppContext();
 
   // Queries
   const { data: requirements = [] } = useQuery({
@@ -213,7 +213,8 @@ const Analysis: React.FC = () => {
   }, [impacts, systems.length, requirements.length, queryClient]);
   
   const handleAnalyzeImpact = () => {
-    const { isApiConfigured } = useAppContext();
+    // Nie używamy tutaj useAppContext, zamiast tego korzystamy z isApiConfigured
+    // przekazanego z komponentu wyżej
     
     if (!isApiConfigured) {
       toast({

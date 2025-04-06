@@ -22,7 +22,7 @@ const Requirements: React.FC = () => {
   const [showRequirements, setShowRequirements] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { uploadedFiles: contextFiles, addUploadedFile, removeUploadedFile } = useAppContext();
+  const { uploadedFiles: contextFiles, addUploadedFile, removeUploadedFile, isApiConfigured } = useAppContext();
   
   // Query for fetching requirements
   const { data: requirements = [], isLoading } = useQuery({
@@ -145,7 +145,8 @@ const Requirements: React.FC = () => {
   };
   
   const handleExtractRequirements = () => {
-    const { isApiConfigured } = useAppContext();
+    // Nie używamy tutaj useAppContext, zamiast tego korzystamy z isApiConfigured 
+    // przekazanego z komponentu wyżej
     
     if (!isApiConfigured) {
       toast({
