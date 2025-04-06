@@ -69,9 +69,11 @@ export const SystemImpactItem: React.FC<SystemImpactItemProps> = ({
   const dependencies = impact.dependencies as { name: string }[];
   
   // Find requirements that affect this system
-  const affectingRequirements = requirements.filter(req => 
-    req.id === impact.requirementId
-  );
+  const requirementId = typeof impact.requirementId === 'string' 
+    ? parseInt(impact.requirementId) 
+    : impact.requirementId;
+  
+  const affectingRequirements = requirements.filter(req => req.id === requirementId);
   
   return (
     <div className="border rounded-lg p-4 mb-4 bg-white">
@@ -116,9 +118,13 @@ export const SystemImpactItem: React.FC<SystemImpactItemProps> = ({
               <div>
                 <h6 className="font-medium mb-2 text-sm">Wymagania wpływające na system:</h6>
                 <ul className="list-disc pl-5 text-sm space-y-1">
-                  {affectingRequirements.map(req => (
-                    <li key={req.id}>{req.identifier} - {req.complianceObjective}</li>
-                  ))}
+                  {affectingRequirements.length > 0 ? (
+                    affectingRequirements.map(req => (
+                      <li key={req.id}>{req.identifier} - {req.complianceObjective}</li>
+                    ))
+                  ) : (
+                    <li className="text-gray-500">Brak dopasowanych wymagań (ID: {requirementId})</li>
+                  )}
                 </ul>
               </div>
               <div>
@@ -146,7 +152,7 @@ export const SystemImpactItem: React.FC<SystemImpactItemProps> = ({
                 <h6 className="font-medium mb-2 text-sm">Zależności systemowe:</h6>
                 <div className="flex flex-wrap gap-2">
                   {dependencies.map((dep, idx) => (
-                    <span key={idx} className="bg-neutral/20 text-secondary text-xs px-2 py-1 rounded-full">
+                    <span key={idx} className="bg-gray-200 text-gray-800 font-medium text-xs px-2 py-1 rounded-full border border-gray-300">
                       {dep.name}
                     </span>
                   ))}
