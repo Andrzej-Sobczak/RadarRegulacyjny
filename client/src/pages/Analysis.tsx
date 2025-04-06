@@ -254,7 +254,7 @@ const Analysis: React.FC = () => {
     removeUploadedFile(fileId);
     toast({
       title: "Plik usunięty",
-      description: "Plik systemowy został usunięty pomyślnie."
+      description: "Plik z opisem systemu IT został usunięty pomyślnie."
     });
   };
   
@@ -391,23 +391,6 @@ const Analysis: React.FC = () => {
         )}
       </div>
 
-      {/* Pasek postępu analizy wpływu */}
-      {analysisStatus.isProcessing && (
-        <div className="mt-4 mb-6 border rounded-md p-4 bg-white">
-          <div className="flex justify-between mb-2">
-            <h3 className="text-sm font-medium">Postęp analizy wpływu</h3>
-            <span className="text-sm font-medium">{analysisStatus.progress}%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div 
-              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out" 
-              style={{ width: `${analysisStatus.progress}%` }}
-            ></div>
-          </div>
-          <p className="mt-2 text-sm text-gray-600">{analysisStatus.message}</p>
-        </div>
-      )}
-      
       <div className="mb-8">
         <h2 className="text-xl font-medium mb-2">Opis systemów</h2>
         <p className="text-sm text-gray-500 mb-4">
@@ -424,7 +407,7 @@ const Analysis: React.FC = () => {
         {/* Lista wczytanych plików systemowych */}
         {contextFiles.filter(f => f.type === 'system').length > 0 && (
           <div className="mt-4 border rounded-md p-3">
-            <h3 className="text-sm font-medium mb-2">Wczytane pliki systemowe:</h3>
+            <h3 className="text-sm font-medium mb-2">Wczytane pliki z opisem systemów IT:</h3>
             <ul className="space-y-2">
               {contextFiles
                 .filter(f => f.type === 'system')
@@ -443,6 +426,23 @@ const Analysis: React.FC = () => {
                 ))
               }
             </ul>
+          </div>
+        )}
+        
+        {/* Pasek postępu analizy wpływu */}
+        {analysisStatus.isProcessing && (
+          <div className="mt-4 mb-6 border rounded-md p-4 bg-white">
+            <div className="flex justify-between mb-2">
+              <h3 className="text-sm font-medium">Postęp analizy wpływu</h3>
+              <span className="text-sm font-medium">{analysisStatus.progress}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div 
+                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out" 
+                style={{ width: `${analysisStatus.progress}%` }}
+              ></div>
+            </div>
+            <p className="mt-2 text-sm text-gray-600">{analysisStatus.message}</p>
           </div>
         )}
 

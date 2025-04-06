@@ -120,9 +120,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setUploadedFiles(prev => [...prev.filter(f => f.id !== fileInfo.id), fileInfo]);
   };
   
-  // Usuwanie pliku
+  // Usuwanie pliku i powiązanych danych
   const removeUploadedFile = (fileId: string) => {
+    // Znajdź typ pliku, który został usunięty
+    const fileToRemove = uploadedFiles.find(file => file.id === fileId);
+    
+    // Usuń plik z listy
     setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+    
+    if (fileToRemove) {
+      // Jeśli usuwamy plik z wymaganiami, wyczyść wymagania
+      if (fileToRemove.type === 'requirements') {
+        queryClient.setQueryData(['/api/requirements'], []);
+      }
+      // Jeśli usuwamy plik systemowy, wyczyść systemy
+      else if (fileToRemove.type === 'system') {
+        queryClient.setQueryData(['/api/systems'], []);
+      }
+    }
   };
   
   // Czyszczenie danych
