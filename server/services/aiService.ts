@@ -71,17 +71,17 @@ class AIService {
       
       2. REQUIREMENT TEXT: Quote the exact text from the document that establishes this requirement.
       
-      3. CATEGORIZATION: Classify the requirement into one or more of these categories:
-      - Data processing and storage
-      - User rights and consent management
-      - Security and access control
-      - Reporting and documentation
-      - System functionality
-      - Data retention and deletion
-      - Integration requirements
-      - Authentication and authorisation
-      - User interface
-      - Other (specify)
+      3. CATEGORIZATION: Classify the requirement into ONLY ONE of these categories (use exactly as listed):
+      - Przetwarzanie i przechowywanie danych
+      - Prawa użytkowników i zarządzanie zgodami
+      - Bezpieczeństwo i kontrola dostępu
+      - Raportowanie i dokumentacja
+      - Funkcjonalność systemu
+      - Przechowywanie i usuwanie danych
+      - Wymagania integracyjne
+      - Uwierzytelnianie i autoryzacja
+      - Interfejs użytkownika
+      - Inne
       
       4. SUBJECT MATTER: Describe precisely what aspect of IT systems this affects (e.g., 'customer personal data storage', 'transaction authorisation mechanisms', 'automated reporting capabilities').
       
