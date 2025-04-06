@@ -8,32 +8,49 @@ interface SystemImpactItemProps {
 }
 
 const getImpactColor = (impactLevel: string) => {
-  switch (impactLevel) {
-    case ImpactLevel.CRITICAL:
-      return "bg-[#E74C3C]";
-    case ImpactLevel.HIGH:
-      return "bg-[#F39C12]";
-    case ImpactLevel.MEDIUM:
-      return "bg-[#3498DB]";
-    case ImpactLevel.LOW:
-      return "bg-[#2ECC71]";
-    default:
-      return "bg-[#BDC3C7]";
+  // Sprawdzamy zarówno wersję z enuma jak i bezpośrednie wartości tekstowe (z małej i dużej litery)
+  if (impactLevel === ImpactLevel.CRITICAL || 
+      impactLevel === "Krytyczny" || 
+      impactLevel === "krytyczny") {
+    return "bg-[#E74C3C]";
+  } else if (impactLevel === ImpactLevel.HIGH || 
+             impactLevel === "Wysoki" || 
+             impactLevel === "wysoki") {
+    return "bg-[#F39C12]";
+  } else if (impactLevel === ImpactLevel.MEDIUM || 
+             impactLevel === "Średni" || 
+             impactLevel === "średni") {
+    return "bg-[#3498DB]";
+  } else if (impactLevel === ImpactLevel.LOW || 
+             impactLevel === "Niski" || 
+             impactLevel === "niski") {
+    return "bg-[#2ECC71]";
+  } else {
+    console.log("Nieznany poziom wpływu:", impactLevel);
+    return "bg-[#BDC3C7]";
   }
 };
 
 const getImpactBadgeStyle = (impactLevel: string) => {
-  switch (impactLevel) {
-    case ImpactLevel.CRITICAL:
-      return "bg-[#E74C3C]/20 text-[#E74C3C]";
-    case ImpactLevel.HIGH:
-      return "bg-[#F39C12]/20 text-[#F39C12]";
-    case ImpactLevel.MEDIUM:
-      return "bg-[#3498DB]/20 text-[#3498DB]";
-    case ImpactLevel.LOW:
-      return "bg-[#2ECC71]/20 text-[#2ECC71]";
-    default:
-      return "bg-[#BDC3C7]/20 text-[#BDC3C7]";
+  // Sprawdzamy zarówno wersję z enuma jak i bezpośrednie wartości tekstowe (z małej i dużej litery)
+  if (impactLevel === ImpactLevel.CRITICAL || 
+      impactLevel === "Krytyczny" || 
+      impactLevel === "krytyczny") {
+    return "bg-[#E74C3C]/20 text-[#E74C3C]";
+  } else if (impactLevel === ImpactLevel.HIGH || 
+             impactLevel === "Wysoki" || 
+             impactLevel === "wysoki") {
+    return "bg-[#F39C12]/20 text-[#F39C12]";
+  } else if (impactLevel === ImpactLevel.MEDIUM || 
+             impactLevel === "Średni" || 
+             impactLevel === "średni") {
+    return "bg-[#3498DB]/20 text-[#3498DB]";
+  } else if (impactLevel === ImpactLevel.LOW || 
+             impactLevel === "Niski" || 
+             impactLevel === "niski") {
+    return "bg-[#2ECC71]/20 text-[#2ECC71]";
+  } else {
+    return "bg-[#BDC3C7]/20 text-[#BDC3C7]";
   }
 };
 

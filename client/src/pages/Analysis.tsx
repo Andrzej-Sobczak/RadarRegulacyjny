@@ -333,19 +333,57 @@ const Analysis = () => {
   // Count impacts by level
   const impactCounts = impacts.reduce(
     (acc, impact) => {
-      if (impact.impactLevel === ImpactLevel.CRITICAL) acc.critical++;
-      if (impact.impactLevel === ImpactLevel.HIGH) acc.high++;
-      if (impact.impactLevel === ImpactLevel.MEDIUM) acc.medium++;
-      if (impact.impactLevel === ImpactLevel.LOW) acc.low++;
+      // Sprawdzanie polskich nazw wartości ImpactLevel, bo OpenAI zwraca polskie nazwy
+      if (impact.impactLevel === ImpactLevel.CRITICAL || impact.impactLevel === "Krytyczny") acc.critical++;
+      if (impact.impactLevel === ImpactLevel.HIGH || impact.impactLevel === "Wysoki") acc.high++;
+      if (impact.impactLevel === ImpactLevel.MEDIUM || impact.impactLevel === "Średni") acc.medium++;
+      if (impact.impactLevel === ImpactLevel.LOW || impact.impactLevel === "Niski") acc.low++;
       return acc;
     },
     { critical: 0, high: 0, medium: 0, low: 0 }
   );
+  
+  // Sprawdź czy licznik jest poprawny - jeśli wszystkie są 0, a mamy impakty, 
+  // to znaczy że format nie jest zgodny z oczekiwanym
+  if (impacts.length > 0 && 
+      impactCounts.critical === 0 && 
+      impactCounts.high === 0 && 
+      impactCounts.medium === 0 && 
+      impactCounts.low === 0) {
+    console.log("Wykryto niepoprawny format danych - niepoprawne wartości impactLevel:", impacts);
+    
+    // Loguj dane dla debugowania
+    impacts.forEach(impact => {
+      console.log(`Impact level: "${impact.impactLevel}", type: ${typeof impact.impactLevel}`);
+    });
+  }
 
-  // Filter impacts
-  const filteredImpacts = impactFilter
-    ? impacts.filter((impact) => impact.impactLevel === impactFilter)
-    : impacts;
+  // Filter impacts - uwzględniamy zarówno wartości z enuma jak i bezpośrednie wartości tekstowe
+  const filteredImpacts = impacts.filter((impact) => {
+    if (!impactFilter || impactFilter === "all") return true;
+    
+    // Sprawdzamy czy poziom wpływu jest zgodny z filtrem (sprawdzamy różne możliwe zapisy)
+    switch (impactFilter) {
+      case ImpactLevel.CRITICAL:
+        return impact.impactLevel === ImpactLevel.CRITICAL || 
+               impact.impactLevel === "Krytyczny" || 
+               impact.impactLevel === "krytyczny";
+      case ImpactLevel.HIGH:
+        return impact.impactLevel === ImpactLevel.HIGH || 
+               impact.impactLevel === "Wysoki" || 
+               impact.impactLevel === "wysoki";
+      case ImpactLevel.MEDIUM:
+        return impact.impactLevel === ImpactLevel.MEDIUM || 
+               impact.impactLevel === "Średni" || 
+               impact.impactLevel === "średni";
+      case ImpactLevel.LOW:
+        return impact.impactLevel === ImpactLevel.LOW || 
+               impact.impactLevel === "Niski" || 
+               impact.impactLevel === "niski";
+      default:
+        return false;
+    }
+  });
 
   return (
     <div>

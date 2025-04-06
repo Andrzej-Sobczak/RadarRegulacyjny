@@ -304,10 +304,29 @@ class AIService {
           : parseInt(impact.requirementId);
         
         // Upewnij się, że pozostałe pola mają domyślne wartości
+        // Upewnij się, że impact.impactLevel jest w jednym ze zdefiniowanych formatów
+        let normalizedImpactLevel = impact.impactLevel || ImpactLevel.MEDIUM;
+        
+        // Konwersja wartości tekstowych na wartości z enuma
+        if (normalizedImpactLevel === "krytyczny" || normalizedImpactLevel === "Krytyczny") {
+          normalizedImpactLevel = ImpactLevel.CRITICAL;
+        } else if (normalizedImpactLevel === "wysoki" || normalizedImpactLevel === "Wysoki") {
+          normalizedImpactLevel = ImpactLevel.HIGH;
+        } else if (normalizedImpactLevel === "średni" || normalizedImpactLevel === "Średni") {
+          normalizedImpactLevel = ImpactLevel.MEDIUM;
+        } else if (normalizedImpactLevel === "niski" || normalizedImpactLevel === "Niski") {
+          normalizedImpactLevel = ImpactLevel.LOW;
+        } else if (normalizedImpactLevel === "brak" || normalizedImpactLevel === "Brak") {
+          normalizedImpactLevel = ImpactLevel.NONE;
+        }
+        
+        // Log dla debugowania
+        console.log(`Znormalizowany poziom wpływu: ${normalizedImpactLevel} (oryginalny: ${impact.impactLevel})`);
+        
         return {
           systemId,
           requirementId,
-          impactLevel: impact.impactLevel || ImpactLevel.MEDIUM,
+          impactLevel: normalizedImpactLevel,
           impactType: impact.impactType || "Funkcjonalność",
           gapAnalysis: impact.gapAnalysis || "Wymaga analizy",
           requiredModifications: Array.isArray(impact.requiredModifications) 
@@ -336,10 +355,14 @@ class AIService {
       // Dla każdego systemu utwórz wpływ dla każdego wymagania
       for (const system of systems) {
         for (const req of requirements) {
+          // W awaryjnych danych generujemy różne poziomy wpływu, żeby przetestować wyświetlanie
+          const impactLevels = [ImpactLevel.CRITICAL, ImpactLevel.HIGH, ImpactLevel.MEDIUM, ImpactLevel.LOW];
+          const randomLevel = impactLevels[Math.floor(Math.random() * impactLevels.length)];
+          
           impacts.push({
             systemId: system.id,
             requirementId: req.id,
-            impactLevel: ImpactLevel.MEDIUM,
+            impactLevel: randomLevel,
             impactType: "Funkcjonalność",
             gapAnalysis: "Analiza nie mogła zostać wygenerowana automatycznie z powodu błędu API.",
             requiredModifications: ["Wymaga ręcznej analizy"],

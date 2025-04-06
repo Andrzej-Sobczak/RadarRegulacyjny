@@ -45,14 +45,30 @@ class FileService {
       // Generowanie unikatowego ID systemu
       const randomId = Math.floor(Math.random() * 1000);
       
-      // Tworzenie przykładowego systemu
-      const sampleSystem: InsertSystem = {
-        name: `System ${fileName.substring(0, 20)}`,
-        description: "System informatyczny przedsiębiorstwa",
-        function: "Zarządzanie danymi i procesami biznesowymi",
-        capabilities: "Przechowywanie danych, raportowanie, integracja",
-        dependencies: "System CRM, System ERP"
-      };
+      // Tworzenie systemu z bardziej opisową nazwą
+      // Tworzenie drugiego przykładowego systemu dla pewności, że mamy więcej niż jeden system
+      // W prawdziwej aplikacji te dane pochodziłyby z analizy pliku PDF
+      let sampleSystem: InsertSystem;
+      
+      if (await storage.getAllSystems().then(systems => systems.length > 0)) {
+        // Jeśli istnieje już jakiś system, stwórz inny typ systemu
+        sampleSystem = {
+          name: `System Obsługi Klienta`,
+          description: "System informatyczny do zarządzania relacjami z klientami i zamówieniami",
+          function: "Obsługa klientów, zarządzanie zamówieniami, zarządzanie reklamacjami",
+          capabilities: "Baza danych klientów, rejestracja zamówień, śledzenie statusu zamówień, obsługa zgłoszeń",
+          dependencies: "System ERP, System Magazynowy, Bramka Płatności"
+        };
+      } else {
+        // Pierwszy system w bazie
+        sampleSystem = {
+          name: `System Zarządzania Dokumentacją`,
+          description: "System informatyczny do zarządzania dokumentacją i procesami przedsiębiorstwa",
+          function: "Zarządzanie danymi i procesami biznesowymi, archiwizacja dokumentów, zarządzanie obiegiem informacji",
+          capabilities: "Przechowywanie danych, raportowanie, integracja, dostęp do historii dokumentów",
+          dependencies: "System CRM, System ERP, System Księgowy"
+        };
+      }
       
       // Zapis systemu do bazy danych
       const createdSystem = await storage.createSystem(sampleSystem);
