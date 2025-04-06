@@ -39,10 +39,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Pobierz informacje o konfiguracji API
   const { data: apiSettings } = useQuery({
     queryKey: ['/api/settings'],
-    onSuccess: (data: any) => {
-      setIsApiConfigured(!!data?.openaiApiKey);
-    }
   });
+  
+  // Aktualizuj stan po pobraniu danych
+  useEffect(() => {
+    if (apiSettings) {
+      setIsApiConfigured(!!apiSettings.openaiApiKey);
+    }
+  }, [apiSettings]);
   
   // Fetch data from API
   const { data: requirementsData = [] } = useQuery({

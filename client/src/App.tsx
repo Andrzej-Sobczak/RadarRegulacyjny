@@ -17,12 +17,15 @@ type Tab = "extraction" | "analysis" | "admin";
 const ApiCheck: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isApiConfigured } = useAppContext();
   const [activeTab, setActiveTab] = useState<Tab>("extraction");
+  const [redirectedToAdmin, setRedirectedToAdmin] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!isApiConfigured && activeTab !== "admin") {
+    // Przekieruj do panelu admina tylko gdy API nie jest skonfigurowane i jeszcze nie przekierowaliśmy
+    if (!isApiConfigured && !redirectedToAdmin && activeTab !== "admin") {
       setActiveTab("admin");
+      setRedirectedToAdmin(true);
     }
-  }, [isApiConfigured, activeTab]);
+  }, [isApiConfigured, activeTab, redirectedToAdmin]);
 
   return (
     <div className="min-h-screen bg-[#ECF0F1] text-[#2C3E50] font-sans">
