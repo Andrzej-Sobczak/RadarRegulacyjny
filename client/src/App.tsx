@@ -34,6 +34,7 @@ const ApiCheck: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
           
           <div className="p-6">
+            {/* Alert jest teraz wyświetlany tylko gdy faktycznie API nie jest skonfigurowane */}
             {!isApiConfigured && activeTab !== "admin" && (
               <Alert className="mb-6 p-4 bg-[#E74C3C]/10 border border-[#E74C3C] text-[#E74C3C]">
                 <AlertCircle className="h-4 w-4 mr-2" />

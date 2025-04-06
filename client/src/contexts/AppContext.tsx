@@ -44,7 +44,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Aktualizuj stan po pobraniu danych
   useEffect(() => {
     if (apiSettings) {
-      setIsApiConfigured(!!apiSettings.openaiApiKey);
+      const settings = apiSettings as any;
+      console.log("API settings:", settings);
+      // Sprawdzamy czy klucz API jest skonfigurowany i działający
+      setIsApiConfigured(!!settings.openaiApiKey && settings.isWorking === true);
     }
   }, [apiSettings]);
   
