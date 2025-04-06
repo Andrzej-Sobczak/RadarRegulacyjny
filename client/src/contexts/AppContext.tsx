@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getRequirements, getSystems, getImpacts } from '../lib/api';
+import { getRequirements, getSystems, getImpacts, getApiSettings } from '../lib/api';
 import { Requirement, System, Impact } from '@shared/schema';
 
 type FileInfo = {
@@ -24,13 +24,25 @@ interface AppContextType {
   clearRequirements: () => void;
   clearSystems: () => void;
   clearImpacts: () => void;
+  
+  // Informacje o API
+  isApiConfigured: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [uploadedFiles, setUploadedFiles] = useState<FileInfo[]>([]);
+  const [isApiConfigured, setIsApiConfigured] = useState<boolean>(false);
   const queryClient = useQueryClient();
+  
+  // Pobierz informacje o konfiguracji API
+  const { data: apiSettings } = useQuery({
+    queryKey: ['/api/settings'],
+    onSuccess: (data: any) => {
+      setIsApiConfigured(!!data?.openaiApiKey);
+    }
+  });
   
   // Fetch data from API
   const { data: requirementsData = [] } = useQuery({
@@ -91,7 +103,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     impacts,
     clearRequirements,
     clearSystems,
-    clearImpacts
+    clearImpacts,
+    isApiConfigured
   };
   
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -145,6 +145,17 @@ const Requirements: React.FC = () => {
   };
   
   const handleExtractRequirements = () => {
+    const { isApiConfigured } = useAppContext();
+    
+    if (!isApiConfigured) {
+      toast({
+        title: "Brak klucza API",
+        description: "Proszę skonfigurować klucz API OpenAI w zakładce Administracja przed ekstrakcją wymagań.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (uploadedFileIds.length === 0) {
       toast({
         title: "Brak plików",
@@ -271,6 +282,12 @@ const Requirements: React.FC = () => {
               <div className="mt-4 flex justify-end">
                 <Button
                   className="px-6 py-2 bg-[#3498DB] text-white hover:bg-[#3498DB]/90"
+                  onClick={() => {
+                    toast({
+                      title: "Wymagania zatwierdzone",
+                      description: "Wszystkie wymagania zostały zatwierdzone i będą użyte do analizy wpływu.",
+                    });
+                  }}
                 >
                   Zatwierdź wymagania
                 </Button>

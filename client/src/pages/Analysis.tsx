@@ -213,6 +213,17 @@ const Analysis: React.FC = () => {
   }, [impacts, systems.length, requirements.length, queryClient]);
   
   const handleAnalyzeImpact = () => {
+    const { isApiConfigured } = useAppContext();
+    
+    if (!isApiConfigured) {
+      toast({
+        title: "Brak klucza API",
+        description: "Proszę skonfigurować klucz API OpenAI w zakładce Administracja przed wykonaniem analizy.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     console.log("Liczba wymagań:", requirements.length);
     console.log("Liczba systemów:", systems.length);
     
