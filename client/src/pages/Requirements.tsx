@@ -261,16 +261,69 @@ const Requirements: React.FC = () => {
     }
   });
 
+  // Funkcja pomocnicza do mapowania kategorii z angielskiego na polski
+  const mapCategoryToPL = (categoryName: string): string => {
+    // Sprawdź czy kategoria odpowiada jednej z wartości w RequirementCategory
+    // Jeśli tak, to użyj polskiej nazwy, jeśli nie, to użyj oryginalnej wartości
+    
+    // Mapowanie znanych angielskich kategorii na polskie odpowiedniki z enuma
+    const categoryMapping: Record<string, string> = {
+      "Data Processing and Storage": RequirementCategory.DATA_PROCESSING,
+      "User Rights and Consent Management": RequirementCategory.USER_RIGHTS,
+      "Security and Access Control": RequirementCategory.SECURITY,
+      "Reporting and Documentation": RequirementCategory.REPORTING,
+      "System Functionality": RequirementCategory.SYSTEM_FUNCTIONALITY,
+      "Data Retention and Deletion": RequirementCategory.DATA_RETENTION,
+      "Integration Requirements": RequirementCategory.INTEGRATION,
+      "Authentication and Authorization": RequirementCategory.AUTHENTICATION,
+      "User Interface": RequirementCategory.USER_INTERFACE,
+      "Other": RequirementCategory.OTHER
+    };
+    
+    return categoryMapping[categoryName] || categoryName;
+  };
+  
   // Obsługa otwarcia modala edycji
   const handleEditRequirement = (requirement: Requirement) => {
-    setCurrentRequirement(requirement);
-    form.reset(requirement);
+    // Mapuj kategorię z angielskiej na polską przed edycją
+    const mappedRequirement = {
+      ...requirement,
+      category: mapCategoryToPL(requirement.category)
+    };
+    
+    setCurrentRequirement(mappedRequirement);
+    form.reset(mappedRequirement);
     setEditDialogOpen(true);
   };
   
+  // Funkcja pomocnicza do mapowania kategorii z polskiego na angielski
+  const mapCategoryToEN = (categoryName: string): string => {
+    // Odwrotna mapa do mapCategoryToPL - z polskiego na angielski
+    const reverseCategoryMapping: Record<string, string> = {
+      [RequirementCategory.DATA_PROCESSING]: "Data Processing and Storage",
+      [RequirementCategory.USER_RIGHTS]: "User Rights and Consent Management",
+      [RequirementCategory.SECURITY]: "Security and Access Control",
+      [RequirementCategory.REPORTING]: "Reporting and Documentation",
+      [RequirementCategory.SYSTEM_FUNCTIONALITY]: "System Functionality",
+      [RequirementCategory.DATA_RETENTION]: "Data Retention and Deletion",
+      [RequirementCategory.INTEGRATION]: "Integration Requirements",
+      [RequirementCategory.AUTHENTICATION]: "Authentication and Authorization",
+      [RequirementCategory.USER_INTERFACE]: "User Interface",
+      [RequirementCategory.OTHER]: "Other"
+    };
+    
+    return reverseCategoryMapping[categoryName] || categoryName;
+  };
+
   // Obsługa zapisu edytowanego wymagania
   const handleSaveRequirement = (data: Requirement) => {
-    updateMutation.mutate(data, {
+    // Mapuj kategorię z powrotem na angielską przed zapisem do bazy danych
+    const mappedData = {
+      ...data,
+      category: mapCategoryToEN(data.category)
+    };
+    
+    updateMutation.mutate(mappedData, {
       onSuccess: () => {
         setEditDialogOpen(false);
         setCurrentRequirement(null);

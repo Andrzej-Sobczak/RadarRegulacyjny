@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Requirement } from "@shared/schema";
+import { Requirement, RequirementCategory } from "@shared/schema";
 import { Edit, Trash2 } from "lucide-react";
 
 interface RequirementItemProps {
@@ -8,19 +8,41 @@ interface RequirementItemProps {
   onDelete: (requirementId: number) => void;
 }
 
+// Funkcja mapująca angielskie nazwy kategorii na polskie
+const mapCategoryToPL = (categoryName: string): string => {
+  // Mapowanie znanych angielskich kategorii na polskie odpowiedniki z enuma
+  const categoryMapping: Record<string, string> = {
+    "Data Processing and Storage": RequirementCategory.DATA_PROCESSING,
+    "User Rights and Consent Management": RequirementCategory.USER_RIGHTS,
+    "Security and Access Control": RequirementCategory.SECURITY,
+    "Reporting and Documentation": RequirementCategory.REPORTING,
+    "System Functionality": RequirementCategory.SYSTEM_FUNCTIONALITY,
+    "Data Retention and Deletion": RequirementCategory.DATA_RETENTION,
+    "Integration Requirements": RequirementCategory.INTEGRATION,
+    "Authentication and Authorization": RequirementCategory.AUTHENTICATION,
+    "User Interface": RequirementCategory.USER_INTERFACE,
+    "Other": RequirementCategory.OTHER
+  };
+  
+  return categoryMapping[categoryName] || categoryName;
+};
+
 export const RequirementItem: React.FC<RequirementItemProps> = ({
   requirement,
   onEdit,
   onDelete
 }) => {
   const [expanded, setExpanded] = useState(false);
+  
+  // Pobierz polską nazwę kategorii do wyświetlenia
+  const displayCategory = mapCategoryToPL(requirement.category);
 
   return (
     <div className="border rounded-lg p-4 mb-4 bg-white">
       <div className="flex justify-between items-start mb-2">
         <h4 className="font-medium">{requirement.identifier}</h4>
         <span className="bg-[#3498DB]/20 text-[#3498DB] text-xs px-2 py-1 rounded-full">
-          {requirement.category}
+          {displayCategory}
         </span>
       </div>
       <p className="text-sm mb-2">
@@ -30,7 +52,7 @@ export const RequirementItem: React.FC<RequirementItemProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-sm">
           <div>
             <p className="font-medium">Kategoria:</p>
-            <p>{requirement.category}</p>
+            <p>{displayCategory}</p>
           </div>
           <div>
             <p className="font-medium">Obszar:</p>
