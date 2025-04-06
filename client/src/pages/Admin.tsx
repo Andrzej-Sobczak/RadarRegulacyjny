@@ -9,7 +9,6 @@ import { CheckCircle, XCircle } from "lucide-react";
 
 const Admin: React.FC = () => {
   const [openaiApiKey, setOpenaiApiKey] = useState("");
-  const [geminiApiKey, setGeminiApiKey] = useState("");
   const [testSuccess, setTestSuccess] = useState<boolean | null>(null);
   const [testMessage, setTestMessage] = useState("");
   const { toast } = useToast();
@@ -20,7 +19,6 @@ const Admin: React.FC = () => {
       try {
         const settings = await getApiSettings();
         if (settings.openaiApiKey) setOpenaiApiKey(settings.openaiApiKey);
-        if (settings.geminiApiKey) setGeminiApiKey(settings.geminiApiKey);
       } catch (error) {
         console.error("Failed to fetch API settings:", error);
       }
@@ -33,12 +31,12 @@ const Admin: React.FC = () => {
   const updateMutation = useMutation({
     mutationFn: () => updateApiSettings({
       openaiApiKey,
-      geminiApiKey,
+      geminiApiKey: "", // Temporary: Gemini is disabled
     }),
     onSuccess: () => {
       toast({
         title: "Ustawienia zapisane",
-        description: "Klucze API zostały pomyślnie zapisane.",
+        description: "Klucz API został pomyślnie zapisany.",
       });
     },
     onError: (error) => {
@@ -72,10 +70,10 @@ const Admin: React.FC = () => {
     setTestSuccess(null);
     setTestMessage("");
     
-    if (!openaiApiKey || !geminiApiKey) {
+    if (!openaiApiKey) {
       toast({
-        title: "Brak kluczy API",
-        description: "Proszę wprowadzić oba klucze API przed testowaniem połączenia.",
+        title: "Brak klucza API",
+        description: "Proszę wprowadzić klucz API OpenAI przed testowaniem połączenia.",
         variant: "destructive",
       });
       return;
@@ -88,17 +86,6 @@ const Admin: React.FC = () => {
 
   return (
     <div>
-      <h2 className="text-xl font-medium mb-6">API Key do Google Gemini</h2>
-      <div className="mb-8">
-        <Input
-          type="password"
-          placeholder="Wprowadź klucz API Google Gemini"
-          className="w-full px-4 py-3 border mb-4"
-          value={geminiApiKey}
-          onChange={(e) => setGeminiApiKey(e.target.value)}
-        />
-      </div>
-
       <h2 className="text-xl font-medium mb-6">API Key do OpenAI</h2>
       <div className="mb-8">
         <Input
@@ -108,6 +95,9 @@ const Admin: React.FC = () => {
           value={openaiApiKey}
           onChange={(e) => setOpenaiApiKey(e.target.value)}
         />
+        <p className="text-sm text-gray-500 mb-2">
+          Notatka: System jest skonfigurowany do używania modelu gpt-4o-mini.
+        </p>
       </div>
 
       <Button

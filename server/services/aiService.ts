@@ -32,7 +32,7 @@ class AIService {
       
       // Simple test request
       const response = await openai.chat.completions.create({
-        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        model: "gpt-4o-mini", // Using gpt-4o-mini as requested by the user
         messages: [{ role: "user", content: "Test connection" }],
         max_tokens: 5
       });
@@ -44,20 +44,10 @@ class AIService {
     }
   }
 
+  // Gemini functionality has been temporarily removed
   async testGeminiConnection(apiKey: string): Promise<boolean> {
-    try {
-      const genAI = await this.getGeminiInstance(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-      
-      // Simple test request
-      const result = await model.generateContent("Test connection");
-      const response = await result.response;
-      
-      return !!response.text();
-    } catch (error) {
-      console.error("Gemini connection test failed:", error);
-      return false;
-    }
+    // Temporarily disabled
+    return true;
   }
 
   async extractRequirements(documentIds: string[]): Promise<InsertRequirement[]> {
@@ -122,7 +112,7 @@ class AIService {
       `;
       
       const response = await openai.chat.completions.create({
-        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        model: "gpt-4o-mini", // Using gpt-4o-mini as requested by the user
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" }
       });
@@ -155,10 +145,8 @@ class AIService {
 
   async analyzeImpact(requirements: Requirement[], systems: System[]): Promise<InsertImpact[]> {
     try {
-      // In a real application, this would analyze the impact of requirements on systems
-      // using AI to generate a detailed analysis
-      const gemini = await this.getGeminiInstance();
-      const model = gemini.getGenerativeModel({ model: "gemini-pro" });
+      // Now using OpenAI instead of Gemini
+      const openai = await this.getOpenAIInstance();
       
       const prompt = `
       ## 2. Prompt for Mapping Impact on IT Systems Architecture
@@ -193,31 +181,21 @@ class AIService {
       Analyze 3-5 sample impacts for this demonstration.
       `;
       
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini", // Using gpt-4o-mini as requested by the user
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" }
+      });
       
-      // Extract the JSON part from the response
-      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || 
-                        text.match(/```\n([\s\S]*?)\n```/) ||
-                        text.match(/\[([\s\S]*?)\]/);
+      const content = response.choices[0].message.content;
+      if (!content) throw new Error("Empty response from OpenAI");
       
-      if (!jsonMatch) {
-        throw new Error("Could not parse JSON from Gemini response");
+      const parsedResponse = JSON.parse(content);
+      const impacts = parsedResponse.impacts || [];
+      
+      if (!Array.isArray(impacts)) {
+        throw new Error("Invalid response format from OpenAI");
       }
-      
-      let jsonText = jsonMatch[1] || jsonMatch[0];
-      
-      // Ensure we have a valid JSON array
-      if (!jsonText.startsWith('[')) {
-        jsonText = '[' + jsonText;
-      }
-      if (!jsonText.endsWith(']')) {
-        jsonText = jsonText + ']';
-      }
-      
-      // Parse the JSON
-      const impacts = JSON.parse(jsonText);
       
       // Validate and transform the results
       return impacts.map((impact: any) => ({

@@ -266,20 +266,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const settings = await storage.getApiSettings();
       
-      if (!settings.openaiApiKey || !settings.geminiApiKey) {
+      if (!settings.openaiApiKey) {
         return res.json({ 
           success: false, 
-          message: "Brak kluczy API. Wprowadź oba klucze API."
+          message: "Brak klucza API OpenAI. Wprowadź klucz API."
         });
       }
       
-      // Test OpenAI connection
+      // Test only OpenAI connection since Gemini is temporarily disabled
       const openaiResult = await aiService.testOpenAIConnection(settings.openaiApiKey);
       
-      // Test Gemini connection
-      const geminiResult = await aiService.testGeminiConnection(settings.geminiApiKey);
-      
-      if (openaiResult && geminiResult) {
+      if (openaiResult) {
         // Update settings
         settings.isWorking = true;
         settings.lastTested = new Date().toISOString();
@@ -287,7 +284,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         res.json({ 
           success: true, 
-          message: "Połączenie z API OpenAI i Gemini zostało ustanowione pomyślnie!"
+          message: "Połączenie z API OpenAI zostało ustanowione pomyślnie!"
         });
       } else {
         // Update settings
@@ -295,10 +292,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         settings.lastTested = new Date().toISOString();
         await storage.updateApiSettings(settings);
         
-        let message = "Błąd połączenia z API:";
-        if (!openaiResult) message += " OpenAI";
-        if (!geminiResult) message += (!openaiResult ? " i" : "") + " Gemini";
-        message += ". Sprawdź poprawność kluczy API.";
+        const message = "Błąd połączenia z API OpenAI. Sprawdź poprawność klucza API.";
         
         res.json({ success: false, message });
       }
