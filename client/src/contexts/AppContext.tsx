@@ -9,6 +9,13 @@ type FileInfo = {
   type: 'regulation' | 'system' | 'requirements';
 };
 
+// Typ określający stan operacji przetwarzania
+export type ProcessingStatus = {
+  isProcessing: boolean;
+  progress: number; // 0-100
+  message: string;
+};
+
 interface AppContextType {
   // Załadowane pliki
   uploadedFiles: FileInfo[];
@@ -30,6 +37,13 @@ interface AppContextType {
   
   // Informacje o API
   isApiConfigured: boolean;
+  
+  // Stan przetwarzania dla operacji ekstrakcji i analizy
+  extractionStatus: ProcessingStatus;
+  setExtractionStatus: (status: ProcessingStatus) => void;
+  
+  analysisStatus: ProcessingStatus;
+  setAnalysisStatus: (status: ProcessingStatus) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -38,6 +52,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [uploadedFiles, setUploadedFiles] = useState<FileInfo[]>([]);
   const [isApiConfigured, setIsApiConfigured] = useState<boolean>(false);
   const queryClient = useQueryClient();
+  
+  // Inicjalizacja stanów przetwarzania
+  const [extractionStatus, setExtractionStatus] = useState<ProcessingStatus>({
+    isProcessing: false,
+    progress: 0,
+    message: ""
+  });
+  
+  const [analysisStatus, setAnalysisStatus] = useState<ProcessingStatus>({
+    isProcessing: false,
+    progress: 0,
+    message: ""
+  });
   
   // Pobierz informacje o konfiguracji API - ustawiony refetchInterval wymusza częste odświeżanie
   const { data: apiSettings } = useQuery({
@@ -149,7 +176,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     clearSystems,
     clearImpacts,
     resetAllAnalysis,
-    isApiConfigured
+    isApiConfigured,
+    extractionStatus,
+    setExtractionStatus,
+    analysisStatus,
+    setAnalysisStatus
   };
   
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

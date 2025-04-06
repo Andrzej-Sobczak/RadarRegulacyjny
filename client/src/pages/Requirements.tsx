@@ -22,7 +22,14 @@ const Requirements: React.FC = () => {
   const [showRequirements, setShowRequirements] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { uploadedFiles: contextFiles, addUploadedFile, removeUploadedFile, isApiConfigured } = useAppContext();
+  const { 
+    uploadedFiles: contextFiles, 
+    addUploadedFile, 
+    removeUploadedFile, 
+    isApiConfigured,
+    extractionStatus,
+    setExtractionStatus
+  } = useAppContext();
   
   // Query for fetching requirements
   const { data: requirements = [], isLoading } = useQuery({
@@ -53,7 +60,53 @@ const Requirements: React.FC = () => {
   
   // Mutation for extracting requirements
   const extractMutation = useMutation({
-    mutationFn: (documentIds: string[]) => extractRequirements(documentIds),
+    mutationFn: (documentIds: string[]) => {
+      // Rozpocznij pokazywanie postępu ekstrakcji
+      setExtractionStatus({
+        isProcessing: true,
+        progress: 0,
+        message: "Rozpoczynam ekstrakcję wymagań..."
+      });
+      
+      // Symulacja postępu (w rzeczywistości powinno się aktualizować na podstawie rzeczywistych odpowiedzi z serwera)
+      const progressInterval = setInterval(() => {
+        setExtractionStatus(prev => {
+          if (prev.progress >= 95) {
+            clearInterval(progressInterval);
+            return prev;
+          }
+          return {
+            ...prev,
+            progress: prev.progress + Math.floor(Math.random() * 10) + 1,
+            message: prev.progress < 30 ? "Analizowanie dokumentów..." : 
+                     prev.progress < 60 ? "Identyfikowanie wymagań..." : 
+                     "Formatowanie wyników..."
+          };
+        });
+      }, 1000);
+      
+      return extractRequirements(documentIds)
+        .then(result => {
+          clearInterval(progressInterval);
+          // Oznacz ekstrakcję jako zakończoną
+          setExtractionStatus({
+            isProcessing: false,
+            progress: 100,
+            message: "Ekstrakcja zakończona pomyślnie"
+          });
+          return result;
+        })
+        .catch(error => {
+          clearInterval(progressInterval);
+          // Oznacz ekstrakcję jako zakończoną z błędem
+          setExtractionStatus({
+            isProcessing: false,
+            progress: 0,
+            message: `Błąd: ${error.message}`
+          });
+          throw error;
+        });
+    },
     onSuccess: (data) => {
       queryClient.setQueryData(['/api/requirements'], data);
       setShowRequirements(true);
@@ -214,6 +267,23 @@ const Requirements: React.FC = () => {
           onFileSelected={handleFileUpload} 
           fileType="PDF" 
         />
+        
+        {/* Pasek postępu ekstrakcji */}
+        {extractionStatus.isProcessing && (
+          <div className="mt-4 border rounded-md p-4 bg-white">
+            <div className="flex justify-between mb-2">
+              <h3 className="text-sm font-medium">Postęp ekstrakcji wymagań</h3>
+              <span className="text-sm font-medium">{extractionStatus.progress}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div 
+                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out" 
+                style={{ width: `${extractionStatus.progress}%` }}
+              ></div>
+            </div>
+            <p className="mt-2 text-sm text-gray-600">{extractionStatus.message}</p>
+          </div>
+        )}
         
         {/* Lista wczytanych plików */}
         {contextFiles.filter(f => f.type === 'regulation').length > 0 && (

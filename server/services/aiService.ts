@@ -111,8 +111,10 @@ class AIService {
       Let's assume we're working with GDPR (General Data Protection Regulation) or similar privacy regulation documents.
       `;
       
+      // Zmieniono model na gpt-4o-mini, ponieważ gpt-4o wymaga specjalnego dostępu
+      // Jeśli ten model również nie działa, można wypróbować "gpt-3.5-turbo-0125"
       const response = await openai.chat.completions.create({
-        model: "gpt-4o", // Using gpt-4 as requested by the user
+        model: "gpt-4o-mini", // Zmieniono z gpt-4o na gpt-4o-mini, który ma szerszy dostęp
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" }
       });

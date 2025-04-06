@@ -31,7 +31,14 @@ const Analysis: React.FC = () => {
   const [impactFilter, setImpactFilter] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { uploadedFiles: contextFiles, addUploadedFile, removeUploadedFile, isApiConfigured } = useAppContext();
+  const { 
+    uploadedFiles: contextFiles, 
+    addUploadedFile, 
+    removeUploadedFile, 
+    isApiConfigured,
+    analysisStatus,
+    setAnalysisStatus
+  } = useAppContext();
 
   // Queries
   const { data: requirements = [] } = useQuery({
@@ -89,31 +96,84 @@ const Analysis: React.FC = () => {
   // Analysis mutation
   const analysisMutation = useMutation({
     mutationFn: async () => {
-      // Upewnij się, że masz poprawne dane do analizy
-      if (!requirements || requirements.length === 0) {
-        console.warn("Brak wymagań do analizy");
-        throw new Error("Brak wymagań do analizy");
-      }
-      
-      if (!systems || systems.length === 0) {
-        console.warn("Brak systemów do analizy");
-        throw new Error("Brak systemów do analizy");
-      }
-      
-      const reqIds = requirements.map(r => r.id);
-      const sysIds = systems.map(s => s.id);
-      
-      console.log("Rozpoczynam analizę z następującymi danymi:", {
-        requirementIds: reqIds,
-        systemIds: sysIds,
-        requirements,
-        systems
+      // Rozpocznij pokazywanie postępu analizy
+      setAnalysisStatus({
+        isProcessing: true,
+        progress: 0,
+        message: "Rozpoczynam analizę wpływu..."
       });
       
+      // Symulacja postępu (w rzeczywistości powinno się aktualizować na podstawie rzeczywistych odpowiedzi z serwera)
+      const progressInterval = setInterval(() => {
+        setAnalysisStatus(prev => {
+          if (prev.progress >= 95) {
+            clearInterval(progressInterval);
+            return prev;
+          }
+          return {
+            ...prev,
+            progress: prev.progress + Math.floor(Math.random() * 10) + 1,
+            message: prev.progress < 30 ? "Analizowanie wymagań..." : 
+                     prev.progress < 60 ? "Mapowanie zależności systemowych..." : 
+                     "Generowanie raportu wpływu..."
+          };
+        });
+      }, 1000);
+      
       try {
+        // Upewnij się, że masz poprawne dane do analizy
+        if (!requirements || requirements.length === 0) {
+          clearInterval(progressInterval);
+          setAnalysisStatus({
+            isProcessing: false,
+            progress: 0,
+            message: "Błąd: Brak wymagań do analizy"
+          });
+          console.warn("Brak wymagań do analizy");
+          throw new Error("Brak wymagań do analizy");
+        }
+        
+        if (!systems || systems.length === 0) {
+          clearInterval(progressInterval);
+          setAnalysisStatus({
+            isProcessing: false,
+            progress: 0,
+            message: "Błąd: Brak systemów do analizy"
+          });
+          console.warn("Brak systemów do analizy");
+          throw new Error("Brak systemów do analizy");
+        }
+        
+        const reqIds = requirements.map(r => r.id);
+        const sysIds = systems.map(s => s.id);
+        
+        console.log("Rozpoczynam analizę z następującymi danymi:", {
+          requirementIds: reqIds,
+          systemIds: sysIds,
+          requirements,
+          systems
+        });
+        
         // Wykonaj analizę wpływu
-        return await analyzeImpact(reqIds, sysIds);
+        const result = await analyzeImpact(reqIds, sysIds);
+        
+        // Oznacz analizę jako zakończoną
+        clearInterval(progressInterval);
+        setAnalysisStatus({
+          isProcessing: false,
+          progress: 100,
+          message: "Analiza zakończona pomyślnie"
+        });
+        
+        return result;
       } catch (err) {
+        // Zatrzymaj symulację postępu i ustaw status błędu
+        clearInterval(progressInterval);
+        setAnalysisStatus({
+          isProcessing: false,
+          progress: 0,
+          message: `Błąd: ${err.message}`
+        });
         console.error("Błąd w funkcji analyzeImpact:", err);
         throw err;
       }
@@ -331,6 +391,23 @@ const Analysis: React.FC = () => {
         )}
       </div>
 
+      {/* Pasek postępu analizy wpływu */}
+      {analysisStatus.isProcessing && (
+        <div className="mt-4 mb-6 border rounded-md p-4 bg-white">
+          <div className="flex justify-between mb-2">
+            <h3 className="text-sm font-medium">Postęp analizy wpływu</h3>
+            <span className="text-sm font-medium">{analysisStatus.progress}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div 
+              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out" 
+              style={{ width: `${analysisStatus.progress}%` }}
+            ></div>
+          </div>
+          <p className="mt-2 text-sm text-gray-600">{analysisStatus.message}</p>
+        </div>
+      )}
+      
       <div className="mb-8">
         <h2 className="text-xl font-medium mb-2">Opis systemów</h2>
         <p className="text-sm text-gray-500 mb-4">
