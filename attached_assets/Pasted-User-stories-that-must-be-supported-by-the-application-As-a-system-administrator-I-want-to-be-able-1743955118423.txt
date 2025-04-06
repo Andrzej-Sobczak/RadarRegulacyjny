@@ -1,0 +1,185 @@
+User stories that must be supported by the application
+As a system administrator, I want to be able to manage the system configuration and API AI settings to ensure optimal application performance.
+Acceptance criteria:
+Configurability of API keys for Google Gemini and OpenAI
+As a business and system analyst, I want to be able to add PDF documents containing legal regulations to the system so that they can be analysed for business and system requirements.
+Acceptance criteria:
+Interface for uploading PDF files
+Confirmation that the document has been uploaded correctly
+As a business and system analyst, I want to be able to add a JSON document to the system containing a catalogue of business and system requirements resulting from changes in legal regulations, so that they can be used in the analysis of the impact on the IT systems architecture.
+Acceptance criteria:
+Interface for uploading JSON files
+Confirmation that the document has been uploaded correctly
+As a business and system analyst, I want to be able to add PDF documents containing IT system architecture to the system so that it can be used in impact analysis.
+Acceptance criteria:
+Interface for uploading PDF files
+Confirmation that the document has been uploaded correctly
+Extraction and analysis of information
+As a business and system analyst, I want to be able to run a process of extracting business and system requirements from legal documents that affect IT systems.
+Acceptance criteria:
+Ability to select documents for analysis
+Display of identified requirements with the possibility of verification
+Ability to manually correct the results of requirement extraction
+As a business and system analyst, I want to be able to run an impact mapping process of identified business and system requirements (resulting from changes in legal regulations) on the IT system architecture in order to determine the necessary modifications.
+Acceptance criteria:
+Display of impact mapping results with the possibility of verification
+Option to manually adjust the impact mapping results
+As a business and system analyst, I want to be able to view the detailed impact mapping results at the level of individual IT systems in order to better understand the scope of the necessary changes.
+Acceptance criteria:
+Colour coding of IT systems according to the degree of impact
+Option to expand details for each IT system
+Option to filter IT systems according to impact
+Generate reports
+As a business and system analyst, I want to be able to run a report on the business and system requirements for IT systems resulting from changes in legal regulations.
+Acceptance criteria:
+Display generated requirements with the option to verify them
+Possibility to manually correct the requirements
+As a business and system analyst, I want to be able to export a report on business and system requirements for IT systems resulting from changes in legal regulations in JSON format so that they can be used in other systems or tools.
+Acceptance criteria:
+Activation of export via button
+Confirmation of correct export
+Ability to download the generated JSON file
+As a business and system analyst, I want to be able to trigger the process of generating recommendations for modifying IT systems (described in the IT architecture) in order to plan the necessary changes.
+Acceptance criteria:
+Display of generated recommendations with the possibility of verification
+Ability to manually correct recommendations
+As a business and system analyst, I want to be able to export the results of the impact analysis in JSON format so that they can be used in other systems or tools.
+Acceptance criteria:
+Export can be started with a button
+Correct export can be confirmed
+Generated JSON file can be downloaded
+
+Prompt you should include:
+## 1. Prompt for Extracting Key Requirements from Legal Regulations
+
+You are an expert legal and IT compliance analyst. Your task is to analyse a legal document and extract precise requirements that impact IT systems within enterprise environments only. Focus solely on changes affecting enterprise systems, not public administration.
+
+TASK:
+Extract and analyse all IT-relevant requirements from this legal document with particular attention to regulatory obligations that necessitate changes to IT systems, processes, or data handling.
+
+For EACH identified requirement, provide the following structured analysis:
+
+1. REQUIREMENT IDENTIFIER: Reference the specific article, paragraph, or section number where this requirement appears.
+
+2. REQUIREMENT TEXT: Quote the exact text from the document that establishes this requirement.
+
+3. CATEGORIZATION: Classify the requirement into one or more of these categories:
+- Data processing and storage
+- User rights and consent management
+- Security and access control
+- Reporting and documentation
+- System functionality
+- Data retention and deletion
+- Integration requirements
+- Authentication and authorisation
+- User interface
+- Other (specify)
+
+4. SUBJECT MATTER: Describe precisely what aspect of IT systems this affects (e.g., ‘customer personal data storage’, ‘transaction authorisation mechanisms’, ‘automated reporting capabilities’).
+
+5. COMPLIANCE OBJECTIVE: What specific outcome or state must be achieved to comply with this requirement? Be concrete and measurable where possible.
+
+6. TECHNICAL IMPLICATIONS: What specific technical capabilities or features must IT systems implement? Be specific about what systems must DO, not just general objectives.
+
+7. IMPLEMENTATION TIMELINE:
+- Explicit deadline mentioned in text (quote if present)
+- Inferred deadline based on context
+- Standard implementation period if not specified
+- Provide specifics where possible (e.g., ‘Fines up to 20 million EUR or 4% of global turnover under GDPR’)
+
+10. CROSS-REFERENCES: Note any other articles or sections in the regulation that relate to or modify this requirement.
+
+11. KEY TERMS: List critical terms or concepts that appear in this requirement which may need precise definition for technical implementation.
+
+FORMAT:
+Present your analysis as a structured, numbered list of requirements. For each requirement, include all 11 categories above, clearly labelled.
+
+ADDITIONAL GUIDANCE:
+- Focus on requirements that directly or indirectly necessitate changes to IT systems, not purely organisational or administrative requirements.
+- Be attentive to implicit technical requirements that aren't explicitly stated as IT requirements but would necessitate system changes.
+- Pay special attention to timelines, data handling processes, security measures, and reporting obligations.
+- Extract the most fine-grained requirements possible - don't group multiple distinct requirements.
+- Consider how each requirement might impact different types of systems (CRM, ERP, transactional systems, websites, etc.)
+- All responses must be in Polish.
+## 2. Prompt for Mapping Impact on IT Systems Architecture
+
+You are an expert legal and IT compliance analyst. Your task is to analyse a legal document and extract precise requirements that impact IT systems within enterprise environments only. Focus solely on changes affecting enterprise systems, not public administration.
+
+INPUT:
+1. SYSTEMS ARCHITECTURE DESCRIPTION:
+[DESCRIPTION OF ARCHITECTURE]
+
+2. EXTRACTED REGULATORY REQUIREMENTS:
+[LIST OF REQUIREMENTS]
+
+TASK:
+Perform a detailed mapping analysis to determine how each regulatory requirement impacts the described IT architecture. Consider direct impacts, indirect dependencies, and integration challenges.
+
+ANALYSIS APPROACH:
+For EACH system component identified in the architecture description:
+
+1. SYSTEM IDENTIFICATION:
+- System name and primary function
+- Current capabilities relevant to the regulatory requirements
+- Key dependencies with other systems
+
+2. IMPACT ASSESSMENT:
+- List all regulatory requirements affecting this system (reference requirement IDs)
+- For each relevant requirement:
+a. Impact severity (Critical/High/Medium/Low/None) with justification
+b. Impact type: Data structure, Functionality, Security, Integration, Performance, User Interface, Reporting, Other (specify)
+c. Gap analysis: Describe the specific gap between current capabilities and regulatory requirements
+
+3. REQUIRED MODIFICATIONS:
+- Functional changes needed (specific features or capabilities)
+- Data model/structure changes required
+- API/interface modifications necessary
+- Security control adaptations
+- Performance considerations
+- User experience/interface changes
+- Processing workflow modifications
+- Detailed description of what each modification entails technically
+
+4. SYSTEM DEPENDENCIES:
+- Upstream systems that need to provide data/functionality
+- Downstream systems that consume data/functionality
+- Integration points requiring modification
+- Potential ripple effects across the enterprise architecture
+- Data flow impacts and considerations
+
+5. IMPLEMENTATION COMPLEXITY EVALUATION:
+- Estimated complexity level (Very High/High/Medium/Low) with justification
+- Key technical challenges anticipated
+- Specialised expertise needed
+- Testing considerations (regression, integration, compliance)
+- Potential development approaches (build, buy, modify)
+
+6. PRIORITISATION FACTORS:
+- Legal deadline considerations
+- Implementation prerequisites/dependencies
+- Critical path analysis
+- Operational importance
+
+OUTPUT FORMAT:
+Structure your response as a comprehensive system-by-system analysis, with clear headings for each system and subheadings for each analysis component.
+
+For each system, include a summary table showing:
+1. Overall impact level (Critical/High/Medium/Low)
+2. Number of requirements affecting this system
+3. Key implementation challenges
+4. Estimated complexity
+
+Present an executive summary at the beginning that highlights:
+1. Most critically impacted systems
+2. Systems requiring earliest attention based on deadlines
+3. Complexity hotspots in the architecture
+4. Key integration considerations
+
+ADDITIONAL GUIDANCE:
+- Consider both direct impacts (system directly handles regulated data/process) and indirect impacts (system integrates with directly impacted systems)
+- Pay special attention to data flows, especially for sensitive data
+- Consider security implications throughout the analysis
+- Analyse how requirements might conflict with existing architecture principles
+- Identify where existing architecture capabilities can be leveraged
+- Look for opportunities to consolidate changes across requirements
+- All responses must be in Polish.
