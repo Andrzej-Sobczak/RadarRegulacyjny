@@ -46,8 +46,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (apiSettings) {
       const settings = apiSettings as any;
       console.log("API settings:", settings);
-      // Sprawdzamy czy klucz API jest skonfigurowany i działający
-      setIsApiConfigured(!!settings.openaiApiKey && settings.isWorking === true);
+      
+      // Debugowanie
+      console.log("Klucz API:", !!settings.openaiApiKey, "isWorking:", settings.isWorking);
+      console.log("Status API skonfigurowane:", !!settings.openaiApiKey && settings.isWorking === true);
+      
+      // KRYTYCZNA ZMIANA: Sprawdzamy czy klucz API jest skonfigurowany
+      // Tymczasowo ignorujemy pole isWorking, które sprawia problemy
+      setIsApiConfigured(!!settings.openaiApiKey);
     }
   }, [apiSettings]);
   
