@@ -112,7 +112,7 @@ class AIService {
       `;
       
       const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini", // Using gpt-4o-mini as requested by the user
+        model: "gpt-4o", // Using gpt-4 as requested by the user
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" }
       });

@@ -96,7 +96,7 @@ const Admin: React.FC = () => {
           onChange={(e) => setOpenaiApiKey(e.target.value)}
         />
         <p className="text-sm text-gray-500 mb-2">
-          Notatka: System jest skonfigurowany do używania modelu gpt-4o-mini.
+          Notatka: System jest skonfigurowany do używania modelu gpt-4o.
         </p>
       </div>
 

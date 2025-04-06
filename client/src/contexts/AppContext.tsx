@@ -25,6 +25,9 @@ interface AppContextType {
   clearSystems: () => void;
   clearImpacts: () => void;
   
+  // Nowa funkcja do resetowania całej analizy
+  resetAllAnalysis: () => void;
+  
   // Informacje o API
   isApiConfigured: boolean;
 }
@@ -110,6 +113,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     queryClient.setQueryData(['/api/impact'], []);
   };
   
+  // Funkcja resetująca całą analizę - czyści wszystkie dane, ale zachowuje klucz API
+  const resetAllAnalysis = () => {
+    // Resetuj wszystkie dane w pamięci
+    queryClient.setQueryData(['/api/requirements'], []);
+    queryClient.setQueryData(['/api/systems'], []);
+    queryClient.setQueryData(['/api/impact'], []);
+    
+    // Wyczyść wszystkie załadowane pliki
+    setUploadedFiles([]);
+    
+    // Odśwież wszystkie zapytania
+    queryClient.invalidateQueries({ queryKey: ['/api/requirements'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/systems'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/impact'] });
+    
+    console.log("Zresetowano całą analizę. Wszystkie dane zostały wyczyszczone.");
+  };
+  
   // Debugowanie danych
   useEffect(() => {
     console.log("Liczba wymagań w AppContext:", requirements.length);
@@ -127,6 +148,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     clearRequirements,
     clearSystems,
     clearImpacts,
+    resetAllAnalysis,
     isApiConfigured
   };
   

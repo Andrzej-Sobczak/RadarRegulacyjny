@@ -1,0 +1,112 @@
+[
+  {
+    "identifier": "Artykuł 5, ustęp 1",
+    "requirementText": "Dane osobowe muszą być przetwarzane zgodnie z zasadami rzetelności, legalności i przejrzystości.",
+    "category": [
+      "Data processing and storage",
+      "User rights and consent management"
+    ],
+    "subjectMatter": "Przetwarzanie danych osobowych klientów",
+    "complianceObjective": "Zapewnienie, że wszystkie operacje przetwarzania danych są zgodne z wymaganiami legalności i przejrzystości.",
+    "technicalImplications": "Systemy IT muszą wprowadzić mechanizmy do rejestrowania zgód użytkowników oraz zapewnienia transparentności przetwarzania danych.",
+    "implementationTimeline": {
+      "explicitDeadline": null,
+      "inferredDeadline": "Wdrożenie wymagań w ciągu 6 miesięcy od wejścia w życie regulacji.",
+      "standardImplementationPeriod": "6 miesięcy"
+    },
+    "crossReferences": [
+      "Artykuł 6",
+      "Artykuł 7"
+    ],
+    "keyTerms": [
+      "przetwarzanie",
+      "zdolność do wycofania zgody",
+      "przejrzystość"
+    ],
+    "source": "Ogólne Rozporządzenie o Ochronie Danych (GDPR)",
+    "id": 1,
+    "createdAt": "2025-04-06T18:18:24.497Z"
+  },
+  {
+    "identifier": "Artykuł 32, ustęp 1",
+    "requirementText": "Administratorzy i podmioty przetwarzające powinny wdrożyć odpowiednie działania zabezpieczające, aby zapewnić odpowiedni poziom bezpieczeństwa przetwarzania.",
+    "category": [
+      "Security and access control"
+    ],
+    "subjectMatter": "Zabezpieczenia danych osobowych",
+    "complianceObjective": "Zminimalizowanie ryzyka ujawnienia lub utraty danych osobowych.",
+    "technicalImplications": "IT systemy muszą implementować techniczne i organizacyjne środki bezpieczeństwa, takie jak szyfrowanie danych, kontrola dostępu oraz audyty bezpieczeństwa.",
+    "implementationTimeline": {
+      "explicitDeadline": null,
+      "inferredDeadline": "Natychmiastowe wdrożenie, jednak regularne przeglądy powinny być przeprowadzane co najmniej raz w roku.",
+      "standardImplementationPeriod": "Brak wysokości podanej w regulacji"
+    },
+    "crossReferences": [
+      "Artykuł 28",
+      "Artykuł 30"
+    ],
+    "keyTerms": [
+      "bezpieczeństwo przetwarzania",
+      "środki zabezpieczające",
+      "ryzyko"
+    ],
+    "source": "Ogólne Rozporządzenie o Ochronie Danych (GDPR)",
+    "id": 2,
+    "createdAt": "2025-04-06T18:18:24.497Z"
+  },
+  {
+    "identifier": "Artykuł 15, ustęp 1",
+    "requirementText": "Osoba, której dane dotyczą, ma prawo dostępu do danych osobowych, które jej dotyczą.",
+    "category": [
+      "User rights and consent management",
+      "Reporting and documentation"
+    ],
+    "subjectMatter": "Dostęp do danych osobowych przez użytkowników",
+    "complianceObjective": "Zapewnienie użytkownikom możliwości dostępu do ich danych w określonym czasie.",
+    "technicalImplications": "IT systemy muszą umożliwiać użytkownikom sprawdzanie, jakie dane osobowe są przechowywane, oraz oferować mechanizmy raportowania tych danych.",
+    "implementationTimeline": {
+      "explicitDeadline": "W ciągu miesiąca od złożenia wniosku przez osobę, której dane dotyczą",
+      "inferredDeadline": null,
+      "standardImplementationPeriod": "Maksymalnie 1 miesiąc"
+    },
+    "crossReferences": [
+      "Artykuł 16",
+      "Artykuł 17"
+    ],
+    "keyTerms": [
+      "dane osobowe",
+      "prawo dostępu",
+      "czas odpowiedzi"
+    ],
+    "source": "Ogólne Rozporządzenie o Ochronie Danych (GDPR)",
+    "id": 3,
+    "createdAt": "2025-04-06T18:18:24.497Z"
+  },
+  {
+    "identifier": "Artykuł 20, ustęp 1",
+    "requirementText": "Osoby, których dane dotyczą, mają prawo do przenoszenia danych.",
+    "category": [
+      "Data processing and storage",
+      "User rights and consent management"
+    ],
+    "subjectMatter": "Przenoszenie danych osobowych między systemami",
+    "complianceObjective": "Możliwość łatwego przeniesienia danych osobowych przez użytkowników z jednego systemu do drugiego.",
+    "technicalImplications": "Systemy IT muszą obsługiwać formaty danych umożliwiające ich przenoszenie oraz wdrożyć interfejsy umożliwiające eksport danych użytkowników.",
+    "implementationTimeline": {
+      "explicitDeadline": null,
+      "inferredDeadline": "Zdobycie możliwości przenoszenia danych w ciągu 3 miesięcy od wejścia w życie regulacji.",
+      "standardImplementationPeriod": "3 miesiące"
+    },
+    "crossReferences": [
+      "Artykuł 21"
+    ],
+    "keyTerms": [
+      "prawo do przenoszenia danych",
+      "formaty danych",
+      "interfejsy"
+    ],
+    "source": "Ogólne Rozporządzenie o Ochronie Danych (GDPR)",
+    "id": 4,
+    "createdAt": "2025-04-06T18:18:24.497Z"
+  }
+]
