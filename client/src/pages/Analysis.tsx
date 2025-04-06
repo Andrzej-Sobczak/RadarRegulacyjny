@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileUpload } from "../components/FileUpload";
 import { SystemImpactItem } from "../components/SystemImpactItem";
@@ -13,8 +13,9 @@ import {
 } from "../lib/api";
 import { ImpactLevel } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { Download, ChevronDown } from "lucide-react";
+import { Download, ChevronDown, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAppContext } from "../contexts/AppContext";
 import {
   Select,
   SelectContent,
@@ -30,6 +31,7 @@ const Analysis: React.FC = () => {
   const [impactFilter, setImpactFilter] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { uploadedFiles: contextFiles, addUploadedFile, removeUploadedFile } = useAppContext();
 
   // Queries
   const { data: requirements = [] } = useQuery({
@@ -49,6 +51,8 @@ const Analysis: React.FC = () => {
   const uploadReqMutation = useMutation({
     mutationFn: (file: File) => uploadRequirementsFile(file),
     onSuccess: (data) => {
+      // Dodaj plik do globalnego kontekstu
+      addUploadedFile({ id: data.id, name: data.name, type: 'requirements' });
       toast({
         title: "Plik wczytany pomyślnie",
         description: `Plik ${data.name} został poprawnie wczytany.`,
@@ -66,6 +70,8 @@ const Analysis: React.FC = () => {
   const uploadSysMutation = useMutation({
     mutationFn: (file: File) => uploadSystemFile(file),
     onSuccess: (data) => {
+      // Dodaj plik do globalnego kontekstu
+      addUploadedFile({ id: data.id, name: data.name, type: 'system' });
       toast({
         title: "Plik wczytany pomyślnie",
         description: `Plik ${data.name} został poprawnie wczytany.`,
@@ -175,6 +181,28 @@ const Analysis: React.FC = () => {
     }
   };
 
+  // Obsługa usuwania plików
+  const handleDeleteReqFile = (fileId: string) => {
+    removeUploadedFile(fileId);
+    toast({
+      title: "Plik usunięty",
+      description: "Plik z wymaganiami został usunięty pomyślnie."
+    });
+  };
+  
+  const handleDeleteSysFile = (fileId: string) => {
+    removeUploadedFile(fileId);
+    toast({
+      title: "Plik usunięty",
+      description: "Plik systemowy został usunięty pomyślnie."
+    });
+  };
+  
+  // Effect do synchronizacji danych przy przełączaniu zakładek
+  useEffect(() => {
+    setShowResults(impacts.length > 0);
+  }, [impacts]);
+  
   const handleAnalyzeImpact = () => {
     console.log("Liczba wymagań:", requirements.length);
     console.log("Liczba systemów:", systems.length);
@@ -248,6 +276,31 @@ const Analysis: React.FC = () => {
           onFileSelected={handleReqFileUpload} 
           fileType="JSON" 
         />
+        
+        {/* Lista wczytanych plików z wymaganiami */}
+        {contextFiles.filter(f => f.type === 'requirements').length > 0 && (
+          <div className="mt-4 border rounded-md p-3">
+            <h3 className="text-sm font-medium mb-2">Wczytane pliki z wymaganiami:</h3>
+            <ul className="space-y-2">
+              {contextFiles
+                .filter(f => f.type === 'requirements')
+                .map(file => (
+                  <li key={file.id} className="flex items-center justify-between text-sm py-1 px-2 bg-slate-50 rounded">
+                    <span className="truncate max-w-[80%]">{file.name}</span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleDeleteReqFile(file.id)}
+                      className="h-8 w-8 p-0 text-red-500"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        )}
       </div>
 
       <div className="mb-8">
@@ -262,8 +315,33 @@ const Analysis: React.FC = () => {
           onFileSelected={handleSysFileUpload} 
           fileType="PDF" 
         />
+        
+        {/* Lista wczytanych plików systemowych */}
+        {contextFiles.filter(f => f.type === 'system').length > 0 && (
+          <div className="mt-4 border rounded-md p-3">
+            <h3 className="text-sm font-medium mb-2">Wczytane pliki systemowe:</h3>
+            <ul className="space-y-2">
+              {contextFiles
+                .filter(f => f.type === 'system')
+                .map(file => (
+                  <li key={file.id} className="flex items-center justify-between text-sm py-1 px-2 bg-slate-50 rounded">
+                    <span className="truncate max-w-[80%]">{file.name}</span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleDeleteSysFile(file.id)}
+                      className="h-8 w-8 p-0 text-red-500"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <Button
             className="w-full py-3 bg-[#3498DB] text-white hover:bg-[#3498DB]/90"
             onClick={handleAnalyzeImpact}

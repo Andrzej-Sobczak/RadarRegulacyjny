@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileUpload } from "../components/FileUpload";
 import { RequirementItem } from "../components/RequirementItem";
@@ -12,8 +12,9 @@ import {
 } from "../lib/api";
 import { Requirement } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAppContext } from "../contexts/AppContext";
 
 const Requirements: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
@@ -21,6 +22,7 @@ const Requirements: React.FC = () => {
   const [showRequirements, setShowRequirements] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { uploadedFiles: contextFiles, addUploadedFile, removeUploadedFile } = useAppContext();
   
   // Query for fetching requirements
   const { data: requirements = [], isLoading } = useQuery({
@@ -33,6 +35,8 @@ const Requirements: React.FC = () => {
     mutationFn: (file: File) => uploadRegulationFile(file),
     onSuccess: (data) => {
       setUploadedFileIds(prev => [...prev, data.id]);
+      // Dodaj plik do globalnego kontekstu
+      addUploadedFile({ id: data.id, name: data.name, type: 'regulation' });
       toast({
         title: "Plik wczytany pomyślnie",
         description: `Plik ${data.name} został poprawnie wczytany.`,
@@ -169,6 +173,27 @@ const Requirements: React.FC = () => {
     exportMutation.mutate();
   };
   
+  // Inicjalizacja i aktualizacja stanu na podstawie danych
+  useEffect(() => {
+    setShowRequirements(requirements.length > 0);
+    
+    // Synchronizacja z plikami z kontekstu
+    const regulationFiles = contextFiles.filter(f => f.type === 'regulation');
+    if (regulationFiles.length > 0) {
+      setUploadedFileIds(regulationFiles.map(f => f.id));
+    }
+  }, [requirements, contextFiles]);
+  
+  // Funkcja do usuwania pliku
+  const handleDeleteFile = (fileId: string) => {
+    removeUploadedFile(fileId);
+    setUploadedFileIds(prev => prev.filter(id => id !== fileId));
+    toast({
+      title: "Plik usunięty",
+      description: "Plik został usunięty pomyślnie."
+    });
+  };
+  
   return (
     <div>
       <div className="mb-8">
@@ -178,7 +203,32 @@ const Requirements: React.FC = () => {
           fileType="PDF" 
         />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Lista wczytanych plików */}
+        {contextFiles.filter(f => f.type === 'regulation').length > 0 && (
+          <div className="mt-4 border rounded-md p-3">
+            <h3 className="text-sm font-medium mb-2">Wczytane pliki:</h3>
+            <ul className="space-y-2">
+              {contextFiles
+                .filter(f => f.type === 'regulation')
+                .map(file => (
+                  <li key={file.id} className="flex items-center justify-between text-sm py-1 px-2 bg-slate-50 rounded">
+                    <span className="truncate max-w-[80%]">{file.name}</span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleDeleteFile(file.id)}
+                      className="h-8 w-8 p-0 text-red-500"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        )}
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <Button
             className="w-full py-3 bg-[#3498DB] text-white hover:bg-[#3498DB]/90"
             onClick={handleExtractRequirements}
