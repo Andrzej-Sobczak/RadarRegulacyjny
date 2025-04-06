@@ -36,24 +36,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isApiConfigured, setIsApiConfigured] = useState<boolean>(false);
   const queryClient = useQueryClient();
   
-  // Pobierz informacje o konfiguracji API
+  // Pobierz informacje o konfiguracji API - ustawiony refetchInterval wymusza częste odświeżanie
   const { data: apiSettings } = useQuery({
     queryKey: ['/api/settings'],
+    refetchInterval: 2000, // Odświeżanie co 2 sekundy
+    refetchOnWindowFocus: true, // Odświeżanie przy przełączaniu okien
+    retry: true, // Spróbuj ponownie w przypadku niepowodzenia
+    gcTime: 0, // Wyłączenie cache - zawsze pobieramy świeże dane (cacheTime jest już przestarzały)
   });
   
   // Aktualizuj stan po pobraniu danych
   useEffect(() => {
     if (apiSettings) {
       const settings = apiSettings as any;
+      
       console.log("API settings:", settings);
+      console.log("Klucz API (wartość):", settings.openaiApiKey);
+      console.log("Klucz API (istnieje):", !!settings.openaiApiKey);
+      console.log("Last Tested:", settings.lastTested);
+      console.log("isWorking:", settings.isWorking);
       
-      // Debugowanie
-      console.log("Klucz API:", !!settings.openaiApiKey, "isWorking:", settings.isWorking);
-      console.log("Status API skonfigurowane:", !!settings.openaiApiKey && settings.isWorking === true);
+      // NAJWAŻNIEJSZE: Ustawiamy stan isApiConfigured na true, JEŚLI:
+      // 1. Klucz API istnieje (openaiApiKey nie jest pusty)
+      // 2. ORAZ pole isWorking jest true ALBO ignorujemy isWorking całkowicie
+      // Obecnie CAŁKOWICIE ignorujemy sprawdzanie isWorking - sam klucz to wystarczy
+      const apiConfigured = !!settings.openaiApiKey;
       
-      // KRYTYCZNA ZMIANA: Sprawdzamy czy klucz API jest skonfigurowany
-      // Tymczasowo ignorujemy pole isWorking, które sprawia problemy
-      setIsApiConfigured(!!settings.openaiApiKey);
+      console.log("API skonfigurowane? (Finalne sprawdzenie):", apiConfigured);
+      setIsApiConfigured(apiConfigured);
     }
   }, [apiSettings]);
   

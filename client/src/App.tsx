@@ -13,19 +13,30 @@ import { AppProvider, useAppContext } from "./contexts/AppContext";
 
 type Tab = "extraction" | "analysis" | "admin";
 
-// Komponent sprawdzający ustawienie API
+// Komponent sprawdzający ustawienie API - to jest główny komponent aplikacji
 const ApiCheck: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isApiConfigured } = useAppContext();
   const [activeTab, setActiveTab] = useState<Tab>("extraction");
   const [redirectedToAdmin, setRedirectedToAdmin] = useState<boolean>(false);
 
+  // Dodajemy dużo logów diagnostycznych aby ułatwić debugowanie
+  console.log("ApiCheck rendering, isApiConfigured:", isApiConfigured);
+  console.log("Current activeTab:", activeTab);
+  console.log("redirectedToAdmin:", redirectedToAdmin);
+
   useEffect(() => {
-    // Przekieruj do panelu admina tylko gdy API nie jest skonfigurowane i jeszcze nie przekierowaliśmy
-    if (!isApiConfigured && !redirectedToAdmin && activeTab !== "admin") {
+    console.log("ApiCheck useEffect running");
+    console.log("isApiConfigured:", isApiConfigured);
+    console.log("activeTab:", activeTab);
+    console.log("redirectedToAdmin:", redirectedToAdmin);
+    
+    // ZMIANA: Upewniamy się, że przekierowanie następuje tylko gdy API nie jest skonfigurowane
+    if (!isApiConfigured && activeTab !== "admin") {
+      console.log("Redirecting to admin panel...");
       setActiveTab("admin");
       setRedirectedToAdmin(true);
     }
-  }, [isApiConfigured, activeTab, redirectedToAdmin]);
+  }, [isApiConfigured, activeTab]);
 
   return (
     <div className="min-h-screen bg-[#ECF0F1] text-[#2C3E50] font-sans">
