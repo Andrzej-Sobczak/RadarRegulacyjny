@@ -160,11 +160,20 @@ class AIService {
       Przedstaw swoją analizę jako tablicę JSON, gdzie każdy obiekt ma następujące właściwości: identifier, requirementText, category, subjectMatter, complianceObjective, technicalImplications, implementationTimeline, crossReferences, keyTerms, source.
       
       DODATKOWE WYTYCZNE:
-      - Ekstrahuj 3-8 wymagań dla tej demonstracji, w zależności od zawartości dokumentów
-      - Skup się na wymaganiach, które bezpośrednio lub pośrednio wymagają zmian w systemach IT, a nie czysto organizacyjnych lub administracyjnych wymaganiach.
-      - Zwróć uwagę na niejawne wymagania techniczne, które nie są wyraźnie określone jako wymagania IT, ale wymagałyby zmian w systemie.
-      - Wszystkie odpowiedzi muszą być w języku polskim.
-      - Jeśli dokument nie zawiera odpowiednich wymagań dla IT, wygeneruj przykładowe wymagania bazując na typowych przepisach takich jak RODO.
+      - Przeprowadź dokładną i wyczerpującą analizę dokumentu, starając się zidentyfikować WSZYSTKIE wymagania prawne mające wpływ na systemy IT
+      - Wyodrębnij minimum 8-15 wymagań z dokumentu, dokładnie analizując każdy artykuł i ustęp pod kątem wymogów technicznych
+      - Zwróć szczególną uwagę na następujące aspekty wymagające zmian w systemach IT:
+        * Zmian w procesach przechowywania i przetwarzania danych
+        * Dostęp do danych i zarządzanie uprawnieniami
+        * Zbieranie i przechowywanie nowych typów danych
+        * Integracje między systemami
+        * Automatyzację procesów biznesowych
+        * Wymagania dotyczące API i usług sieciowych
+        * Bezpieczeństwo danych i systemów
+        * Mechanizmy raportowania i audytu
+      - Poszukuj również pośrednich implikacji technicznych dla istniejących systemów, nawet jeśli nie są one wyraźnie wskazane
+      - Wszystkie odpowiedzi muszą być w języku polskim
+      - Jeśli dokument nie zawiera wystarczającej liczby wymagań dla IT, zidentyfikuj implikacje techniczne, które mogą być pośrednio wywodzone z przepisów prawnych
       
       ODPOWIEDZ W FORMACIE JSON:
       {
@@ -195,7 +204,8 @@ class AIService {
         model: "gpt-4o", // Uaktualnione do pełnej wersji gpt-4o zgodnie z poleceniem użytkownika
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
-        temperature: 0.7
+        temperature: 0.7,
+        max_tokens: 4000 // Zwiększony limit tokenów, aby pomieścić więcej szczegółowych wymagań
       });
       
       const content = response.choices[0].message.content;
