@@ -160,20 +160,27 @@ class AIService {
       Przedstaw swoją analizę jako tablicę JSON, gdzie każdy obiekt ma następujące właściwości: identifier, requirementText, category, subjectMatter, complianceObjective, technicalImplications, implementationTimeline, crossReferences, keyTerms, source.
       
       DODATKOWE WYTYCZNE:
-      - Przeprowadź dokładną i wyczerpującą analizę dokumentu, starając się zidentyfikować WSZYSTKIE wymagania prawne mające wpływ na systemy IT
-      - Wyodrębnij minimum 8-15 wymagań z dokumentu, dokładnie analizując każdy artykuł i ustęp pod kątem wymogów technicznych
+      - OBOWIĄZKOWO przeprowadź WYCZERPUJĄCĄ i SZCZEGÓŁOWĄ analizę CAŁEGO dokumentu prawnego, bez pomijania żadnych artykułów i ustępów
+      - Zidentyfikuj i wyodrębnij ABSOLUTNIE WSZYSTKIE wymagania prawne mające jakikolwiek wpływ na systemy IT - MINIMUM 20 wymagań
+      - Traktuj KAŻDY artykuł, ustęp i punkt jako potencjalne źródło osobnego wymagania technicznego
+      - Analizuj dokument bardzo SZCZEGÓŁOWO - znajdź nawet najmniejsze implikacje techniczne i traktuj je jako osobne wymagania
       - Zwróć szczególną uwagę na następujące aspekty wymagające zmian w systemach IT:
-        * Zmian w procesach przechowywania i przetwarzania danych
-        * Dostęp do danych i zarządzanie uprawnieniami
-        * Zbieranie i przechowywanie nowych typów danych
-        * Integracje między systemami
-        * Automatyzację procesów biznesowych
-        * Wymagania dotyczące API i usług sieciowych
-        * Bezpieczeństwo danych i systemów
-        * Mechanizmy raportowania i audytu
-      - Poszukuj również pośrednich implikacji technicznych dla istniejących systemów, nawet jeśli nie są one wyraźnie wskazane
+        * Zmiany w procesach przechowywania i przetwarzania danych
+        * Dostęp do danych i zarządzanie uprawnieniami użytkowników
+        * Zbieranie, przechowywanie i zarządzanie nowymi typami danych
+        * Integracja i komunikacja między systemami wewnętrznymi i zewnętrznymi
+        * Automatyzacja procesów biznesowych i administracyjnych
+        * Implementacja i zmiany w API oraz usługach sieciowych
+        * Wymagania dotyczące bezpieczeństwa danych i systemów
+        * Mechanizmy raportowania, monitorowania i audytu
+        * Terminy wdrożenia zmian i ich wpływ na harmonogramy projektów IT
+        * Formaty danych i standardy interoperacyjności
+      - Zidentyfikuj zarówno BEZPOŚREDNIE, jak i POŚREDNIE implikacje techniczne dla systemów IT
+      - Znajdź ukryte i nieoczywiste wymagania techniczne, które wynikają z przepisów prawnych
+      - Analizuj nawet fragmenty tekstu, które wydają się nie mieć bezpośredniego związku z IT
+      - Dla każdej zmiany w prawie zastanów się, jakie procesy techniczne i systemy informatyczne będą musiały zostać dostosowane
+      - Jeśli dokument zawiera mniej niż 20 wymagań bezpośrednich, KONIECZNIE zidentyfikuj dodatkowe implikacje techniczne
       - Wszystkie odpowiedzi muszą być w języku polskim
-      - Jeśli dokument nie zawiera wystarczającej liczby wymagań dla IT, zidentyfikuj implikacje techniczne, które mogą być pośrednio wywodzone z przepisów prawnych
       
       ODPOWIEDZ W FORMACIE JSON:
       {
@@ -205,7 +212,7 @@ class AIService {
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
         temperature: 0.7,
-        max_tokens: 4000 // Zwiększony limit tokenów, aby pomieścić więcej szczegółowych wymagań
+        max_tokens: 16385 // Ustawiono maksymalny dostępny limit tokenów dla GPT-4o
       });
       
       const content = response.choices[0].message.content;
@@ -356,7 +363,7 @@ class AIService {
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
         temperature: 0.7,
-        max_tokens: 2000
+        max_tokens: 16385 // Ustawiono maksymalny dostępny limit tokenów dla GPT-4o
       });
       
       const content = response.choices[0].message.content;
