@@ -263,15 +263,17 @@ const Analysis = () => {
   useEffect(() => {
     setShowResults(impacts.length > 0);
     
-    // Sprawdź dane z serwera
-    if (systems.length === 0) {
-      queryClient.invalidateQueries({ queryKey: ['/api/systems'] });
-    }
+    // Za każdym razem, gdy komponent się renderuje, odświeżamy dane
+    queryClient.invalidateQueries({ queryKey: ['/api/systems'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/requirements'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/impact'] });
     
-    if (requirements.length === 0) {
-      queryClient.invalidateQueries({ queryKey: ['/api/requirements'] });
-    }
-  }, [impacts, systems.length, requirements.length, queryClient]);
+    // Informacje debugowe
+    console.log("Odświeżam dane w komponencie Analysis");
+    console.log("- Wymagania:", requirements.length);
+    console.log("- Systemy:", systems.length);
+    console.log("- Analizy:", impacts.length);
+  }, [impacts, systems, requirements, queryClient]);
   
   const handleAnalyzeImpact = () => {
     // Nie używamy tutaj useAppContext, zamiast tego korzystamy z isApiConfigured

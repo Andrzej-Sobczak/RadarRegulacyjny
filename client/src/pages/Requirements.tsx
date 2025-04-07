@@ -130,8 +130,17 @@ const Requirements: React.FC = () => {
         });
     },
     onSuccess: (data) => {
+      // Zapisz dane w React Query cache
       queryClient.setQueryData(['/api/requirements'], data);
+      
+      // Odśwież dane z serwera
+      queryClient.invalidateQueries({ queryKey: ['/api/requirements'] });
+      
       setShowRequirements(true);
+      
+      console.log("Otrzymane wymagania po ekstrakcji:", data);
+      console.log("Liczba wymagań po ekstrakcji:", data.length);
+      
       toast({
         title: "Wymagania wyekstrahowane",
         description: `Znaleziono ${data.length} wymagań w podanych dokumentach.`,
@@ -343,6 +352,9 @@ const Requirements: React.FC = () => {
   
   // Inicjalizacja i aktualizacja stanu na podstawie danych
   useEffect(() => {
+    // Za każdym razem odśwież dane z serwera
+    queryClient.invalidateQueries({ queryKey: ['/api/requirements'] });
+    
     setShowRequirements(requirements.length > 0);
     
     // Synchronizacja z plikami z kontekstu
@@ -350,7 +362,13 @@ const Requirements: React.FC = () => {
     if (regulationFiles.length > 0) {
       setUploadedFileIds(regulationFiles.map(f => f.id));
     }
-  }, [requirements, contextFiles]);
+    
+    // Informacje debugowe
+    console.log("Odświeżam dane w komponencie Requirements");
+    console.log("- Wymagania:", requirements.length);
+    console.log("- Załadowane pliki:", contextFiles.filter(f => f.type === 'regulation').length);
+    
+  }, [requirements, contextFiles, queryClient]);
   
   // Funkcja do usuwania pliku
   const handleDeleteFile = (fileId: string) => {

@@ -101,14 +101,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Fetch data from API
   const { data: requirementsData = [] } = useQuery({
     queryKey: ['/api/requirements'],
+    refetchInterval: 2000, // Odświeżanie co 2 sekundy
+    refetchOnWindowFocus: true,
+    staleTime: 1000, // Dane stają się nieaktualne po 1 sekundzie
   });
   
   const { data: systemsData = [] } = useQuery({
     queryKey: ['/api/systems'],
+    refetchInterval: 2000, // Odświeżanie co 2 sekundy
+    refetchOnWindowFocus: true,
+    staleTime: 1000, // Dane stają się nieaktualne po 1 sekundzie
   });
   
   const { data: impactsData = [] } = useQuery({
     queryKey: ['/api/impact'],
+    refetchInterval: 2000, // Odświeżanie co 2 sekundy
+    refetchOnWindowFocus: true,
+    staleTime: 1000, // Dane stają się nieaktualne po 1 sekundzie
   });
   
   // Zapewniamy poprawne typy danych

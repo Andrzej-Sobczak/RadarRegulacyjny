@@ -51,14 +51,16 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
-      refetchInterval: 5000, // Odświeżanie co 5 sekund
+      refetchInterval: 2000, // Odświeżanie co 2 sekundy
       refetchOnWindowFocus: true, // Odświeżanie przy zmianie fokusa okna
-      staleTime: 1000, // Dane stają się stare po 1 sekundzie
-      retry: true, // Włączamy ponowne próby
-      retryDelay: 500, // Krótsze opóźnienie między ponownymi próbami
+      staleTime: 500, // Dane stają się stare po 0.5 sekundy
+      retry: 3, // Konkretna liczba prób
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff z limitem 30 sekund
+      refetchOnMount: true, // Zawsze odświeżaj przy montowaniu komponentu
     },
     mutations: {
-      retry: true, // Włączamy ponowne próby dla mutacji
+      retry: 2, // Włączamy ponowne próby dla mutacji (2 razy)
+      retryDelay: 1000, // 1 sekunda między próbami dla mutacji
     },
   },
 });
