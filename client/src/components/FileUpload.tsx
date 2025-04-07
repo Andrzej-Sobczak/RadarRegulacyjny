@@ -5,7 +5,7 @@ import { useAppContext } from "../contexts/AppContext";
 
 interface FileUploadProps {
   onFileSelected: (files: File[]) => void;
-  fileType: "PDF" | "JSON";
+  fileType: "TXT" | "JSON";
   className?: string;
 }
 
@@ -24,7 +24,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       setFiles([]);
     }
     // Jeśli uploadedFiles został zmieniony i nie ma żadnych plików odpowiedniego typu, zresetuj stan
-    else if (fileType === "PDF" && !uploadedFiles.some(f => f.type === 'system')) {
+    else if (fileType === "TXT" && !uploadedFiles.some(f => f.type === 'system')) {
       setFiles([]);
     }
     else if (fileType === "JSON" && !uploadedFiles.some(f => f.type === 'requirements' || f.type === 'regulation')) {
@@ -39,8 +39,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: fileType === "PDF" 
-      ? { 'application/pdf': ['.pdf'], 'application/octet-stream': ['.pdf'] }
+    accept: fileType === "TXT" 
+      ? { 'text/plain': ['.txt'], 'application/octet-stream': ['.txt'] }
       : { 'application/json': ['.json'] },
     multiple: true
   });
@@ -50,7 +50,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       <div {...getRootProps()} className="flex flex-col items-center justify-center cursor-pointer">
         <input {...getInputProps()} />
         <div className="bg-[#ECF0F1] rounded-full p-3 mb-4">
-          {fileType === "PDF" ? (
+          {fileType === "TXT" ? (
             <Upload className="h-6 w-6 text-[#34495E]" />
           ) : (
             <FileCode className="h-6 w-6 text-[#34495E]" />
@@ -73,8 +73,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 : "Przeciągnij pliki lub wybierz pliki"}
             </p>
             <p className="text-sm text-gray-500 mb-4">
-              {fileType === "PDF" 
-                ? "Obsługiwane formaty: PDF" 
+              {fileType === "TXT" 
+                ? "Obsługiwane formaty: TXT" 
                 : "Obsługiwane formaty: JSON"}
             </p>
           </>

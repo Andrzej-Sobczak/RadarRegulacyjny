@@ -544,7 +544,7 @@ const Requirements: React.FC = () => {
         <h2 className="text-xl font-medium mb-6">Przepisy</h2>
         <FileUpload 
           onFileSelected={handleFileUpload} 
-          fileType="PDF" 
+          fileType="TXT" 
         />
         
         {/* Pasek postępu ekstrakcji */}

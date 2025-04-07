@@ -2,10 +2,10 @@ import fs from "fs/promises";
 import { storage } from "../storage";
 import path from "path";
 import { InsertSystem } from "@shared/schema";
-import { PDFUtils } from "./pdfUtils";
+import { TextUtils } from "./textUtils";
 
 class FileService {
-  // Process uploaded regulation file (PDF)
+  // Process uploaded regulation file (TXT)
   async processRegulationFile(filePath: string): Promise<string> {
     try {
       // Weryfikacja, czy plik istnieje
@@ -16,24 +16,26 @@ class FileService {
         throw new Error(`Plik nie jest dostępny: ${err.message}`);
       });
       
-      console.log(`Przetwarzanie pliku PDF: ${filePath}`);
+      console.log(`Przetwarzanie pliku tekstowego: ${filePath}`);
       
       try {
-        // Używamy naszego narzędzia do ekstrakcji tekstu z PDF
-        const text = await PDFUtils.extractTextFromPDF(filePath);
-        console.log(`Wyodrębniono ${text.length} znaków tekstu z pliku ${filePath}`);
+        // Używamy naszego narzędzia do odczytu tekstu z pliku
+        const text = await TextUtils.readTextFromFile(filePath);
+        console.log(`Odczytano ${text.length} znaków tekstu z pliku ${filePath}`);
         
-        // Plik tekstowy i metadane są już zapisywane w PDFUtils.extractTextFromPDF
+        // Zapisujemy metadane pliku (opcjonalnie)
+        const metadataFilePath = `${filePath}.json`;
+        const metadata = await TextUtils.getFileMetadata(filePath);
+        await fs.writeFile(metadataFilePath, JSON.stringify(metadata, null, 2));
         
         // Zwróć ID pliku
         const fileId = path.basename(filePath);
         return fileId;
-      } catch (pdfError: unknown) {
-        const errorMessage = pdfError instanceof Error ? pdfError.message : String(pdfError);
-        console.error(`Błąd podczas parsowania PDF: ${errorMessage}`);
+      } catch (textError: unknown) {
+        const errorMessage = textError instanceof Error ? textError.message : String(textError);
+        console.error(`Błąd podczas odczytu pliku tekstowego: ${errorMessage}`);
         
-        // Nawet jeśli wystąpił błąd, zwróć ID pliku
-        // W rzeczywistej aplikacji moglibyśmy dodać oznaczenie błędu do pliku
+        // Zwróć ID pliku
         const fileId = path.basename(filePath);
         return fileId;
       }
@@ -43,7 +45,7 @@ class FileService {
     }
   }
   
-  // Process uploaded system description file (PDF)
+  // Process uploaded system description file (TXT)
   async processSystemFile(filePath: string): Promise<string> {
     try {
       // Weryfikacja, czy plik istnieje
@@ -54,15 +56,15 @@ class FileService {
         throw new Error(`Plik nie jest dostępny: ${err.message}`);
       });
       
-      console.log(`Przetwarzanie pliku systemu PDF: ${filePath}`);
+      console.log(`Przetwarzanie pliku systemu TXT: ${filePath}`);
       
       try {
-        // Używamy naszego narzędzia do ekstrakcji tekstu z PDF
-        const text = await PDFUtils.extractTextFromPDF(filePath);
-        console.log(`Wyodrębniono ${text.length} znaków tekstu z pliku systemu ${filePath}`);
+        // Używamy naszego narzędzia do odczytu tekstu z pliku
+        const text = await TextUtils.readTextFromFile(filePath);
+        console.log(`Odczytano ${text.length} znaków tekstu z pliku systemu ${filePath}`);
         
-        // Wyodrębnij nazwę systemu i inne informacje z tekstu PDF
-        const systemName = this.extractSystemNameFromText(text, path.basename(filePath, '.pdf'));
+        // Wyodrębnij nazwę systemu i inne informacje z tekstu
+        const systemName = this.extractSystemNameFromText(text, path.basename(filePath, '.txt'));
         const systemDescription = this.extractSystemDescriptionFromText(text);
         const systemFunction = this.extractSystemFunctionFromText(text);
         const systemCapabilities = this.extractSystemCapabilitiesFromText(text);
@@ -79,18 +81,23 @@ class FileService {
         
         // Zapis systemu do bazy danych
         const createdSystem = await storage.createSystem(newSystem);
-        console.log(`Created system with ID: ${createdSystem.id} from PDF content`);
+        console.log(`Created system with ID: ${createdSystem.id} from TXT content`);
+        
+        // Zapisujemy metadane pliku (opcjonalnie)
+        const metadataFilePath = `${filePath}.json`;
+        const metadata = await TextUtils.getFileMetadata(filePath);
+        await fs.writeFile(metadataFilePath, JSON.stringify(metadata, null, 2));
         
         // Zwróć ID pliku
         const fileId = path.basename(filePath);
         return fileId;
-      } catch (pdfError: unknown) {
-        const errorMessage = pdfError instanceof Error ? pdfError.message : String(pdfError);
-        console.error(`Błąd podczas parsowania PDF systemu: ${errorMessage}`);
+      } catch (textError: unknown) {
+        const errorMessage = textError instanceof Error ? textError.message : String(textError);
+        console.error(`Błąd podczas odczytu pliku tekstowego systemu: ${errorMessage}`);
         
-        // Jeśli nie można sparsować PDF, tworzymy przykładowy system bazując na nazwie pliku
+        // Jeśli nie można odczytać pliku, tworzymy przykładowy system bazując na nazwie pliku
         let fileName = path.basename(filePath);
-        const extPattern = /\.(pdf|PDF)$/;
+        const extPattern = /\.(txt|TXT)$/;
         if (extPattern.test(fileName)) {
           fileName = fileName.replace(extPattern, "");
         }

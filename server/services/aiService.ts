@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Requirement, InsertRequirement, System, Impact, InsertImpact, ImpactLevel } from "@shared/schema";
 import fs from "fs";
+import { TextUtils } from "./textUtils";
 
 class AIService {
   private openai: OpenAI | null = null;
@@ -57,7 +58,7 @@ class AIService {
         throw new Error("Brak ID dokumentów do analizy");
       }
       
-      // Odczytanie zawartości dla każdego pliku PDF
+      // Odczytanie zawartości dla każdego pliku TXT
       const textsFromDocuments: string[] = [];
       const documentNames: string[] = [];
       
@@ -70,23 +71,21 @@ class AIService {
           
           console.log(`Sprawdzanie pliku ${filePath}...`);
           
-          // Sprawdź, czy istnieje plik tekstowy (został wygenerowany przez FileService)
-          const textFilePath = `${filePath}.txt`;
-          
+          // W nowej implementacji plik jest już w formacie TXT
           try {
-            const textContent = await fs.promises.readFile(textFilePath, 'utf-8');
+            const textContent = await fs.promises.readFile(filePath, 'utf-8');
             if (textContent && textContent.length > 0) {
-              console.log(`Odczytano treść z pliku ${textFilePath}, ${textContent.length} znaków`);
+              console.log(`Odczytano treść z pliku ${filePath}, ${textContent.length} znaków`);
               textsFromDocuments.push(textContent);
               documentNames.push(docId);
             } else {
-              console.log(`Plik ${textFilePath} jest pusty lub nie udało się go odczytać`);
+              console.log(`Plik ${filePath} jest pusty lub nie udało się go odczytać`);
               // Jeśli nie ma tekstu, dodaj informację o tym
               textsFromDocuments.push(`[Nie udało się odczytać treści dokumentu ${docId}]`);
               documentNames.push(docId);
             }
           } catch (fileError) {
-            console.error(`Błąd odczytu pliku ${textFilePath}:`, fileError);
+            console.error(`Błąd odczytu pliku ${filePath}:`, fileError);
             // Jeśli nie ma pliku tekstowego, informujemy że nie znaleziono dokumentu
             textsFromDocuments.push(`[Nie znaleziono dokumentu ${docId}]`);
             documentNames.push(docId);
