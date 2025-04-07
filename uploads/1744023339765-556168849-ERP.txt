@@ -1,0 +1,43 @@
+Opis Architektury IT – Firma "EuroProdTrade S.A."
+Profil Firmy
+EuroProdTrade to duża firma produkcyjno-handlowa z siedzibą główną w Niemczech, operująca w 11 krajach Unii Europejskiej i USA. Posiada 6 zakładów produkcyjnych i 9 centrów dystrybucyjnych. Zatrudnia około 6 000 pracowników. Architektura IT jest kluczowym elementem wspierającym złożone procesy biznesowe firmy. 
+Strategia technologiczna opiera się na połączeniu wiodących rozwiązań klasy enterprise (głównie SAP, Salesforce, Siemens, Microsoft) z wyspecjalizowanymi systemami dla konkretnych obszarów, z rosnącym wykorzystaniem platform chmurowych (głównie Microsoft Azure).
+1. Enterprise Resource Planning (ERP)
+●	Ogólny opis systemu i jego przeznaczenia: System ERP stanowi cyfrowy kręgosłup organizacji, integrując i zarządzając kluczowymi procesami biznesowymi w czasie rzeczywistym. Służy jako centralne repozytorium danych transakcyjnych i podstawowych, zapewniając spójność informacji w całej firmie. W EuroProdTrade system ERP jest fundamentem dla efektywnego zarządzania finansami, łańcuchem dostaw, produkcją, sprzedażą i zasobami ludzkimi.
+●	Dostawca i Rozwiązanie: SAP S/4HANA (najnowsza wersja w modelu on-premise, hostowana na dedykowanej infrastrukturze w centrum danych firmy, z planami migracji kluczowych elementów do chmury prywatnej w ciągu 3 lat).
+●	Skala: Około 4 000 aktywnych użytkowników w działach finansów, księgowości, kontrolingu, logistyki, zakupów, sprzedaży, HR i produkcji. System przetwarza średnio ponad 1 milion transakcji finansowych dziennie, zarządza ponad 300 000 aktywnych indeksów materiałowych (SKU) i obsługuje procesy dla 6 zakładów produkcyjnych i 9 centrów dystrybucyjnych. Baza danych przekracza 20 TB.
+●	Technologia: Baza danych SAP HANA 2.0, interfejs użytkownika SAP Fiori, język programowania ABAP dla rozszerzeń, platforma integracyjna SAP Cloud Platform Integration Suite (CPI) do integracji z systemami chmurowymi i zewnętrznymi, standardowe interfejsy BAPI, RFC i IDoc do integracji z systemami on-premise.
+●	Lista głównych komponentów i modułów:
+○	Moduł finansowo-księgowy (FI/CO)
+○	Moduł zarządzania zapasami (MM)
+○	Moduł zarządzania łańcuchem dostaw (SCM - częściowo, w tym planowanie produkcji PP i zarządzanie jakością QM)
+○	Moduł sprzedaży i dystrybucji (SD)
+○	Moduł zarządzania zasobami ludzkimi (HCM - zintegrowany z SAP SuccessFactors)
+○	Moduł controllingowy (CO)
+○	Moduł zarządzania środkami trwałymi (AM - dawniej FI-AA)
+○	Moduł zarządzania projektami (PS)
+●	Opis kluczowych funkcjonalności:
+○	Automatyzacja i optymalizacja procesów produkcyjnych (planowanie MRP II, harmonogramowanie)
+○	Zarządzanie relacjami z dostawcami (procesy zakupowe, ocena dostawców) i klientami (zarządzanie zamówieniami, fakturowanie)
+○	Planowanie zasobów materiałowych (MRP) i mocy produkcyjnych (CRP)
+○	Pełna kontrola finansowa, rachunkowość zarządcza i sprawozdawczość statutowa
+○	Prognozowanie sprzedaży (wspierane przez SAP IBP) i planowanie zapasów
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Integracja z systemem MES (Siemens Opcenter) poprzez standardowe interfejsy SAP (IDoc/BAPI) do wymiany zleceń produkcyjnych, potwierdzeń, danych jakościowych.
+○	Integracja z systemem CRM (Salesforce) poprzez SAP CPI do synchronizacji danych klientów, zamówień, cenników.
+○	Integracja z systemami SCM (SAP IBP, SAP Ariba) do wymiany planów, prognoz, zamówień zakupowych.
+○	Integracja z systemem WMS (Manhattan Associates) poprzez IDoc (dostawy wychodzące/przychodzące, ruchy magazynowe).
+○	Integracja z systemem PLM (Siemens Teamcenter) do synchronizacji danych podstawowych materiałów i struktur produktów (BOM).
+○	Integracja z Hurtownią Danych (SAP BW/4HANA) i BI (Power BI) poprzez ekstraktory SAP i widoki CDS.
+○	Interfejsy API (OData) do komunikacji z systemami zewnętrznymi (np. portale dla dostawców/klientów).
+○	Integracja z systemami bankowymi (formaty SEPA, MT940) i płatniczymi (np. Adyen).
+○	Integracja z systemem HR (SAP SuccessFactors) do wymiany danych pracowniczych i struktury organizacyjnej.
+●	Informacje o przetwarzanych danych:
+○	Dane finansowe firmy (sprawozdania, transakcje, budżety) podlegające MSSF i lokalnym przepisom rachunkowości.
+○	Dane osobowe pracowników (dane kadrowe, płacowe) podlegające RODO.
+○	Dane kontrahentów (klienci, dostawcy) i partnerów biznesowych (dane podstawowe, warunki handlowe).
+○	Dane dotyczące produktów (specyfikacje, BOM, koszty) i procesów produkcyjnych (zlecenia, marszruty).
+○	Informacje cenowe i warunki handlowe (cenniki, rabaty).
+○	Dane dotyczące transakcji finansowych (płatności, należności, zobowiązania).
+○	Informacje o zapasach i stanach magazynowych (ilości, wartości, lokalizacje).
+○	Dane podlegające obowiązkom sprawozdawczym (VAT, Intrastat, JPK w Polsce).

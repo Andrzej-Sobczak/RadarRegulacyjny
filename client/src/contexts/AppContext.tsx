@@ -203,6 +203,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await queryClient.invalidateQueries({ queryKey: ['/api/systems'] });
       await queryClient.invalidateQueries({ queryKey: ['/api/impact'] });
       
+      // Wyślij własny event, który poinformuje komponent Analysis.tsx, że należy ukryć wyniki
+      window.dispatchEvent(new Event("analysisReset"));
+      
       console.log("Zresetowano całą analizę. Wszystkie dane zostały wyczyszczone.");
     } catch (error) {
       console.error("Błąd podczas resetowania analizy:", error);

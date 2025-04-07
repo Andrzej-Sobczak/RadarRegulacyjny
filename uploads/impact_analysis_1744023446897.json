@@ -1,0 +1,225 @@
+[
+  {
+    "systemId": 1,
+    "requirementId": 1,
+    "impactLevel": "wysoki",
+    "impactType": "Funkcjonalność",
+    "gapAnalysis": "System ERP obecnie nie posiada funkcji umożliwiających użytkownikom bezpośredni dostęp do danych generowanych przez produkty skomunikowane i ich udostępnianie osobom trzecim.",
+    "requiredModifications": [
+      "Wdrożenie interfejsów użytkownika umożliwiających dostęp do danych",
+      "Implementacja mechanizmów udostępniania danych"
+    ],
+    "dependencies": [
+      {
+        "name": "System CRM"
+      },
+      {
+        "name": "Baza danych transakcyjnych"
+      }
+    ],
+    "complexity": "Wysoka",
+    "challenges": "Zarządzanie uprawnieniami dostępu do danych oraz zapewnienie zgodności z regulacjami dotyczącymi prywatności.",
+    "expertise": "Bezpieczeństwo danych, regulacje prawne dotyczące prywatności",
+    "priority": "Wysoki",
+    "id": 1,
+    "createdAt": "2025-04-07T10:56:14.991Z"
+  },
+  {
+    "systemId": 1,
+    "requirementId": 2,
+    "impactLevel": "średni",
+    "impactType": "Funkcjonalność",
+    "gapAnalysis": "System ERP musi umożliwiać identyfikację i przekazywanie danych organom publicznym w określonych przypadkach, co nie jest obecnie w pełni zautomatyzowane.",
+    "requiredModifications": [
+      "Automatyzacja procesu identyfikacji danych do przekazania",
+      "Integracja z systemami organów publicznych"
+    ],
+    "dependencies": [
+      {
+        "name": "Systemy zewnętrzne organów publicznych"
+      }
+    ],
+    "complexity": "Średnia",
+    "challenges": "Zapewnienie bezpieczeństwa przy przekazywaniu danych do organów publicznych.",
+    "expertise": "Bezpieczeństwo danych, integracja systemów zewnętrznych",
+    "priority": "Średni",
+    "id": 2,
+    "createdAt": "2025-04-07T10:56:14.991Z"
+  },
+  {
+    "systemId": 1,
+    "requirementId": 3,
+    "impactLevel": "wysoki",
+    "impactType": "Struktura danych",
+    "gapAnalysis": "Obecny model danych w ERP nie jest dostosowany do nowych ram prawnych dotyczących praw do danych.",
+    "requiredModifications": [
+      "Dostosowanie modelu danych do nowych ram prawnych",
+      "Aktualizacja polityk danych"
+    ],
+    "dependencies": [
+      {
+        "name": "Dział prawny"
+      }
+    ],
+    "complexity": "Wysoka",
+    "challenges": "Złożoność dostosowania istniejących struktur danych do nowych wymogów prawnych.",
+    "expertise": "Zarządzanie danymi, prawo dotyczące danych",
+    "priority": "Wysoki",
+    "id": 3,
+    "createdAt": "2025-04-07T10:56:14.991Z"
+  },
+  {
+    "systemId": 1,
+    "requirementId": 4,
+    "impactLevel": "średni",
+    "impactType": "Integracja",
+    "gapAnalysis": "ERP musi wspierać interoperacyjność danych poprzez wdrożenie odpowiednich standardów i protokołów, co wymaga aktualizacji obecnych interfejsów.",
+    "requiredModifications": [
+      "Implementacja standardów interoperacyjności",
+      "Aktualizacja protokołów komunikacyjnych"
+    ],
+    "dependencies": [
+      {
+        "name": "Systemy zewnętrzne"
+      }
+    ],
+    "complexity": "Średnia",
+    "challenges": "Zapewnienie zgodności z różnymi standardami interoperacyjności.",
+    "expertise": "Integracja systemów, standardy interoperacyjności",
+    "priority": "Średni",
+    "id": 4,
+    "createdAt": "2025-04-07T10:56:14.991Z"
+  },
+  {
+    "systemId": 1,
+    "requirementId": 5,
+    "impactLevel": "średni",
+    "impactType": "Funkcjonalność",
+    "gapAnalysis": "ERP musi posiadać mechanizmy udostępniania danych zgodne z wymogami przejrzystości i niedyskryminacji, co wymaga dodatkowych funkcji zarządzania dostępem.",
+    "requiredModifications": [
+      "Rozbudowa funkcji zarządzania dostępem",
+      "Wdrożenie mechanizmów przejrzystości i niedyskryminacji"
+    ],
+    "dependencies": [
+      {
+        "name": "Moduł zarządzania użytkownikami"
+      }
+    ],
+    "complexity": "Średnia",
+    "challenges": "Zarządzanie przejrzystością dostępu do danych w różnych scenariuszach użytkowania.",
+    "expertise": "Zarządzanie dostępem, polityki przejrzystości",
+    "priority": "Średni",
+    "id": 5,
+    "createdAt": "2025-04-07T10:56:14.991Z"
+  },
+  {
+    "systemId": 1,
+    "requirementId": 6,
+    "impactLevel": "niski",
+    "impactType": "Funkcjonalność",
+    "gapAnalysis": "System ERP nie jest głównym narzędziem dla MŚP, ale może wymagać dostosowania interfejsów dla łatwiejszego użytkowania przez mniejsze firmy.",
+    "requiredModifications": [
+      "Dostosowanie interfejsu użytkownika",
+      "Uproszczenie procesów nawigacyjnych"
+    ],
+    "dependencies": [
+      {
+        "name": "Moduł interfejsu użytkownika"
+      }
+    ],
+    "complexity": "Niska",
+    "challenges": "Utrzymanie zaawansowanych funkcji przy uproszczonym interfejsie.",
+    "expertise": "Projektowanie UX/UI",
+    "priority": "Niski",
+    "id": 6,
+    "createdAt": "2025-04-07T10:56:14.991Z"
+  },
+  {
+    "systemId": 1,
+    "requirementId": 7,
+    "impactLevel": "wysoki",
+    "impactType": "Bezpieczeństwo",
+    "gapAnalysis": "ERP musi wdrożyć mechanizmy zarządzania prawami dostępu do danych, aby zapewnić zgodność z nowymi regulacjami.",
+    "requiredModifications": [
+      "Implementacja zaawansowanych mechanizmów zarządzania prawami dostępu",
+      "Szkolenia dla użytkowników dotyczące nowych polityk bezpieczeństwa"
+    ],
+    "dependencies": [
+      {
+        "name": "System zarządzania tożsamością"
+      }
+    ],
+    "complexity": "Wysoka",
+    "challenges": "Zarządzanie złożonymi uprawnieniami dostępu w dynamicznym środowisku.",
+    "expertise": "Bezpieczeństwo informacyjne, zarządzanie tożsamością",
+    "priority": "Wysoki",
+    "id": 7,
+    "createdAt": "2025-04-07T10:56:14.991Z"
+  },
+  {
+    "systemId": 1,
+    "requirementId": 8,
+    "impactLevel": "średni",
+    "impactType": "Integracja",
+    "gapAnalysis": "ERP musi wspierać interoperacyjność danych z różnych dziedzin, co wymaga aktualizacji standardów wymiany danych.",
+    "requiredModifications": [
+      "Aktualizacja standardów wymiany danych",
+      "Wdrożenie nowych protokołów komunikacyjnych"
+    ],
+    "dependencies": [
+      {
+        "name": "Systemy zewnętrzne"
+      }
+    ],
+    "complexity": "Średnia",
+    "challenges": "Zapewnienie zgodności i interoperacyjności z różnymi systemami zewnętrznymi.",
+    "expertise": "Integracja systemów, standardy wymiany danych",
+    "priority": "Średni",
+    "id": 8,
+    "createdAt": "2025-04-07T10:56:14.991Z"
+  },
+  {
+    "systemId": 1,
+    "requirementId": 9,
+    "impactLevel": "wysoki",
+    "impactType": "Funkcjonalność",
+    "gapAnalysis": "ERP musi posiadać mechanizmy udostępniania danych zgodne z wymogami przejrzystości i niedyskryminacji, wymaga to rozbudowy funkcji zarządzania dostępem.",
+    "requiredModifications": [
+      "Implementacja mechanizmów przejrzystości i niedyskryminacji",
+      "Rozbudowa funkcji monitorowania dostępu do danych"
+    ],
+    "dependencies": [
+      {
+        "name": "Moduł zarządzania użytkownikami"
+      }
+    ],
+    "complexity": "Wysoka",
+    "challenges": "Zarządzanie zgodnością z różnymi zasadami przejrzystości i niedyskryminacji.",
+    "expertise": "Zarządzanie dostępem, polityki zgodności",
+    "priority": "Wysoki",
+    "id": 9,
+    "createdAt": "2025-04-07T10:56:14.991Z"
+  },
+  {
+    "systemId": 1,
+    "requirementId": 10,
+    "impactLevel": "niski",
+    "impactType": "Funkcjonalność",
+    "gapAnalysis": "System ERP może wspierać wzmacnianie zdolności cyfrowych MŚP poprzez dostosowanie interfejsów i procesów.",
+    "requiredModifications": [
+      "Uproszczenie procesów interfejsu użytkownika",
+      "Dostosowanie szkoleń dla użytkowników MŚP"
+    ],
+    "dependencies": [
+      {
+        "name": "Moduł szkoleniowy"
+      }
+    ],
+    "complexity": "Niska",
+    "challenges": "Dostosowanie zaawansowanych funkcji do potrzeb MŚP.",
+    "expertise": "Projektowanie UX/UI, szkolenia użytkowników",
+    "priority": "Niski",
+    "id": 10,
+    "createdAt": "2025-04-07T10:56:14.991Z"
+  }
+]

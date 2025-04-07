@@ -282,6 +282,23 @@ const Analysis = () => {
     }
   }, [impacts]);
   
+  // Nasłuchiwanie resetowania analizy przez resetAllAnalysis z AppContext
+  useEffect(() => {
+    // Utworzenie funkcji, która będzie reagować na resetowanie analizy
+    const handleResetEvent = () => {
+      console.log("Wykryto reset analizy - ukrywam wyniki");
+      setShowResults(false);
+    };
+    
+    // Utworzenie własnego eventu do komunikacji między komponentami
+    window.addEventListener("analysisReset", handleResetEvent);
+    
+    // Czyszczenie nasłuchiwania przy odmontowaniu komponentu
+    return () => {
+      window.removeEventListener("analysisReset", handleResetEvent);
+    };
+  }, []);
+  
   const handleAnalyzeImpact = async () => {
     // Nie używamy tutaj useAppContext, zamiast tego korzystamy z isApiConfigured
     // przekazanego z komponentu wyżej
@@ -444,7 +461,7 @@ const Analysis = () => {
       <div className="mb-8">
         <h2 className="text-xl font-medium mb-2">Opis systemów</h2>
         <p className="text-sm text-gray-500 mb-4">
-          Załaduj pliki TXT opisujące architekturę systemów IT, które będą analizowane pod kątem wpływu zmian w przepisach prawa.
+          Załaduj pliki TXT zawierający opis systemów IT, które będą analizowane pod kątem wpływu zmian w przepisach prawa.
           {systems.length > 0 && (
             <span className="ml-2 text-[#3498DB]">Aktualnie wczytano {systems.length} systemów.</span>
           )}
