@@ -2,18 +2,41 @@ import fs from "fs/promises";
 import { storage } from "../storage";
 import path from "path";
 import { InsertSystem } from "@shared/schema";
+import { PDFUtils } from "./pdfUtils";
 
 class FileService {
   // Process uploaded regulation file (PDF)
   async processRegulationFile(filePath: string): Promise<string> {
     try {
-      // In a real application, we would extract text from PDF
-      // and potentially preprocess it for the AI
+      // Weryfikacja, czy plik istnieje
+      await fs.access(filePath).catch((err) => {
+        console.error(`File access error: ${err.message}`);
+        console.error(`File path: ${filePath}`);
+        console.error(`Current directory: ${process.cwd()}`);
+        throw new Error(`Plik nie jest dostępny: ${err.message}`);
+      });
       
-      // For now, we'll just store the file ID
-      const fileId = path.basename(filePath);
+      console.log(`Przetwarzanie pliku PDF: ${filePath}`);
       
-      return fileId;
+      try {
+        // Używamy naszego narzędzia do ekstrakcji tekstu z PDF
+        const text = await PDFUtils.extractTextFromPDF(filePath);
+        console.log(`Wyodrębniono ${text.length} znaków tekstu z pliku ${filePath}`);
+        
+        // Plik tekstowy i metadane są już zapisywane w PDFUtils.extractTextFromPDF
+        
+        // Zwróć ID pliku
+        const fileId = path.basename(filePath);
+        return fileId;
+      } catch (pdfError: unknown) {
+        const errorMessage = pdfError instanceof Error ? pdfError.message : String(pdfError);
+        console.error(`Błąd podczas parsowania PDF: ${errorMessage}`);
+        
+        // Nawet jeśli wystąpił błąd, zwróć ID pliku
+        // W rzeczywistej aplikacji moglibyśmy dodać oznaczenie błędu do pliku
+        const fileId = path.basename(filePath);
+        return fileId;
+      }
     } catch (error) {
       console.error("Error processing regulation file:", error);
       throw error;
@@ -31,54 +54,175 @@ class FileService {
         throw new Error(`Plik nie jest dostępny: ${err.message}`);
       });
       
-      // For this implementation, we'll create a sample system
-      const fileId = path.basename(filePath);
+      console.log(`Przetwarzanie pliku systemu PDF: ${filePath}`);
       
-      // Create a sample system based on the filename
-      // Obsługa różnych rozszerzeń plików
-      let fileName = path.basename(filePath);
-      const extPattern = /\.(pdf|PDF)$/;
-      if (extPattern.test(fileName)) {
-        fileName = fileName.replace(extPattern, "");
-      }
-      
-      // Generowanie unikatowego ID systemu
-      const randomId = Math.floor(Math.random() * 1000);
-      
-      // Tworzenie systemu z bardziej opisową nazwą
-      // Tworzenie drugiego przykładowego systemu dla pewności, że mamy więcej niż jeden system
-      // W prawdziwej aplikacji te dane pochodziłyby z analizy pliku PDF
-      let sampleSystem: InsertSystem;
-      
-      if (await storage.getAllSystems().then(systems => systems.length > 0)) {
-        // Jeśli istnieje już jakiś system, stwórz inny typ systemu
-        sampleSystem = {
-          name: `System Obsługi Klienta`,
-          description: "System informatyczny do zarządzania relacjami z klientami i zamówieniami",
-          function: "Obsługa klientów, zarządzanie zamówieniami, zarządzanie reklamacjami",
-          capabilities: "Baza danych klientów, rejestracja zamówień, śledzenie statusu zamówień, obsługa zgłoszeń",
-          dependencies: "System ERP, System Magazynowy, Bramka Płatności"
+      try {
+        // Używamy naszego narzędzia do ekstrakcji tekstu z PDF
+        const text = await PDFUtils.extractTextFromPDF(filePath);
+        console.log(`Wyodrębniono ${text.length} znaków tekstu z pliku systemu ${filePath}`);
+        
+        // Wyodrębnij nazwę systemu i inne informacje z tekstu PDF
+        const systemName = this.extractSystemNameFromText(text, path.basename(filePath, '.pdf'));
+        const systemDescription = this.extractSystemDescriptionFromText(text);
+        const systemFunction = this.extractSystemFunctionFromText(text);
+        const systemCapabilities = this.extractSystemCapabilitiesFromText(text);
+        const systemDependencies = this.extractSystemDependenciesFromText(text);
+        
+        // Tworzenie nowego systemu bazując na zawartości pliku
+        const newSystem: InsertSystem = {
+          name: systemName,
+          description: systemDescription,
+          function: systemFunction,
+          capabilities: systemCapabilities,
+          dependencies: systemDependencies
         };
-      } else {
-        // Pierwszy system w bazie
-        sampleSystem = {
-          name: `System Zarządzania Dokumentacją`,
-          description: "System informatyczny do zarządzania dokumentacją i procesami przedsiębiorstwa",
-          function: "Zarządzanie danymi i procesami biznesowymi, archiwizacja dokumentów, zarządzanie obiegiem informacji",
-          capabilities: "Przechowywanie danych, raportowanie, integracja, dostęp do historii dokumentów",
-          dependencies: "System CRM, System ERP, System Księgowy"
+        
+        // Zapis systemu do bazy danych
+        const createdSystem = await storage.createSystem(newSystem);
+        console.log(`Created system with ID: ${createdSystem.id} from PDF content`);
+        
+        // Zwróć ID pliku
+        const fileId = path.basename(filePath);
+        return fileId;
+      } catch (pdfError: unknown) {
+        const errorMessage = pdfError instanceof Error ? pdfError.message : String(pdfError);
+        console.error(`Błąd podczas parsowania PDF systemu: ${errorMessage}`);
+        
+        // Jeśli nie można sparsować PDF, tworzymy przykładowy system bazując na nazwie pliku
+        let fileName = path.basename(filePath);
+        const extPattern = /\.(pdf|PDF)$/;
+        if (extPattern.test(fileName)) {
+          fileName = fileName.replace(extPattern, "");
+        }
+        
+        // Tworzenie systemu z nazwą bazującą na nazwie pliku
+        const sampleSystem: InsertSystem = {
+          name: `System ${fileName}`,
+          description: "System informatyczny wspierający procesy biznesowe",
+          function: "Zarządzanie danymi i procesami biznesowymi",
+          capabilities: "Przechowywanie danych, raportowanie, integracja",
+          dependencies: "Inne systemy w organizacji, bazy danych"
         };
+        
+        // Zapis systemu do bazy danych
+        const createdSystem = await storage.createSystem(sampleSystem);
+        console.log(`Created fallback system with ID: ${createdSystem.id}`);
+        
+        // Zwróć ID pliku
+        const fileId = path.basename(filePath);
+        return fileId;
       }
-      
-      // Zapis systemu do bazy danych
-      const createdSystem = await storage.createSystem(sampleSystem);
-      console.log(`Created system with ID: ${createdSystem.id}`);
-      
-      return fileId;
     } catch (error) {
       console.error("Error processing system file:", error);
       throw error;
     }
+  }
+  
+  // Metody pomocnicze do ekstrakcji informacji z tekstu
+  private extractSystemNameFromText(text: string, defaultName: string): string {
+    // Szukamy typowych wzorców nazwy systemu w tekście
+    const namePatterns = [
+      /nazwa\s+systemu[:\s]+([^\n\.]+)/i,
+      /system[:\s]+([^\n\.]+)/i,
+      /nazwa\s+aplikacji[:\s]+([^\n\.]+)/i,
+      /aplikacja[:\s]+([^\n\.]+)/i,
+      /nazwa[:\s]+([^\n\.]+)/i
+    ];
+    
+    for (const pattern of namePatterns) {
+      const match = text.match(pattern);
+      if (match && match[1] && match[1].trim().length > 0) {
+        const name = match[1].trim();
+        if (name.length > 5 && name.length < 100) {
+          return name.substring(0, 100); // Ogranicz do 100 znaków
+        }
+      }
+    }
+    
+    // Jeśli nie znaleziono nazwy, użyj nazwy pliku
+    return `System ${defaultName}`;
+  }
+  
+  private extractSystemDescriptionFromText(text: string): string {
+    // Szukamy typowych wzorców opisu systemu w tekście
+    const descPatterns = [
+      /opis\s+systemu[:\s]+([^\n]+(\n[^\n]+){0,3})/i,
+      /charakterystyka\s+systemu[:\s]+([^\n]+(\n[^\n]+){0,3})/i,
+      /przeznaczenie\s+systemu[:\s]+([^\n]+(\n[^\n]+){0,3})/i,
+      /cel\s+systemu[:\s]+([^\n]+(\n[^\n]+){0,3})/i
+    ];
+    
+    for (const pattern of descPatterns) {
+      const match = text.match(pattern);
+      if (match && match[1] && match[1].trim().length > 0) {
+        return match[1].trim().substring(0, 500); // Ogranicz do 500 znaków
+      }
+    }
+    
+    // Jeśli nie znaleziono opisu, użyj fragmentu tekstu
+    const firstParagraphs = text.split('\n').filter(p => p.trim().length > 0).slice(0, 3).join(' ');
+    if (firstParagraphs.length > 0) {
+      return firstParagraphs.substring(0, 500);
+    }
+    
+    return "System informatyczny wspierający procesy biznesowe organizacji";
+  }
+  
+  private extractSystemFunctionFromText(text: string): string {
+    // Szukamy typowych wzorców funkcji systemu w tekście
+    const funcPatterns = [
+      /funkcje\s+systemu[:\s]+([^\n]+(\n[^\n]+){0,3})/i,
+      /funkcjonalności[:\s]+([^\n]+(\n[^\n]+){0,3})/i,
+      /główne\s+funkcje[:\s]+([^\n]+(\n[^\n]+){0,3})/i,
+      /możliwości\s+systemu[:\s]+([^\n]+(\n[^\n]+){0,3})/i
+    ];
+    
+    for (const pattern of funcPatterns) {
+      const match = text.match(pattern);
+      if (match && match[1] && match[1].trim().length > 0) {
+        return match[1].trim().substring(0, 500);
+      }
+    }
+    
+    return "Zarządzanie procesami biznesowymi, przechowywanie danych, raportowanie";
+  }
+  
+  private extractSystemCapabilitiesFromText(text: string): string {
+    // Szukamy typowych wzorców możliwości systemu w tekście
+    const capPatterns = [
+      /możliwości\s+systemu[:\s]+([^\n]+(\n[^\n]+){0,3})/i,
+      /funkcjonalności\s+systemu[:\s]+([^\n]+(\n[^\n]+){0,3})/i,
+      /zakres\s+funkcjonalny[:\s]+([^\n]+(\n[^\n]+){0,3})/i,
+      /moduły\s+systemu[:\s]+([^\n]+(\n[^\n]+){0,3})/i
+    ];
+    
+    for (const pattern of capPatterns) {
+      const match = text.match(pattern);
+      if (match && match[1] && match[1].trim().length > 0) {
+        return match[1].trim().substring(0, 500);
+      }
+    }
+    
+    return "Przechowywanie i przetwarzanie danych, generowanie raportów, integracja z innymi systemami";
+  }
+  
+  private extractSystemDependenciesFromText(text: string): string {
+    // Szukamy typowych wzorców zależności systemu w tekście
+    const depPatterns = [
+      /zależności\s+systemowe[:\s]+([^\n]+(\n[^\n]+){0,3})/i,
+      /powiązania\s+z\s+innymi\s+systemami[:\s]+([^\n]+(\n[^\n]+){0,3})/i,
+      /integracje[:\s]+([^\n]+(\n[^\n]+){0,3})/i,
+      /systemy\s+zewnętrzne[:\s]+([^\n]+(\n[^\n]+){0,3})/i
+    ];
+    
+    for (const pattern of depPatterns) {
+      const match = text.match(pattern);
+      if (match && match[1] && match[1].trim().length > 0) {
+        return match[1].trim().substring(0, 500);
+      }
+    }
+    
+    return "Inne systemy w organizacji, bazy danych, usługi zewnętrzne";
   }
   
   // Process uploaded requirements file (JSON)

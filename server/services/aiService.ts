@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Requirement, InsertRequirement, System, Impact, InsertImpact, ImpactLevel } from "@shared/schema";
+import fs from "fs";
 
 class AIService {
   private openai: OpenAI | null = null;
@@ -52,26 +53,83 @@ class AIService {
 
   async extractRequirements(documentIds: string[]): Promise<InsertRequirement[]> {
     try {
-      // In a real application, this would read the uploaded PDF files
-      // and use the AI to extract requirements
-      // For this implementation, we'll create sample requirements
+      if (!documentIds || documentIds.length === 0) {
+        throw new Error("Brak ID dokumentów do analizy");
+      }
+      
+      // Odczytanie zawartości dla każdego pliku PDF
+      const textsFromDocuments: string[] = [];
+      const documentNames: string[] = [];
+      
+      // Najpierw sprawdź czy dokumenty istnieją i spróbuj odczytać ich treść
+      for (const docId of documentIds) {
+        // Sprawdź czy plik istnieje w katalogu uploadów
+        try {
+          const uploadDir = "./uploads";
+          const filePath = `${uploadDir}/regulations/${docId}`;
+          
+          console.log(`Sprawdzanie pliku ${filePath}...`);
+          
+          // Sprawdź, czy istnieje plik tekstowy (został wygenerowany przez FileService)
+          const textFilePath = `${filePath}.txt`;
+          
+          try {
+            const textContent = await fs.promises.readFile(textFilePath, 'utf-8');
+            if (textContent && textContent.length > 0) {
+              console.log(`Odczytano treść z pliku ${textFilePath}, ${textContent.length} znaków`);
+              textsFromDocuments.push(textContent);
+              documentNames.push(docId);
+            } else {
+              console.log(`Plik ${textFilePath} jest pusty lub nie udało się go odczytać`);
+              // Jeśli nie ma tekstu, dodaj informację o tym
+              textsFromDocuments.push(`[Nie udało się odczytać treści dokumentu ${docId}]`);
+              documentNames.push(docId);
+            }
+          } catch (fileError) {
+            console.error(`Błąd odczytu pliku ${textFilePath}:`, fileError);
+            // Jeśli nie ma pliku tekstowego, informujemy że nie znaleziono dokumentu
+            textsFromDocuments.push(`[Nie znaleziono dokumentu ${docId}]`);
+            documentNames.push(docId);
+          }
+        } catch (error) {
+          console.error(`Błąd przetwarzania dokumentu ${docId}:`, error);
+          // Jeśli wystąpił błąd, dodaj informację o tym
+          textsFromDocuments.push(`[Błąd przetwarzania dokumentu ${docId}]`);
+          documentNames.push(docId);
+        }
+      }
+      
+      // Jeśli nie znaleziono żadnych treści dokumentów, zwróć błąd
+      if (textsFromDocuments.length === 0) {
+        throw new Error("Nie znaleziono treści żadnego z dokumentów");
+      }
+      
+      // Użyj OpenAI do ekstrakcji wymagań
       const openai = await this.getOpenAIInstance();
       
+      // Przygotuj prompt zawierający treść dokumentów
+      const documentTexts = textsFromDocuments.map((text, index) => 
+        `DOKUMENT ${index + 1} (${documentNames[index]}):\n${text.substring(0, 10000)}${text.length > 10000 ? '...' : ''}`
+      ).join('\n\n--------\n\n');
+      
       const prompt = `
-      ## 1. Prompt for Extracting Key Requirements from Legal Regulations
+      ## Prompt do Ekstrakcji Kluczowych Wymagań z Przepisów Prawnych
       
-      You are an expert legal and IT compliance analyst. Your task is to analyse a legal document and extract precise requirements that impact IT systems within enterprise environments only. Focus solely on changes affecting enterprise systems, not public administration.
+      Jesteś ekspertem w dziedzinie prawa i zgodności IT. Twoim zadaniem jest analiza dokumentów prawnych i ekstrakcja precyzyjnych wymagań, które mają wpływ na systemy IT w środowiskach przedsiębiorstw. Skup się wyłącznie na zmianach wpływających na systemy przedsiębiorstw, a nie na administrację publiczną.
       
-      TASK:
-      Extract and analyse all IT-relevant requirements from the provided legal document with particular attention to regulatory obligations that necessitate changes to IT systems, processes, or data handling.
+      DOKUMENT(Y) DO ANALIZY:
+      ${documentTexts}
       
-      For EACH identified requirement, provide the following structured analysis:
+      ZADANIE:
+      Wyodrębnij i przeanalizuj wszystkie istotne dla IT wymagania z dostarczonych dokumentów prawnych, zwracając szczególną uwagę na obowiązki regulacyjne, które wymagają zmian w systemach IT, procesach lub obsłudze danych.
       
-      1. REQUIREMENT IDENTIFIER: Reference the specific article, paragraph, or section number where this requirement appears.
+      Dla KAŻDEGO zidentyfikowanego wymagania, przedstaw następującą strukturalną analizę:
       
-      2. REQUIREMENT TEXT: Quote the exact text from the document that establishes this requirement.
+      1. IDENTYFIKATOR WYMAGANIA: Odwołanie do konkretnego artykułu, paragrafu lub sekcji, w której pojawia się to wymaganie.
       
-      3. CATEGORIZATION: Classify the requirement into ONLY ONE of these categories (use exactly as listed):
+      2. TREŚĆ WYMAGANIA: Zacytuj dokładny tekst z dokumentu, który ustanawia to wymaganie.
+      
+      3. KATEGORYZACJA: Sklasyfikuj wymaganie do TYLKO JEDNEJ z tych kategorii (użyj dokładnie tak, jak wymienione):
       - Przetwarzanie i przechowywanie danych
       - Prawa użytkowników i zarządzanie zgodami
       - Bezpieczeństwo i kontrola dostępu
@@ -83,64 +141,101 @@ class AIService {
       - Interfejs użytkownika
       - Inne
       
-      4. SUBJECT MATTER: Describe precisely what aspect of IT systems this affects (e.g., 'customer personal data storage', 'transaction authorisation mechanisms', 'automated reporting capabilities').
+      4. PRZEDMIOT: Opisz dokładnie, który aspekt systemów IT to dotyczy (np. "przechowywanie danych osobowych klientów", "mechanizmy autoryzacji transakcji", "zautomatyzowane możliwości raportowania").
       
-      5. COMPLIANCE OBJECTIVE: What specific outcome or state must be achieved to comply with this requirement? Be concrete and measurable where possible.
+      5. CEL ZGODNOŚCI: Jaki konkretny wynik lub stan musi zostać osiągnięty, aby zapewnić zgodność z tym wymaganiem? Bądź konkretny i mierzalny, jeśli to możliwe.
       
-      6. TECHNICAL IMPLICATIONS: What specific technical capabilities or features must IT systems implement? Be specific about what systems must DO, not just general objectives.
+      6. IMPLIKACJE TECHNICZNE: Jakie konkretne możliwości techniczne lub funkcje muszą zaimplementować systemy IT? Bądź konkretny odnośnie tego, co systemy muszą ROBIĆ, a nie tylko ogólnych celów.
       
-      7. IMPLEMENTATION TIMELINE:
-      - Explicit deadline mentioned in text (quote if present)
-      - Inferred deadline based on context
-      - Standard implementation period if not specified
-      - Provide specifics where possible (e.g., 'Fines up to 20 million EUR or 4% of global turnover under GDPR')
+      7. HARMONOGRAM WDROŻENIA:
+      - Wyraźny termin wspomniany w tekście (zacytuj, jeśli jest obecny)
+      - Wywnioskowany termin na podstawie kontekstu
+      - Standardowy okres wdrożenia, jeśli nie określono
+      - Podaj szczegóły, jeśli to możliwe (np. "Kary do 20 milionów EUR lub 4% globalnego obrotu w ramach RODO")
       
-      10. CROSS-REFERENCES: Note any other articles or sections in the regulation that relate to or modify this requirement.
+      8. ODNIESIENIA KRZYŻOWE: Zauważ inne artykuły lub sekcje w przepisie, które odnoszą się do lub modyfikują to wymaganie.
       
-      11. KEY TERMS: List critical terms or concepts that appear in this requirement which may need precise definition for technical implementation.
+      9. KLUCZOWE TERMINY: Wymień krytyczne terminy lub koncepcje, które pojawiają się w tym wymaganiu, które mogą wymagać precyzyjnej definicji dla implementacji technicznej.
       
       FORMAT:
-      Present your analysis as JSON array, where each object has these properties: identifier, requirementText, category, subjectMatter, complianceObjective, technicalImplications, implementationTimeline, crossReferences, keyTerms, source.
+      Przedstaw swoją analizę jako tablicę JSON, gdzie każdy obiekt ma następujące właściwości: identifier, requirementText, category, subjectMatter, complianceObjective, technicalImplications, implementationTimeline, crossReferences, keyTerms, source.
       
-      ADDITIONAL GUIDANCE:
-      - Extract 3-5 sample requirements for this demonstration
-      - Focus on requirements that directly or indirectly necessitate changes to IT systems, not purely organisational or administrative requirements.
-      - Be attentive to implicit technical requirements that aren't explicitly stated as IT requirements but would necessitate system changes.
-      - All responses must be in Polish.
+      DODATKOWE WYTYCZNE:
+      - Ekstrahuj 3-8 wymagań dla tej demonstracji, w zależności od zawartości dokumentów
+      - Skup się na wymaganiach, które bezpośrednio lub pośrednio wymagają zmian w systemach IT, a nie czysto organizacyjnych lub administracyjnych wymaganiach.
+      - Zwróć uwagę na niejawne wymagania techniczne, które nie są wyraźnie określone jako wymagania IT, ale wymagałyby zmian w systemie.
+      - Wszystkie odpowiedzi muszą być w języku polskim.
+      - Jeśli dokument nie zawiera odpowiednich wymagań dla IT, wygeneruj przykładowe wymagania bazując na typowych przepisach takich jak RODO.
       
-      Let's assume we're working with GDPR (General Data Protection Regulation) or similar privacy regulation documents.
+      ODPOWIEDZ W FORMACIE JSON:
+      {
+        "requirements": [
+          {
+            "identifier": "Art. X, ust. Y",
+            "requirementText": "Dokładny cytat...",
+            "category": "Jedna z podanych kategorii",
+            "subjectMatter": "...",
+            "complianceObjective": "...",
+            "technicalImplications": "...",
+            "implementationTimeline": "...",
+            "crossReferences": "...",
+            "keyTerms": "...",
+            "source": "RODO" lub nazwa analizowanego dokumentu
+          },
+          // kolejne wymagania...
+        ]
+      }
+      
+      Dokładnie trzymaj się tego formatu JSON!
       `;
       
-      // Zmieniono model na gpt-4o-mini, ponieważ gpt-4o wymaga specjalnego dostępu
-      // Jeśli ten model również nie działa, można wypróbować "gpt-3.5-turbo-0125"
+      console.log(`Wysyłanie zapytania do OpenAI z tekstem o długości ${prompt.length} znaków...`);
+      
+      // Wywołanie API OpenAI
       const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini", // Zmieniono z gpt-4o na gpt-4o-mini, który ma szerszy dostęp
+        model: "gpt-4o-mini", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
         messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" }
+        response_format: { type: "json_object" },
+        temperature: 0.7
       });
       
       const content = response.choices[0].message.content;
-      if (!content) throw new Error("Empty response from OpenAI");
+      if (!content) throw new Error("Pusta odpowiedź z OpenAI");
       
-      const parsedResponse = JSON.parse(content);
-      if (!Array.isArray(parsedResponse.requirements)) {
-        throw new Error("Invalid response format from OpenAI");
+      console.log(`Otrzymano odpowiedź od OpenAI, długość: ${content.length} znaków`);
+      
+      try {
+        // Parsowanie odpowiedzi do formatu JSON
+        const parsedResponse = JSON.parse(content);
+        
+        // Sprawdzenie czy odpowiedź zawiera tablicę requirements
+        if (!parsedResponse.requirements || !Array.isArray(parsedResponse.requirements)) {
+          console.error("Nieprawidłowy format odpowiedzi z OpenAI:", content);
+          throw new Error("Nieprawidłowy format odpowiedzi z OpenAI - brak tablicy requirements");
+        }
+        
+        console.log(`Wyodrębniono ${parsedResponse.requirements.length} wymagań`);
+        
+        // Mapowanie odpowiedzi na format InsertRequirement
+        return parsedResponse.requirements.map((req: any) => ({
+          identifier: req.identifier || "Brak identyfikatora",
+          requirementText: req.requirementText || "Brak tekstu wymagania",
+          category: req.category || "Inne",
+          subjectMatter: req.subjectMatter || "",
+          complianceObjective: req.complianceObjective || "",
+          technicalImplications: req.technicalImplications || "",
+          implementationTimeline: req.implementationTimeline || "",
+          crossReferences: req.crossReferences || "",
+          keyTerms: req.keyTerms || "",
+          source: req.source || documentNames.join(", ") || "RODO"
+        }));
+      } catch (parseError) {
+        console.error("Błąd parsowania odpowiedzi JSON z OpenAI:", parseError);
+        console.error("Otrzymana odpowiedź:", content);
+        throw new Error("Błąd parsowania odpowiedzi z OpenAI");
       }
-      
-      return parsedResponse.requirements.map((req: any) => ({
-        identifier: req.identifier,
-        requirementText: req.requirementText,
-        category: req.category,
-        subjectMatter: req.subjectMatter,
-        complianceObjective: req.complianceObjective,
-        technicalImplications: req.technicalImplications,
-        implementationTimeline: req.implementationTimeline,
-        crossReferences: req.crossReferences,
-        keyTerms: req.keyTerms,
-        source: req.source || "GDPR"
-      }));
     } catch (error) {
-      console.error("Error extracting requirements:", error);
+      console.error("Błąd ekstrakcji wymagań:", error);
       throw error;
     }
   }

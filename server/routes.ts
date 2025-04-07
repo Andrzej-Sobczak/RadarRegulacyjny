@@ -389,9 +389,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (err) {
       console.error("Error testing API connection:", err);
+      const errorMessage = err instanceof Error ? err.message : String(err);
       res.status(500).json({ 
         success: false, 
-        message: `Błąd testowania połączenia: ${err.message}` 
+        message: `Błąd testowania połączenia: ${errorMessage}` 
       });
     }
   });
