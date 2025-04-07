@@ -275,6 +275,13 @@ const Analysis = () => {
     console.log("- Analizy:", impacts.length);
   }, [impacts, systems, requirements, queryClient]);
   
+  // Dodatkowy effect, który zresetuje showResults jeśli nie ma żadnych impact
+  useEffect(() => {
+    if (impacts.length === 0) {
+      setShowResults(false);
+    }
+  }, [impacts]);
+  
   const handleAnalyzeImpact = () => {
     // Nie używamy tutaj useAppContext, zamiast tego korzystamy z isApiConfigured
     // przekazanego z komponentu wyżej
