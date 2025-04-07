@@ -541,10 +541,10 @@ const Analysis = () => {
                   defaultValue="all"
                 >
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Wszystkie systemy" />
+                    <SelectValue placeholder="Cały wpływ" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Wszystkie systemy</SelectItem>
+                    <SelectItem value="all">Cały wpływ</SelectItem>
                     <SelectItem value={ImpactLevel.CRITICAL}>Wpływ krytyczny</SelectItem>
                     <SelectItem value={ImpactLevel.HIGH}>Wpływ wysoki</SelectItem>
                     <SelectItem value={ImpactLevel.MEDIUM}>Wpływ średni</SelectItem>

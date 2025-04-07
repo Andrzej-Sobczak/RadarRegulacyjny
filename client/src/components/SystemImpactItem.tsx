@@ -81,9 +81,13 @@ export const SystemImpactItem: React.FC<SystemImpactItemProps> = ({
         <div>
           <div className="flex items-center">
             <div className={`w-3 h-3 rounded-full ${getImpactColor(impact.impactLevel)} mr-2`}></div>
-            <h5 className="font-medium">{system.name}</h5>
+            <h5 className="font-medium">{system.name.replace(/_/g, " ")}</h5>
           </div>
-          <p className="text-sm text-gray-600 mt-1">{system.description}</p>
+          <p className="text-sm text-gray-600 mt-1">
+            {system.description.startsWith("i jego przeznaczenia:") 
+              ? `System ${system.name.replace(/_/g, " ")}${system.description}` 
+              : system.description}
+          </p>
         </div>
         <span className={`${getImpactBadgeStyle(impact.impactLevel)} text-xs px-2 py-1 rounded-full`}>
           Wpływ {impact.impactLevel}
