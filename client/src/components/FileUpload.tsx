@@ -1,6 +1,7 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, FileCode } from "lucide-react";
+import { useAppContext } from "../contexts/AppContext";
 
 interface FileUploadProps {
   onFileSelected: (files: File[]) => void;
@@ -14,6 +15,22 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   className = ""
 }) => {
   const [files, setFiles] = useState<File[]>([]);
+  const { uploadedFiles } = useAppContext();
+  
+  // Reaguj na zmiany w uploadedFiles z kontekstu
+  useEffect(() => {
+    // Jeśli uploadedFiles jest pusty, zresetuj stan lokalny
+    if (uploadedFiles.length === 0) {
+      setFiles([]);
+    }
+    // Jeśli uploadedFiles został zmieniony i nie ma żadnych plików odpowiedniego typu, zresetuj stan
+    else if (fileType === "PDF" && !uploadedFiles.some(f => f.type === 'system')) {
+      setFiles([]);
+    }
+    else if (fileType === "JSON" && !uploadedFiles.some(f => f.type === 'requirements' || f.type === 'regulation')) {
+      setFiles([]);
+    }
+  }, [uploadedFiles, fileType]);
   
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(acceptedFiles);
