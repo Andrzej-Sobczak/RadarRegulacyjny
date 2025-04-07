@@ -254,11 +254,8 @@ class AIService {
         throw new Error("Brak systemów do analizy");
       }
       
-      // Możemy zawęzić liczbę wymagań i systemów dla lepszej wydajności
-      const limitedRequirements = requirements.slice(0, 5);
-      const limitedSystems = systems.slice(0, 3);
-      
-      console.log(`Zredukowano do ${limitedRequirements.length} wymagań i ${limitedSystems.length} systemów`);
+      // Używamy pełnej liczby wymagań i systemów zgodnie z parametrami przekazanymi do funkcji
+      console.log(`Analizuję ${requirements.length} wymagań i ${systems.length} systemów`);
       
       // Now using OpenAI instead of Gemini
       const openai = await this.getOpenAIInstance();
@@ -268,10 +265,10 @@ class AIService {
 
       DANE WEJŚCIOWE:
       1. OPIS ARCHITEKTURY SYSTEMÓW:
-      ${JSON.stringify(limitedSystems, null, 2)}
+      ${JSON.stringify(systems, null, 2)}
       
       2. WYMAGANIA REGULACYJNE:
-      ${JSON.stringify(limitedRequirements, null, 2)}
+      ${JSON.stringify(requirements, null, 2)}
       
       ZADANIE:
       Wykonaj szczegółową analizę mapowania, aby określić, jak każde wymaganie regulacyjne wpływa na opisaną architekturę IT. Uwzględnij bezpośrednie wpływy, pośrednie zależności i wyzwania integracyjne.

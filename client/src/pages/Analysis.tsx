@@ -96,7 +96,7 @@ const Analysis = () => {
 
   // Analysis mutation
   const analysisMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (data: { requirementIds: number[], systemIds: number[] }) => {
       // Rozpocznij pokazywanie postępu analizy
       setAnalysisStatus({
         isProcessing: true,
@@ -155,8 +155,8 @@ const Analysis = () => {
           systems
         });
         
-        // Wykonaj analizę wpływu
-        const result = await analyzeImpact(reqIds, sysIds);
+        // Wykonaj analizę wpływu z parametrami z mutacji
+        const result = await analyzeImpact(data.requirementIds, data.systemIds);
         
         // Oznacz analizę jako zakończoną
         clearInterval(progressInterval);
@@ -310,8 +310,8 @@ const Analysis = () => {
         console.log("Wysyłam do analizy wymagania z ID:", reqIds);
         console.log("Wysyłam do analizy systemy z ID:", sysIds);
         
-        // Wywołaj analizę
-        analysisMutation.mutate();
+        // Wywołaj analizę z przekazaniem parametrów
+        analysisMutation.mutate({ requirementIds: reqIds, systemIds: sysIds });
         
         toast({
           title: "Rozpoczęto analizę",
