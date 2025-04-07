@@ -3,19 +3,45 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Requirement, InsertRequirement, System, Impact, InsertImpact, ImpactLevel } from "@shared/schema";
 import fs from "fs";
 import { TextUtils } from "./textUtils";
+import { storage } from "../storage";
 
 class AIService {
   private openai: OpenAI | null = null;
   private gemini: any | null = null;
 
   async getOpenAIInstance(apiKey?: string): Promise<OpenAI> {
-    if (this.openai && !apiKey) return this.openai;
+    // Jeśli podano konkretny klucz API (np. przy testowaniu połączenia), użyj go
+    if (apiKey) {
+      // Upewnij się, że klucz ma poprawny format
+      if (!apiKey.startsWith('sk-') || apiKey.length < 20) {
+        throw new Error("Nieprawidłowy format klucza API OpenAI");
+      }
+      return new OpenAI({ apiKey: apiKey });
+    }
     
-    const key = apiKey || process.env.OPENAI_API_KEY;
-    if (!key) throw new Error("OpenAI API key not found");
+    // Jeśli istnieje instancja i nie podano nowego klucza, zwróć obecną instancję
+    if (this.openai) return this.openai;
     
-    this.openai = new OpenAI({ apiKey: key });
-    return this.openai;
+    // Pobierz klucz API z ustawień w bazie danych
+    try {
+      const settings = await storage.getApiSettings();
+      const key = settings.openaiApiKey;
+      
+      if (!key) {
+        throw new Error("Klucz API OpenAI nie został znaleziony. Proszę skonfigurować klucz w zakładce Administracja.");
+      }
+      
+      // Upewnij się, że klucz ma poprawny format
+      if (!key.startsWith('sk-') || key.length < 20) {
+        throw new Error("Nieprawidłowy format klucza API OpenAI. Proszę sprawdzić klucz w zakładce Administracja.");
+      }
+      
+      this.openai = new OpenAI({ apiKey: key });
+      return this.openai;
+    } catch (error) {
+      console.error("Błąd podczas pobierania klucza API OpenAI z bazy danych:", error);
+      throw new Error("Nie można pobrać klucza API OpenAI. Proszę skonfigurować klucz w zakładce Administracja.");
+    }
   }
 
   async getGeminiInstance(apiKey?: string): Promise<any> {
@@ -30,10 +56,17 @@ class AIService {
 
   async testOpenAIConnection(apiKey: string): Promise<boolean> {
     try {
-      const openai = await this.getOpenAIInstance(apiKey);
+      // Tworzymy tymczasową instancję OpenAI z nowym kluczem API (nie zapisując go w this.openai)
+      // Dzięki temu nie nadpiszemy bieżącej instancji z poprawnym kluczem
+      if (!apiKey.startsWith('sk-') || apiKey.length < 20) {
+        console.error("Nieprawidłowy format klucza API OpenAI podczas testu");
+        return false;
+      }
       
-      // Simple test request
-      const response = await openai.chat.completions.create({
+      const tempOpenai = new OpenAI({ apiKey });
+      
+      // Proste zapytanie testowe
+      const response = await tempOpenai.chat.completions.create({
         model: "gpt-4o", // Uaktualnione do pełnej wersji gpt-4o zgodnie z poleceniem użytkownika
         messages: [{ role: "user", content: "Test connection" }],
         max_tokens: 5
