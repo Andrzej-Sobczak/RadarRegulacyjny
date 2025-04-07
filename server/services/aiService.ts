@@ -34,7 +34,7 @@ class AIService {
       
       // Simple test request
       const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini", // Using gpt-4o-mini as requested by the user
+        model: "gpt-4o", // Uaktualnione do pełnej wersji gpt-4o zgodnie z poleceniem użytkownika
         messages: [{ role: "user", content: "Test connection" }],
         max_tokens: 5
       });
@@ -192,7 +192,7 @@ class AIService {
       
       // Wywołanie API OpenAI
       const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        model: "gpt-4o", // Uaktualnione do pełnej wersji gpt-4o zgodnie z poleceniem użytkownika
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
         temperature: 0.7
@@ -342,7 +342,7 @@ class AIService {
       console.log("Wysyłam zapytanie do OpenAI...");
       
       const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini", // Using gpt-4o-mini as requested by the user
+        model: "gpt-4o", // Uaktualnione do pełnej wersji gpt-4o zgodnie z poleceniem użytkownika
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
         temperature: 0.7,
