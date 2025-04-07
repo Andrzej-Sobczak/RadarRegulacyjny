@@ -54,6 +54,8 @@ class AIService {
 
   async extractRequirements(documentIds: string[]): Promise<InsertRequirement[]> {
     try {
+      console.log(`aiService.extractRequirements wywołane z ${documentIds.length} dokumentami: ${JSON.stringify(documentIds)}`);
+      
       if (!documentIds || documentIds.length === 0) {
         throw new Error("Brak ID dokumentów do analizy");
       }
@@ -67,7 +69,7 @@ class AIService {
         // Sprawdź czy plik istnieje w katalogu uploadów
         try {
           const uploadDir = "./uploads";
-          const filePath = `${uploadDir}/regulations/${docId}`;
+          const filePath = `${uploadDir}/${docId}`;
           
           console.log(`Sprawdzanie pliku ${filePath}...`);
           
@@ -219,6 +221,7 @@ class AIService {
       if (!content) throw new Error("Pusta odpowiedź z OpenAI");
       
       console.log(`Otrzymano odpowiedź od OpenAI, długość: ${content.length} znaków`);
+      console.log(`Początek odpowiedzi: ${content.substring(0, 200)}`);
       
       try {
         // Parsowanie odpowiedzi do formatu JSON
