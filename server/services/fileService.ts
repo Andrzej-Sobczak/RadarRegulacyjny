@@ -73,10 +73,15 @@ class FileService {
         // Pobierz oryginalną nazwę pliku bez znaczników czasowych
         const originalFileName = path.basename(filePath);
         
+        // Pozyskaj nazwę systemu - z treści lub z nazwy pliku
+        let systemNameValue = systemName || originalFileName.replace(/\.txt$/i, '');
+        
+        // Zamień podkreślniki na spacje w nazwie systemu dla lepszej czytelności
+        systemNameValue = systemNameValue.replace(/_/g, ' ');
+        
         // Tworzenie nowego systemu bazując na zawartości pliku
         const newSystem: InsertSystem = {
-          // Użyj wykrytej nazwy systemu z treści, jeśli znaleziona, albo nazwę pliku
-          name: systemName || originalFileName.replace(/\.txt$/i, ''),
+          name: systemNameValue,
           description: systemDescription,
           function: systemFunction,
           capabilities: systemCapabilities,
@@ -118,9 +123,12 @@ class FileService {
           }
         }
         
-        // Tworzenie systemu z czystą nazwą pliku
+        // Zamień podkreślniki na spacje w nazwie systemu
+        let displayName = cleanName.replace(/_/g, ' ');
+        
+        // Tworzenie systemu z oczyszczoną nazwą pliku
         const sampleSystem: InsertSystem = {
-          name: cleanName,
+          name: displayName,
           description: "System informatyczny wspierający procesy biznesowe",
           function: "Zarządzanie danymi i procesami biznesowymi",
           capabilities: "Przechowywanie danych, raportowanie, integracja",

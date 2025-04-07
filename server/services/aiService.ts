@@ -355,8 +355,8 @@ class AIService {
       - Uwzględnij implikacje bezpieczeństwa w całej analizie
       - Przeanalizuj, jak wymagania mogą być sprzeczne z istniejącymi zasadami architektury
       
-      Zwróć analizę wpływu przynajmniej 3 różnych wymagań na przynajmniej 2 różne systemy.
-      Wszystkie odpowiedzi muszą być w języku polskim.
+      Zwróć analizę wpływu WSZYSTKICH wymagań na WSZYSTKIE systemy - przeanalizuj jak największą liczbę kombinacji.
+      Minimum 10 wyników analizy wpływu. Wszystkie odpowiedzi muszą być w języku polskim.
       `;
       
       console.log("Wysyłam zapytanie do OpenAI...");
