@@ -212,7 +212,7 @@ class AIService {
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
         temperature: 0.7,
-        max_tokens: 16385 // Ustawiono maksymalny dostępny limit tokenów dla GPT-4o
+        max_tokens: 4096 // Ustawiono maksymalny dostępny limit tokenów dla GPT-4o
       });
       
       const content = response.choices[0].message.content;
@@ -363,7 +363,7 @@ class AIService {
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
         temperature: 0.7,
-        max_tokens: 16385 // Ustawiono maksymalny dostępny limit tokenów dla GPT-4o
+        max_tokens: 4096 // Ustawiono maksymalny dostępny limit tokenów dla GPT-4o
       });
       
       const content = response.choices[0].message.content;
