@@ -282,7 +282,7 @@ const Analysis = () => {
     }
   }, [impacts]);
   
-  const handleAnalyzeImpact = () => {
+  const handleAnalyzeImpact = async () => {
     // Nie używamy tutaj useAppContext, zamiast tego korzystamy z isApiConfigured
     // przekazanego z komponentu wyżej
     
@@ -295,29 +295,34 @@ const Analysis = () => {
       return;
     }
     
-    console.log("Liczba wymagań:", requirements.length);
-    console.log("Liczba systemów:", systems.length);
+    // Najpierw odśwież dane z serwera i poczekaj na ich pobranie
+    await queryClient.invalidateQueries({ queryKey: ['/api/systems'] });
+    await queryClient.invalidateQueries({ queryKey: ['/api/requirements'] });
     
-    // Najpierw odśwież dane z serwera
-    queryClient.invalidateQueries({ queryKey: ['/api/systems'] });
-    queryClient.invalidateQueries({ queryKey: ['/api/requirements'] });
-      // Sprawdź, czy dane są dostępne
-      if (requirements.length === 0 || systems.length === 0) {
-        toast({
-          title: "Brak danych",
-          description: "Proszę wczytać pliki z wymaganiami i opisami systemów przed przeprowadzeniem analizy.",
-          variant: "destructive",
-        });
-        return;
-      }
+    // Ręczne ponowne pobranie danych, aby mieć pewność że mamy aktualne
+    const freshRequirements = await queryClient.fetchQuery({ queryKey: ['/api/requirements'] });
+    const freshSystems = await queryClient.fetchQuery({ queryKey: ['/api/systems'] });
+    
+    console.log("Po odświeżeniu - Liczba wymagań:", freshRequirements?.length || 0);
+    console.log("Po odświeżeniu - Liczba systemów:", freshSystems?.length || 0);
+    
+    // Sprawdź, czy dane są dostępne
+    if (!freshRequirements || !freshSystems || freshRequirements.length === 0 || freshSystems.length === 0) {
+      toast({
+        title: "Brak danych",
+        description: "Proszę wczytać pliki z wymaganiami i opisami systemów przed przeprowadzeniem analizy.",
+        variant: "destructive",
+      });
+      return;
+    }
       
-      try {
-        // Pobierz ID wszystkich wymagań i systemów
-        const reqIds = requirements.map(req => req.id);
-        const sysIds = systems.map(sys => sys.id);
-        
-        console.log("Wysyłam do analizy wymagania z ID:", reqIds);
-        console.log("Wysyłam do analizy systemy z ID:", sysIds);
+    try {
+      // Pobierz ID wszystkich wymagań i systemów
+      const reqIds = freshRequirements.map((req: any) => req.id);
+      const sysIds = freshSystems.map((sys: any) => sys.id);
+      
+      console.log("Wysyłam do analizy wymagania z ID:", reqIds);
+      console.log("Wysyłam do analizy systemy z ID:", sysIds);
         
         // Wywołaj analizę z przekazaniem parametrów
         analysisMutation.mutate({ requirementIds: reqIds, systemIds: sysIds });
