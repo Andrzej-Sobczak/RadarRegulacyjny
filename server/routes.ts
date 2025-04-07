@@ -17,8 +17,17 @@ const upload = multer({
         .catch((err) => cb(err, dir));
     },
     filename: (req, file, cb) => {
+      // Czyść nazwę pliku z problematycznych znaków i kodowań
+      let cleanName = file.originalname;
+      
+      // Normalizuj nazwę pliku, usuwając problematyczne znaki
+      cleanName = cleanName.normalize('NFD')
+                      .replace(/[\u0300-\u036f]/g, '') // Usunięcie znaków diakrytycznych
+                      .replace(/[^\w\s.-]/g, '') // Pozostawienie alfanumerycznych, spacji, kropek i myślników
+                      .replace(/\s+/g, '_'); // Zamiana spacji na podkreślenia
+      
       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-      cb(null, uniqueSuffix + "-" + file.originalname);
+      cb(null, uniqueSuffix + "-" + cleanName);
     },
   }),
 });

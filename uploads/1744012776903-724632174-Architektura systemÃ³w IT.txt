@@ -1,0 +1,873 @@
+Opis Architektury IT – Firma "EuroProdTrade S.A."
+Profil Firmy
+EuroProdTrade to duża firma produkcyjno-handlowa z siedzibą główną w Niemczech, operująca w 11 krajach Unii Europejskiej i USA. Posiada 6 zakładów produkcyjnych i 9 centrów dystrybucyjnych. Zatrudnia około 6 000 pracowników. Architektura IT jest kluczowym elementem wspierającym złożone procesy biznesowe firmy. 
+Strategia technologiczna opiera się na połączeniu wiodących rozwiązań klasy enterprise (głównie SAP, Salesforce, Siemens, Microsoft) z wyspecjalizowanymi systemami dla konkretnych obszarów, z rosnącym wykorzystaniem platform chmurowych (głównie Microsoft Azure).
+1. Enterprise Resource Planning (ERP)
+●	Ogólny opis systemu i jego przeznaczenia: System ERP stanowi cyfrowy kręgosłup organizacji, integrując i zarządzając kluczowymi procesami biznesowymi w czasie rzeczywistym. Służy jako centralne repozytorium danych transakcyjnych i podstawowych, zapewniając spójność informacji w całej firmie. W EuroProdTrade system ERP jest fundamentem dla efektywnego zarządzania finansami, łańcuchem dostaw, produkcją, sprzedażą i zasobami ludzkimi.
+●	Dostawca i Rozwiązanie: SAP S/4HANA (najnowsza wersja w modelu on-premise, hostowana na dedykowanej infrastrukturze w centrum danych firmy, z planami migracji kluczowych elementów do chmury prywatnej w ciągu 3 lat).
+●	Skala: Około 4 000 aktywnych użytkowników w działach finansów, księgowości, kontrolingu, logistyki, zakupów, sprzedaży, HR i produkcji. System przetwarza średnio ponad 1 milion transakcji finansowych dziennie, zarządza ponad 300 000 aktywnych indeksów materiałowych (SKU) i obsługuje procesy dla 6 zakładów produkcyjnych i 9 centrów dystrybucyjnych. Baza danych przekracza 20 TB.
+●	Technologia: Baza danych SAP HANA 2.0, interfejs użytkownika SAP Fiori, język programowania ABAP dla rozszerzeń, platforma integracyjna SAP Cloud Platform Integration Suite (CPI) do integracji z systemami chmurowymi i zewnętrznymi, standardowe interfejsy BAPI, RFC i IDoc do integracji z systemami on-premise.
+●	Lista głównych komponentów i modułów:
+○	Moduł finansowo-księgowy (FI/CO)
+○	Moduł zarządzania zapasami (MM)
+○	Moduł zarządzania łańcuchem dostaw (SCM - częściowo, w tym planowanie produkcji PP i zarządzanie jakością QM)
+○	Moduł sprzedaży i dystrybucji (SD)
+○	Moduł zarządzania zasobami ludzkimi (HCM - zintegrowany z SAP SuccessFactors)
+○	Moduł controllingowy (CO)
+○	Moduł zarządzania środkami trwałymi (AM - dawniej FI-AA)
+○	Moduł zarządzania projektami (PS)
+●	Opis kluczowych funkcjonalności:
+○	Automatyzacja i optymalizacja procesów produkcyjnych (planowanie MRP II, harmonogramowanie)
+○	Zarządzanie relacjami z dostawcami (procesy zakupowe, ocena dostawców) i klientami (zarządzanie zamówieniami, fakturowanie)
+○	Planowanie zasobów materiałowych (MRP) i mocy produkcyjnych (CRP)
+○	Pełna kontrola finansowa, rachunkowość zarządcza i sprawozdawczość statutowa
+○	Prognozowanie sprzedaży (wspierane przez SAP IBP) i planowanie zapasów
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Integracja z systemem MES (Siemens Opcenter) poprzez standardowe interfejsy SAP (IDoc/BAPI) do wymiany zleceń produkcyjnych, potwierdzeń, danych jakościowych.
+○	Integracja z systemem CRM (Salesforce) poprzez SAP CPI do synchronizacji danych klientów, zamówień, cenników.
+○	Integracja z systemami SCM (SAP IBP, SAP Ariba) do wymiany planów, prognoz, zamówień zakupowych.
+○	Integracja z systemem WMS (Manhattan Associates) poprzez IDoc (dostawy wychodzące/przychodzące, ruchy magazynowe).
+○	Integracja z systemem PLM (Siemens Teamcenter) do synchronizacji danych podstawowych materiałów i struktur produktów (BOM).
+○	Integracja z Hurtownią Danych (SAP BW/4HANA) i BI (Power BI) poprzez ekstraktory SAP i widoki CDS.
+○	Interfejsy API (OData) do komunikacji z systemami zewnętrznymi (np. portale dla dostawców/klientów).
+○	Integracja z systemami bankowymi (formaty SEPA, MT940) i płatniczymi (np. Adyen).
+○	Integracja z systemem HR (SAP SuccessFactors) do wymiany danych pracowniczych i struktury organizacyjnej.
+●	Informacje o przetwarzanych danych:
+○	Dane finansowe firmy (sprawozdania, transakcje, budżety) podlegające MSSF i lokalnym przepisom rachunkowości.
+○	Dane osobowe pracowników (dane kadrowe, płacowe) podlegające RODO.
+○	Dane kontrahentów (klienci, dostawcy) i partnerów biznesowych (dane podstawowe, warunki handlowe).
+○	Dane dotyczące produktów (specyfikacje, BOM, koszty) i procesów produkcyjnych (zlecenia, marszruty).
+○	Informacje cenowe i warunki handlowe (cenniki, rabaty).
+○	Dane dotyczące transakcji finansowych (płatności, należności, zobowiązania).
+○	Informacje o zapasach i stanach magazynowych (ilości, wartości, lokalizacje).
+○	Dane podlegające obowiązkom sprawozdawczym (VAT, Intrastat, JPK w Polsce).
+2. Manufacturing Execution System (MES)
+●	Ogólny opis systemu i jego przeznaczenia: System MES stanowi warstwę wykonawczą produkcji, łącząc system planowania ERP z automatyką przemysłową. Monitoruje, śledzi, dokumentuje i kontroluje procesy produkcyjne w czasie rzeczywistym, zapewniając szczegółową widoczność operacji na hali produkcyjnej. W EuroProdTrade MES jest kluczowy dla optymalizacji wydajności, zapewnienia jakości i zgodności oraz śledzenia genealogii produktu.
+●	Dostawca i Rozwiązanie: Siemens Opcenter Execution Process (dawniej SIMATIC IT UAPI) dla przemysłu procesowego (np. chemia, spożywczy) oraz Siemens Opcenter Execution Discrete (dawniej SIMATIC IT UADM) dla produkcji dyskretnej (np. montaż).
+●	Skala: Wdrożony we wszystkich 25 zakładach produkcyjnych. Około 3 000 użytkowników na halach produkcyjnych (operatorzy, kontrola jakości, utrzymanie ruchu) korzystających z terminali stacjonarnych i urządzeń mobilnych. System monitoruje ponad 1 000 kluczowych maszyn i linii produkcyjnych, przetwarzając ponad 10 milionów zdarzeń produkcyjnych dziennie (sygnały z maszyn, wpisy operatorów, wyniki kontroli jakości).
+●	Technologia: Architektura rozproszona z centralnym serwerem i lokalnymi instancjami w zakładach. Baza danych: Microsoft SQL Server Enterprise Edition. Komunikacja z maszynami głównie poprzez standard OPC UA. Integracja z SAP S/4HANA za pomocą certyfikowanych przez SAP konektorów Siemens (wykorzystujących BAPI/RFC/IDoc). Elementy edge computingu do wstępnego przetwarzania danych z maszyn.
+●	Lista głównych komponentów i modułów:
+○	Moduł planowania i harmonogramowania produkcji (APS - Advanced Planning & Scheduling)
+○	Moduł zarządzania zasobami produkcyjnymi (maszyny, narzędzia, personel)
+○	Moduł śledzenia produktu (Genealogia, WIP tracking)
+○	Moduł kontroli jakości (SPC - Statistical Process Control, zarządzanie próbkami)
+○	Moduł zbierania i analizy danych produkcyjnych (Performance Analysis, OEE)
+○	Moduł zarządzania dokumentacją technologiczną (integracja z PLM)
+○	Moduł zarządzania konserwacją i utrzymaniem ruchu (zlecenia pracy, integracja z EAM)
+○	Moduł wizualizacji procesów produkcyjnych (HMI/SCADA integration)
+●	Opis kluczowych funkcjonalności:
+○	Szczegółowe harmonogramowanie produkcji na poziomie linii/maszyn
+○	Monitorowanie postępu zleceń produkcyjnych i zużycia materiałów w czasie rzeczywistym
+○	Pełna śledzalność produktu (genealogia partii/numerów seryjnych)
+○	Zarządzanie jakością w procesie (kontrola statystyczna SPC, obsługa niezgodności)
+○	Obliczanie i analiza wskaźnika OEE (Overall Equipment Effectiveness)
+○	Zarządzanie dostępnością i wykorzystaniem zasobów produkcyjnych
+○	Rejestracja i analiza przestojów, awarii i innych zdarzeń produkcyjnych
+○	Dostęp do elektronicznej dokumentacji technologicznej na stanowisku pracy
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Dwukierunkowa integracja z SAP S/4HANA (zlecenia produkcyjne, potwierdzenia wykonania, zużycie materiałów, stany magazynowe WIP, dane jakościowe)
+○	Integracja z systemami SCADA (np. Siemens WinCC, Wonderware) i sterownikami PLC (np. Siemens S7, Rockwell Allen-Bradley) poprzez OPC UA/DA
+○	Integracja z systemami kontroli jakości i laboratoryjnymi (LIMS - np. LabWare LIMS) do wymiany danych o próbkach i wynikach testów
+○	Integracja z systemem EAM (SAP S/4HANA Asset Management) do zgłaszania awarii i zleceń utrzymania ruchu
+○	Bezpośrednie interfejsy do maszyn i linii produkcyjnych (OPC UA, standardy branżowe jak SECS/GEM w niektórych zakładach)
+○	Integracja z systemami identyfikacji (czytniki kodów kreskowych, systemy RFID)
+○	Integracja z systemem PLM (Siemens Teamcenter) do pobierania marszrut i instrukcji pracy
+●	Informacje o przetwarzanych danych:
+○	Szczegółowe dane dotyczące przebiegu procesów produkcyjnych (parametry maszyn, czasy cykli).
+○	Parametry technologiczne produktów i procesów (receptury, ustawienia).
+○	Informacje o genealogii produktu (użyte partie surowców, numery seryjne komponentów).
+○	Dane dotyczące kontroli jakości (wyniki pomiarów, testów, dane SPC).
+○	Dane dotyczące wydajności maszyn (OEE, czasy pracy, przestoje) i pracowników (przypisanie do zadań).
+○	Informacje o awariach, przestojach i interwencjach utrzymania ruchu.
+○	Dane podlegające regulacjom branżowym (np. wymagania GMP w przemyśle farmaceutycznym/spożywczym, dokumentacja partii).
+○	Dane związane z bezpieczeństwem produkcji (zdarzenia, alarmy).
+3. Customer Relationship Management (CRM)
+●	Ogólny opis systemu i jego przeznaczenia: System CRM jest centralnym punktem zarządzania wszystkimi interakcjami z obecnymi i potencjalnymi klientami. Celem jest budowanie długotrwałych relacji, zwiększanie efektywności sprzedaży, marketingu i obsługi klienta poprzez zapewnienie spójnego widoku 360° na klienta. W EuroProdTrade CRM wspiera zarówno procesy sprzedaży B2B, jak i obsługę klienta końcowego (B2C) w niektórych segmentach.
+●	Dostawca i Rozwiązanie: Salesforce Sales Cloud (Enterprise Edition) dla zarządzania sprzedażą B2B oraz Salesforce Service Cloud (Enterprise Edition) dla obsługi klienta i serwisu. Dodatkowo wykorzystywany jest Salesforce Marketing Cloud do automatyzacji marketingu.
+●	Skala: Około 2 500 użytkowników w działach sprzedaży, marketingu, obsługi klienta i serwisu w całej Europie. System zarządza bazą ponad 5 milionów rekordów klientów (firm i kontaktów) oraz potencjalnych klientów. Rocznie przetwarzanych jest ponad 100 000 szans sprzedaży (opportunities) i ponad 50 000 zgłoszeń serwisowych (cases) miesięcznie.
+●	Technologia: Platforma Salesforce Lightning (SaaS), programowanie w Apex, zapytania SOQL. Integracja z SAP S/4HANA realizowana za pomocą platformy integracyjnej MuleSoft Anypoint Platform (należącej do Salesforce) do synchronizacji danych klientów, produktów, cenników, zamówień i faktur. Natywna integracja z Salesforce Marketing Cloud i Commerce Cloud. Integracja z systemami pocztowymi (Outlook/Gmail) i kalendarzami.
+●	Lista głównych komponentów i modułów:
+○	Moduł zarządzania kontaktami i klientami (Accounts, Contacts)
+○	Moduł zarządzania sprzedażą i lejkiem sprzedażowym (Leads, Opportunities, Quotes)
+○	Moduł marketingowy (Campaigns - zarządzanie w Sales Cloud, wykonanie w Marketing Cloud)
+○	Moduł obsługi klienta i serwisu (Cases, Knowledge Base, Service Contracts)
+○	Moduł analityczny i raportowy (Reports, Dashboards, Einstein Analytics)
+○	Moduł zarządzania kampaniami marketingowymi (w Marketing Cloud: Journey Builder, Email Studio, Mobile Studio)
+○	Moduł zarządzania zamówieniami (Orders - synchronizowane z ERP)
+○	Moduł integracji z mediami społecznościowymi (Social Studio w Marketing Cloud)
+●	Opis kluczowych funkcjonalności:
+○	Centralne zarządzanie bazą danych klientów B2B i B2C oraz kontaktów.
+○	Pełne śledzenie historii interakcji z klientami (e-maile, spotkania, telefony, zgłoszenia).
+○	Zarządzanie całym cyklem sprzedaży od leada do zamknięcia transakcji, w tym ofertowanie.
+○	Automatyzacja działań marketingowych (e-mail marketing, lead nurturing, scoring).
+○	Planowanie, realizacja i analiza efektywności kampanii marketingowych.
+○	Kompleksowa obsługa zgłoszeń serwisowych, reklamacji i zapytań klientów.
+○	Segmentacja klientów na potrzeby działań sprzedażowych i marketingowych.
+○	Zaawansowana analityka sprzedaży, marketingu i obsługi klienta, prognozowanie sprzedaży (Einstein).
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Dwukierunkowa integracja z SAP S/4HANA (klienci, materiały, cenniki, zamówienia, faktury, stany magazynowe) poprzez MuleSoft.
+○	Integracja z platformą E-commerce (Salesforce Commerce Cloud) do synchronizacji danych klientów, zamówień online, historii zakupów.
+○	Integracja z narzędziami marketingu cyfrowego (Marketing Cloud, Google Ads, LinkedIn Ads).
+○	Integracja z systemem CTI (Computer Telephony Integration) dla call center (np. Cisco, Avaya) do obsługi połączeń przychodzących i wychodzących.
+○	Integracja z systemami pocztowymi (Microsoft Outlook, Gmail) i kalendarzami.
+○	Integracja z mediami społecznościowymi (Facebook, LinkedIn, Twitter) poprzez Marketing Cloud Social Studio.
+○	Integracja z systemami billingowymi (dla usług subskrypcyjnych, jeśli dotyczy).
+○	Integracja z Hurtownią Danych (SAP BW/4HANA) i BI (Power BI) do zaawansowanej analityki.
+●	Informacje o przetwarzanych danych:
+○	Dane osobowe klientów i osób kontaktowych (imię, nazwisko, stanowisko, dane kontaktowe) podlegające RODO.
+○	Historia zakupów, transakcji i interakcji z klientami.
+○	Dane kontaktowe (adresy, telefony, e-maile) i preferencje komunikacyjne klientów.
+○	Informacje o potencjalnych klientach (leady) i szansach sprzedażowych (wartość, etap, prawdopodobieństwo).
+○	Dane dotyczące umów handlowych, ofert i warunków specjalnych.
+○	Informacje finansowe związane z transakcjami (wartość zamówień, status płatności - synchronizowane z ERP).
+○	Dane o zachowaniach klientów (aktywność na stronie www, reakcje na kampanie marketingowe).
+○	Dane dotyczące zgód marketingowych i preferencji komunikacyjnych (zgodne z RODO).
+4. Warehouse Management System (WMS)
+●	Ogólny opis systemu i jego przeznaczenia: System WMS zarządza i optymalizuje wszystkie operacje wewnątrz magazynów i centrów dystrybucyjnych, od przyjęcia towaru po jego wysyłkę. Celem jest zapewnienie dokładności stanów magazynowych, optymalizacja wykorzystania przestrzeni i zasobów, minimalizacja błędów oraz zwiększenie przepustowości magazynu. W EuroProdTrade WMS jest kluczowy dla efektywnej logistyki i realizacji zamówień.
+●	Dostawca i Rozwiązanie: Manhattan Associates Warehouse Management System (Manhattan SCALE - dla mniejszych i średnich DC, Manhattan Active WM - dla największych, zautomatyzowanych centrów).
+●	Skala: Wdrożony w 50 centrach dystrybucyjnych o różnej wielkości i stopniu automatyzacji. Około 4 000 użytkowników (pracownicy magazynowi, kierownicy zmian, planiści) korzystających głównie z terminali radiowych (RF) z systemem Android (np. Zebra) oraz technologii głosowej (voice picking) w niektórych lokalizacjach. System zarządza ponad 10 milionami lokalizacji składowania i przetwarza ponad 2 miliony linii zamówień dziennie w szczycie sezonu.
+●	Technologia: Architektura oparta na Java, baza danych Oracle Database Enterprise Edition. Integracja z SAP S/4HANA głównie poprzez standardowe komunikaty IDoc (dla dostaw przychodzących i wychodzących, ruchów materiałowych, inwentaryzacji). Integracja z systemem TMS (Blue Yonder) poprzez API REST/SOAP do planowania wysyłek i zarządzania dokami. Integracja z systemami automatyki magazynowej ( przenośniki, sortery, układnice ASRS - np. Dematic, Vanderlande) poprzez dedykowane interfejsy oparte na TCP/IP lub Web Services. Wykorzystanie technologii kodów kreskowych (GS1-128) i RFID w wybranych procesach. Systemy działają głównie on-premise, ale Manhattan Active WM jest platformą chmurową.
+●	Lista głównych komponentów i modułów:
+○	Moduł zarządzania lokalizacjami magazynowymi (Slotting, Yard Management)
+○	Moduł przyjęć towarów (Receiving, Putaway)
+○	Moduł kompletacji i wydań (Picking - różne strategie, Packing, Shipping)
+○	Moduł inwentaryzacji (Cycle Counting, Physical Inventory)
+○	Moduł zarządzania zasobami magazynowymi (Labor Management)
+○	Moduł zarządzania zadaniami magazynowymi (Task Interleaving)
+○	Moduł zarządzania dokumentacją magazynową (ASN, Packing Lists, BOL)
+○	Moduł raportowy i analityczny (Warehouse Intelligence)
+●	Opis kluczowych funkcjonalności:
+○	Graficzne mapowanie magazynu i dynamiczne zarządzanie lokalizacjami składowania.
+○	Obsługa procesów przyjęcia towaru, w tym kontrola jakości i cross-docking.
+○	Automatyczne przydzielanie optymalnych lokalizacji składowania (putaway).
+○	Zarządzanie rotacją towarów wg strategii FIFO, FEFO, LIFO.
+○	Optymalizacja procesów kompletacji (batch picking, zone picking, wave picking) i tras magazynowych.
+○	Zarządzanie procesem pakowania i wysyłki, w tym generowanie etykiet i dokumentów przewozowych.
+○	Inwentaryzacja ciągła (cycle counting) i okresowa.
+○	Zarządzanie partiami produkcyjnymi, datami ważności i numerami seryjnymi.
+○	Monitorowanie wydajności pracowników magazynowych.
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Ścisła integracja z SAP S/4HANA (dostawy przychodzące/wychodzące, zlecenia przesunięcia magazynowego, synchronizacja stanów magazynowych, wyniki inwentaryzacji) poprzez IDoc.
+○	Integracja z platformą E-commerce (Salesforce Commerce Cloud) do przekazywania statusów realizacji zamówień.
+○	Integracja z systemem TMS (Blue Yonder) do planowania załadunku, awizacji transportu, generowania listów przewozowych.
+○	Integracja z systemami automatyki magazynowej (WCS - Warehouse Control Systems) dla przenośników, sorterów, układnic ASRS.
+○	Integracja z urządzeniami mobilnymi (terminale RF, systemy głosowe) poprzez dedykowane aplikacje i protokoły.
+○	Integracja z systemami identyfikacji (czytniki kodów kreskowych, bramki RFID).
+○	Integracja z systemem MES (Siemens Opcenter) do obsługi przyjęć produkcji w toku i wydań komponentów.
+○	Integracja z systemami dostawców (ASN - Advanced Shipping Notice) i odbiorców (statusy dostaw).
+●	Informacje o przetwarzanych danych:
+○	Szczegółowe dane o stanach magazynowych (ilość, lokalizacja, status) dla >500 000 SKU.
+○	Pełna historia ruchów magazynowych (przyjęcia, wydania, przesunięcia, inwentaryzacje).
+○	Dane dotyczące partii produkcyjnych, dat przydatności do spożycia/użycia, numerów seryjnych.
+○	Dane dotyczące dokumentów magazynowych (PZ, WZ, MM, dokumenty inwentaryzacyjne).
+○	Informacje o pracownikach magazynu i ich wydajności (transakcje na użytkownika).
+○	Dane podlegające regulacjom celnym (w magazynach celnych) i podatkowym (akcyza).
+○	Dane dotyczące towarów niebezpiecznych (ADR) lub podlegających specjalnym warunkom przechowywania (np. temperatura).
+○	Informacje o wydajności procesów magazynowych (czas kompletacji, dokładność, wykorzystanie przestrzeni).
+5. Supply Chain Management (SCM)
+●	Ogólny opis systemu i jego przeznaczenia: System SCM obejmuje planowanie i optymalizację całego łańcucha dostaw, od prognozowania popytu, przez planowanie zaopatrzenia i produkcji, aż po dystrybucję. Celem jest zrównoważenie popytu i podaży, optymalizacja zapasów, kosztów logistycznych oraz zwiększenie elastyczności i widoczności w całym łańcuchu. W EuroProdTrade SCM integruje planowanie strategiczne, taktyczne i operacyjne.
+●	Dostawca i Rozwiązanie: SAP Integrated Business Planning (IBP) dla planowania popytu, zapasów i podaży (S&OP), SAP Ariba dla zarządzania relacjami z dostawcami i procesów zakupowych (Source-to-Pay).
+●	Skala: Około 500 użytkowników (planiści popytu, podaży, produkcji, specjaliści ds. zakupów, menedżerowie kategorii). System IBP zarządza planowaniem dla całej sieci (25 zakładów, 50 DC, >1000 kluczowych dostawców), generując prognozy dla >500 000 SKU na różnych poziomach agregacji. Platforma Ariba obsługuje współpracę z >5 000 dostawców i przetwarza >10 000 zamówień zakupowych tygodniowo poprzez Ariba Network.
+●	Technologia: SAP IBP jest rozwiązaniem chmurowym (SaaS) opartym na SAP HANA. SAP Ariba również działa w modelu SaaS. Integracja z SAP S/4HANA jest natywna lub realizowana przez SAP CPI (dane podstawowe, transakcyjne, plany). Integracja z Salesforce (dane o popycie z CRM), zewnętrznymi dostawcami danych rynkowych (np. Nielsen, GfK) oraz systemami BI.
+●	Lista głównych komponentów i modułów:
+○	Moduł planowania popytu (IBP for Demand)
+○	Moduł planowania produkcji i zaopatrzenia (IBP for Response & Supply)
+○	Moduł zarządzania dostawcami (Ariba Supplier Lifecycle and Performance, Ariba Network)
+○	Moduł optymalizacji zapasów (IBP for Inventory)
+○	Moduł zarządzania transportem (planowanie w IBP, wykonanie w TMS)
+○	Moduł zarządzania dystrybucją (planowanie w IBP)
+○	Moduł zarządzania zdarzeniami w łańcuchu dostaw (Supply Chain Control Tower w IBP)
+○	Moduł analityki łańcucha dostaw (wbudowane w IBP i Ariba Analytics)
+●	Opis kluczowych funkcjonalności:
+○	Statystyczne prognozowanie popytu i planowanie sprzedaży (S&OP).
+○	Optymalizacja planów zaopatrzenia i produkcji w oparciu o ograniczenia.
+○	Pełny cykl zarządzania dostawcami (od onboardingu po ocenę).
+○	Optymalizacja poziomów zapasów (bezpieczeństwa, cyklicznych) w całej sieci.
+○	Planowanie potrzeb dystrybucyjnych (DRP).
+○	Monitorowanie i zarządzanie wyjątkami w łańcuchu dostaw (Control Tower).
+○	Śledzenie przepływu towarów (widoczność zapewniana przez integrację z WMS/TMS/EDI).
+○	Analiza ryzyka w łańcuchu dostaw i planowanie scenariuszowe.
+○	Elektroniczne zarządzanie procesami zakupowymi (e-sourcing, e-procurement, e-invoicing).
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Ścisła integracja z SAP S/4HANA (dane podstawowe, stany zapasów, zlecenia produkcyjne, zamówienia sprzedaży, zamówienia zakupu).
+○	Integracja z systemami WMS (Manhattan) i TMS (Blue Yonder) do przekazywania planów i otrzymywania informacji zwrotnych o wykonaniu.
+○	Integracja z systemem MES (Siemens Opcenter) w zakresie planowania produkcji.
+○	Integracja z systemami dostawców poprzez Ariba Network (zamówienia, faktury, ASN) lub EDI (SEEBURGER).
+○	Integracja z systemem CRM (Salesforce) do pobierania danych o popycie i prognozach sprzedaży.
+○	Integracja z systemami śledzenia przesyłek (np. Project44, FourKites) dla widoczności transportu.
+○	Integracja z platformami E-commerce (Salesforce Commerce Cloud) w zakresie dostępności produktów.
+○	Integracja z Hurtownią Danych (SAP BW/4HANA) i BI (Power BI) do raportowania i analiz.
+●	Informacje o przetwarzanych danych:
+○	Dane dotyczące dostawców (dane podstawowe, oceny, certyfikaty) i partnerów biznesowych.
+○	Informacje o warunkach handlowych, umowach ramowych i cennikach zakupowych.
+○	Dane dotyczące przepływu towarów i materiałów (plany, prognozy, rzeczywiste przepływy).
+○	Informacje o kosztach logistycznych (transport, magazynowanie, cło).
+○	Dane dotyczące transportu (trasy, przewoźnicy, stawki) i dystrybucji (plany wysyłek).
+○	Dane podlegające regulacjom celnym (kody taryfowe, pochodzenie towarów) i handlowym.
+○	Informacje dotyczące importu i eksportu (dokumentacja, licencje).
+○	Dane związane z zrównoważonym rozwojem (np. ślad węglowy dostawców, zgodność z normami środowiskowymi).
+6. Hurtowania Danych & Business Intelligence (BI)
+●	Ogólny opis systemu i jego przeznaczenia: Platforma BI/DWH służy do gromadzenia, integracji, przechowywania i analizy danych z różnorodnych systemów operacyjnych w celu wspierania podejmowania decyzji na wszystkich szczeblach zarządzania. Umożliwia przekształcanie danych w informacje i wiedzę poprzez raportowanie, analizy ad-hoc, wizualizacje i zaawansowaną analitykę. W EuroProdTrade BI jest kluczowe dla monitorowania KPI, identyfikacji trendów i optymalizacji biznesowej.
+●	Dostawca i Rozwiązanie: SAP BW/4HANA (najnowsza wersja) jako centralna hurtownia danych przedsiębiorstwa, Microsoft Power BI Premium jako platforma do wizualizacji, raportowania i samoobsługowego BI, Microsoft Azure Synapse Analytics dla zaawansowanej analityki i obsługi dużych zbiorów danych (Big Data).
+●	Skala: Centralna hurtownia danych SAP BW/4HANA przechowuje ponad 50 TB danych historycznych i bieżących. Platforma Power BI jest wykorzystywana przez około 5 000 użytkowników (konsumentów raportów i analityków), z kilkuset aktywnymi twórcami raportów. Środowisko Azure Synapse jest używane przez dedykowany zespół około 50 analityków danych i data scientists do bardziej złożonych analiz i modeli predykcyjnych.
+●	Technologia: SAP BW/4HANA działa na bazie danych SAP HANA. Power BI jest usługą chmurową w ramach Microsoft 365/Azure. Azure Synapse Analytics integruje hurtownię danych SQL, Apache Spark i Azure Data Lake Storage Gen2. Procesy ETL/ELT realizowane są za pomocą SAP Data Services (dla źródeł SAP) oraz Azure Data Factory (dla źródeł non-SAP i integracji w chmurze). Dane są pobierane z SAP S/4HANA, Salesforce, Siemens Opcenter, Manhattan WMS, SAP IBP, SAP Ariba, Blue Yonder TMS, Akeneo PIM i innych systemów operacyjnych oraz zewnętrznych źródeł danych.
+●	Lista głównych komponentów i modułów:
+○	Moduł ETL/ELT (SAP Data Services, Azure Data Factory)
+○	Hurtownia danych (SAP BW/4HANA - Core DWH, Azure Synapse - Data Lakehouse)
+○	Moduł raportowania (Power BI Paginated Reports, standardowe raporty BW)
+○	Moduł analityki predykcyjnej (Azure Machine Learning zintegrowany z Synapse, SAP Predictive Analytics Library w HANA)
+○	Moduł wizualizacji danych i dashboardów (Power BI Pro/Premium)
+○	Moduł OLAP (Analysis for Office dla BW/4HANA, analiza w Power BI na modelach danych)
+○	Moduł data mining (w Azure Synapse/ML)
+○	Moduł zarządzania KPI (definicje i śledzenie w Power BI i BW/4HANA)
+●	Opis kluczowych funkcjonalności:
+○	Automatyczna integracja i harmonizacja danych z wielu systemów źródłowych.
+○	Tworzenie i dystrybucja standardowych raportów operacyjnych i zarządczych oraz interaktywnych dashboardów.
+○	Analiza trendów historycznych i wzorców w danych sprzedażowych, produkcyjnych, finansowych, logistycznych.
+○	Monitorowanie kluczowych wskaźników efektywności (KPI) w czasie rzeczywistym lub quasi-rzeczywistym.
+○	Budowa modeli predykcyjnych (np. prognozowanie sprzedaży, ryzyka odejścia klienta, predykcyjne utrzymanie ruchu).
+○	Wielowymiarowa analiza danych (OLAP) umożliwiająca drążenie danych (drill-down, slice-and-dice).
+○	Identyfikacja anomalii, wąskich gardeł i obszarów do optymalizacji.
+○	Wspieranie procesów planowania strategicznego i budżetowania poprzez dostarczanie danych historycznych i prognoz.
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Ekstrakcja danych z SAP S/4HANA (poprzez standardowe ekstraktory, widoki CDS, replikację SLT).
+○	Ekstrakcja danych z Salesforce (poprzez konektory API, np. w Azure Data Factory lub MuleSoft).
+○	Ekstrakcja danych z Siemens Opcenter (z bazy danych SQL Server MES).
+○	Ekstrakcja danych z Manhattan WMS (z bazy danych Oracle).
+○	Integracja z zewnętrznymi źródłami danych (np. dane rynkowe, dane demograficzne, dane pogodowe) poprzez API lub pliki płaskie.
+○	Integracja z Salesforce Commerce Cloud (dane o ruchu na stronie, konwersjach).
+○	Integracja z systemami QMS (TrackWise Digital) i PLM (Teamcenter) dla analiz jakościowych i danych produktowych.
+○	Udostępnianie danych przetworzonych w DWH/BI do innych systemów (np. zasilanie modeli AI/ML).
+●	Informacje o przetwarzanych danych:
+○	Zagregowane i szczegółowe dane finansowe, sprzedażowe, zakupowe, HR.
+○	Dane dotyczące wydajności procesów produkcyjnych (OEE, przestoje, jakość).
+○	Informacje o efektywności łańcucha dostaw (poziomy zapasów, terminowość dostaw, koszty logistyczne).
+○	Dane dotyczące zachowań klientów (segmentacja, wartość życiowa klienta - CLV, analiza koszykowa).
+○	Informacje o trendach rynkowych i pozycji konkurencyjnej (dane zewnętrzne).
+○	Dane benchmarkingowe (porównanie wyników z innymi firmami lub okresami).
+○	Wskaźniki rentowności produktów, klientów, kanałów dystrybucji.
+○	Dane zagregowane i zanonimizowane, ale mogące podlegać regulacjom sektorowym i rynkowym (np. dane wrażliwe handlowo).
+7. Product Lifecycle Management (PLM)
+●	Ogólny opis systemu i jego przeznaczenia: System PLM zarządza całym cyklem życia produktu, od idei, przez projektowanie i rozwój, produkcję, serwis, aż po wycofanie z rynku. Stanowi centralne repozytorium dla wszystkich danych i procesów związanych z produktem. W EuroProdTrade PLM jest kluczowy dla innowacyjności, skrócenia czasu wprowadzania produktów na rynek (Time-to-Market) oraz zapewnienia zgodności produktów z wymaganiami.
+●	Dostawca i Rozwiązanie: Siemens Teamcenter (najnowsza wersja).
+●	Skala: Około 1 000 użytkowników w działach R&D, inżynierii, technologii, jakości, zakupów i marketingu. System zarządza ponad 1 milionem obiektów (modele CAD 3D/2D, specyfikacje, dokumenty techniczne, wyniki testów). Obsługuje średnio ponad 100 aktywnych projektów rozwoju nowych produktów (NPD/NPI) jednocześnie.
+●	Technologia: Architektura klient-serwer, baza danych Oracle Database Enterprise Edition. Ścisła integracja z narzędziami CAD (głównie Siemens NX, ale także SolidWorks i AutoCAD poprzez dedykowane integracje Teamcenter). Integracja z SAP S/4HANA poprzez Siemens Teamcenter Gateway for SAP S/4HANA (synchronizacja danych materiałowych, BOMów, dokumentów). Integracja z systemem MES (Siemens Opcenter) do przekazywania danych produkcyjnych (marszruty, instrukcje pracy). System działa głównie on-premise.
+●	Lista głównych komponentów i modułów:
+○	Moduł zarządzania danymi produktowymi (PDM - Product Data Management)
+○	Moduł projektowania i inżynierii produktu (integracja CAD, zarządzanie BOM)
+○	Moduł zarządzania procesami rozwoju produktu (Workflow, Project Management Integration)
+○	Moduł zarządzania wymaganiami i specyfikacjami (Requirements Management)
+○	Moduł zarządzania konfiguracją produktu (Variant Management)
+○	Moduł zarządzania dokumentacją techniczną
+○	Moduł zarządzania zmianami inżynierskimi (ECM - Engineering Change Management)
+○	Moduł zarządzania zgodnością z normami i regulacjami (Compliance Management)
+●	Opis kluczowych funkcjonalności:
+○	Centralne, bezpieczne repozytorium wszystkich danych i dokumentacji związanej z produktem.
+○	Zarządzanie złożonymi strukturami produktów (eBOM, mBOM) i ich wariantami.
+○	Pełna kontrola wersji i śledzenie historii zmian w projektach i dokumentacji.
+○	Standaryzacja i automatyzacja procesów rozwoju nowych produktów (NPD/NPI).
+○	Wspieranie współpracy interdyscyplinarnych zespołów projektowych.
+○	Zarządzanie wymaganiami produktowymi i ich powiązanie z elementami projektu.
+○	Śledzenie zgodności produktów z normami branżowymi (np. ISO, CE, REACH, RoHS) i regulacjami.
+○	Zarządzanie procesem wycofywania produktów z rynku (EOL - End-of-Life).
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Ścisła integracja z systemami CAD/CAM/CAE (Siemens NX, SolidWorks, AutoCAD, Ansys).
+○	Dwukierunkowa integracja z SAP S/4HANA (dane materiałowe, BOMy, dokumenty, procesy zmian).
+○	Integracja z systemem MES (Siemens Opcenter) do przekazywania danych potrzebnych do produkcji (marszruty, instrukcje).
+○	Integracja z systemem QMS (TrackWise Digital) do zarządzania danymi jakościowymi związanymi z produktem.
+○	Integracja z systemem DMS (OpenText) do archiwizacji dokumentacji.
+○	Integracja z systemem EPM (Planview) do powiązania projektów produktowych z portfelem projektów.
+○	Integracja z systemem PIM (Akeneo) do przekazywania danych produktowych dla kanałów sprzedaży.
+○	Integracja z systemami dostawców i partnerów do wymiany danych projektowych (np. poprzez formaty STEP, JT).
+●	Informacje o przetwarzanych danych:
+○	Dane projektowe (modele CAD 3D/2D, rysunki techniczne) i specyfikacje techniczne produktów.
+○	Informacje stanowiące własność intelektualną firmy (patenty, wzory użytkowe).
+○	Dane dotyczące materiałów, komponentów i ich właściwości (w tym dane środowiskowe np. dla REACH/RoHS).
+○	Informacje o zgodności z normami, regulacjami i certyfikatami.
+○	Dane dotyczące bezpieczeństwa produktów (analizy ryzyka, FMEA).
+○	Dokumentacja techniczna, instrukcje obsługi, wyniki testów i walidacji.
+○	Dane o cyklu życia produktu (statusy, wersje).
+○	Informacje o zmianach inżynierskich, ich przyczynach i wpływie na produkt.
+8. Transport Management System (TMS)
+●	Ogólny opis systemu i jego przeznaczenia: System TMS służy do kompleksowego zarządzania procesami transportowymi, obejmując planowanie, realizację, monitorowanie i rozliczanie transportu. Celem jest optymalizacja kosztów frachtu, wybór najlepszych przewoźników, poprawa terminowości dostaw i zwiększenie widoczności przesyłek. W EuroProdTrade TMS obsługuje zarówno transport krajowy, jak i międzynarodowy (drogowy, morski, lotniczy).
+●	Dostawca i Rozwiązanie: Blue Yonder (dawniej JDA) Transportation Management (w modelu SaaS).
+●	Skala: Około 300 użytkowników (planiści logistyki, dyspozytorzy, specjaliści ds. rozliczeń frachtu). System zarządza ponad 5 000 przesyłek dziennie na terenie całej Europy. Zintegrowany z ponad 100 kluczowymi przewoźnikami poprzez komunikację EDI lub API. Śledzi w czasie rzeczywistym ponad 2 000 pojazdów (flota własna i dedykowana) poprzez integrację z systemami telematycznymi.
+●	Technologia: Platforma chmurowa (SaaS) oparta na architekturze mikrousług. Integracja z SAP S/4HANA poprzez standardowe interfejsy (IDoc dla zleceń transportowych, API dla stawek frachtowych i rozliczeń). Integracja z systemem WMS (Manhattan Associates) poprzez API do koordynacji załadunku i awizacji. Integracja z systemami przewoźników (EDIFACT, XML, API). Integracja z platformami telematycznymi (np. Trimble, Webfleet, Transics) poprzez API.
+●	Lista głównych komponentów i modułów:
+○	Moduł planowania transportu (optymalizacja tras, konsolidacja ładunków)
+○	Moduł zarządzania przewoźnikami (kontrakty, stawki, ocena)
+○	Moduł śledzenia przesyłek (Visibility, Event Management)
+○	Moduł zarządzania kosztami transportu (Freight Audit & Payment)
+○	Moduł zarządzania dokumentacją transportową (BOL, CMR)
+○	Moduł zarządzania flotą (dla floty własnej)
+○	Moduł rozliczeń z przewoźnikami
+○	Moduł raportowy i analityczny (Transportation Intelligence)
+●	Opis kluczowych funkcjonalności:
+○	Automatyczne planowanie i optymalizacja tras oraz harmonogramów transportowych.
+○	Zarządzanie zleceniami transportowymi i ich konsolidacja.
+○	Automatyczny wybór optymalnych przewoźników i środków transportu w oparciu o koszty, terminy i ograniczenia.
+○	Śledzenie statusu przesyłek w czasie rzeczywistym i zarządzanie zdarzeniami (np. opóźnienia).
+○	Generowanie i zarządzanie elektroniczną dokumentacją transportową.
+○	Automatyczna kalkulacja, kontrola i audyt kosztów transportu oraz rozliczenia z przewoźnikami.
+○	Zarządzanie dostępnością i wykorzystaniem środków transportu własnego.
+○	Analiza efektywności procesów transportowych (koszty na km/tonę, terminowość, wykorzystanie pojazdów).
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Integracja z SAP S/4HANA (zlecenia transportowe z dostaw SD, dane materiałowe, dane partnerów, rozliczenia kosztów frachtu w FI/CO).
+○	Integracja z systemem WMS (Manhattan) do planowania pracy doków, potwierdzania załadunku/rozładunku.
+○	Integracja z systemem SCM (SAP IBP) do pobierania planów dystrybucji.
+○	Integracja z systemami przewoźników (przyjmowanie zleceń, wysyłanie statusów, odbieranie faktur) poprzez EDI/API.
+○	Integracja z systemami śledzenia pojazdów (GPS/Telematyka) do monitorowania lokalizacji i statusu floty.
+○	Integracja z platformą E-commerce (Salesforce Commerce Cloud) do szacowania kosztów i czasu dostawy dla klienta.
+○	Integracja z systemami celnymi (np. AES/ECS dla eksportu) do generowania zgłoszeń.
+○	Integracja z systemami zarządzania paletami i opakowaniami zwrotnymi (np. CHEP).
+●	Informacje o przetwarzanych danych:
+○	Szczegółowe dane dotyczące przesyłek (zawartość, waga, objętość, wartość).
+○	Informacje o trasach, harmonogramach i środkach transportu.
+○	Dane dotyczące przewoźników (dane firmy, kontakty, stawki, oceny) i kierowców (w ograniczonym zakresie, zgodnie z RODO).
+○	Informacje o kosztach transportu (stawki frachtowe, opłaty dodatkowe, faktury).
+○	Dane dotyczące dokumentów transportowych (listy przewozowe krajowe i międzynarodowe - CMR, konosamenty).
+○	Informacje podlegające regulacjom celnym (kody taryfowe, wartości celne) i transportowym (ADR, czas pracy kierowców).
+○	Dane dotyczące towarów niebezpiecznych (klasyfikacja ADR).
+○	Informacje o lokalizacji pojazdów i przesyłek w czasie rzeczywistym (dane GPS).
+9. E-commerce Platform
+●	Ogólny opis systemu i jego przeznaczenia: Platforma e-commerce umożliwia prowadzenie sprzedaży produktów i usług online, zarówno dla klientów biznesowych (B2B), jak i indywidualnych (B2C). Stanowi kluczowy kanał sprzedaży i interakcji z klientem w cyfrowym świecie. W EuroProdTrade platforma e-commerce jest zintegrowana z pozostałymi systemami, aby zapewnić spójne doświadczenie klienta (Omnichannel).
+●	Dostawca i Rozwiązanie: Salesforce Commerce Cloud (dawniej Demandware), obejmująca zarówno funkcjonalności B2B Commerce, jak i B2C Commerce.
+●	Skala: Platforma obsługuje sklepy internetowe w 15 krajach i językach. Średnio odnotowuje ponad 100 000 unikalnych odwiedzin dziennie i przetwarza ponad 10 000 zamówień dziennie (B2B i B2C łącznie). Katalog produktowy online, synchronizowany z systemu PIM, zawiera ponad 100 000 aktywnych SKU dostępnych do sprzedaży.
+●	Technologia: Platforma chmurowa (SaaS) Salesforce. Wykorzystuje architekturę storefront opartą na JavaScript (Storefront Reference Architecture - SFRA). Integracja z SAP S/4HANA (zamówienia, klienci, ceny, dostępność) realizowana poprzez MuleSoft Anypoint Platform. Integracja z systemem CRM (Salesforce Sales/Service Cloud) jest natywna. Integracja z systemem PIM (Akeneo) do pobierania danych produktowych. Integracja z bramkami płatniczymi (Adyen, Stripe) oraz systemami WMS (Manhattan) i TMS (Blue Yonder) do obsługi realizacji zamówień. Wykorzystanie Salesforce Marketing Cloud do personalizacji i marketingu.
+●	Lista głównych komponentów i modułów:
+○	Moduł katalogowy i zarządzania produktami (synchronizowany z PIM)
+○	Moduł koszyka i procesu zakupowego (Checkout)
+○	Moduł zarządzania zamówieniami (Order Management - częściowo, główny w ERP)
+○	Moduł płatności online (integracja z Payment Gateways)
+○	Moduł zarządzania klientami (konta, profile - synchronizowane z CRM)
+○	Moduł marketingowy i promocyjny (Promotions, Coupons, Personalization - Einstein AI)
+○	Moduł analityczny (Commerce Cloud Reports & Dashboards, Google Analytics integration)
+○	Moduł obsługi klienta i zwrotów (integracja z Service Cloud)
+●	Opis kluczowych funkcjonalności:
+○	Atrakcyjna prezentacja oferty produktowej online z bogatymi opisami i multimediami.
+○	Zarządzanie złożonymi katalogami produktów, cenami specyficznymi dla klienta (B2B) i promocjami.
+○	Sprawna obsługa procesu składania zamówień, w tym różne opcje dostawy i płatności.
+○	Bezpieczna integracja z wiodącymi systemami płatności elektronicznych.
+○	Zarządzanie kontami klientów, historią zamówień i preferencjami.
+○	Prowadzenie spersonalizowanych akcji promocyjnych, programów lojalnościowych i rekomendacji produktowych (AI).
+○	Analiza zachowań klientów na stronie, ścieżek zakupowych i optymalizacja współczynnika konwersji.
+○	Obsługa procesu zwrotów i reklamacji w integracji z systemem CRM i WMS.
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Integracja z SAP S/4HANA (przesyłanie zamówień, pobieranie statusów, synchronizacja cen i dostępności zapasów) poprzez MuleSoft.
+○	Integracja z systemem WMS (Manhattan) do przekazywania zleceń wysyłki i odbierania potwierdzeń.
+○	Integracja z systemami płatności elektronicznych (Adyen, Stripe, PayPal) poprzez API.
+○	Natywna integracja z Salesforce Sales Cloud i Service Cloud (synchronizacja danych klientów, leadów, zgłoszeń).
+○	Integracja z Salesforce Marketing Cloud (dane klientów do segmentacji, zdarzenia do automatyzacji marketingu).
+○	Integracja z systemem PIM (Akeneo) do pobierania danych produktowych (opisy, atrybuty, zdjęcia).
+○	Integracja z porównywarkami cen (np. Google Shopping, Idealo) i marketplace'ami (np. Amazon, eBay - jeśli dotyczy).
+○	Integracja z systemami analitycznymi (Google Analytics, Power BI) do śledzenia ruchu i analizy sprzedaży.
+○	Integracja z systemem TMS (Blue Yonder) do kalkulacji kosztów dostawy.
+●	Informacje o przetwarzanych danych:
+○	Dane osobowe klientów (imię, nazwisko, adresy dostawy/faktury, dane kontaktowe) podlegające RODO.
+○	Informacje o transakcjach (zamówienia, płatności) i historii zakupów online.
+○	Dane dotyczące płatności elektronicznych (częściowo zanonimizowane/tokenizowane zgodnie z PCI DSS).
+○	Informacje o preferencjach zakupowych i zachowaniach klientów na stronie (kliknięcia, przeglądane produkty, porzucone koszyki).
+○	Dane dotyczące kart lojalnościowych i wykorzystanych promocji.
+○	Informacje podlegające regulacjom handlu elektronicznego i prawom konsumenta (np. prawo do odstąpienia od umowy).
+○	Dane marketingowe (zgody na komunikację, subskrypcje newslettera).
+○	Informacje o opiniach i recenzjach produktów wystawianych przez klientów.
+10. Quality Management System (QMS)
+●	Ogólny opis systemu i jego przeznaczenia: System QMS wspiera zarządzanie jakością we wszystkich aspektach działalności firmy, od rozwoju produktu, przez produkcję, po obsługę posprzedażową. Umożliwia zapewnienie zgodności z wewnętrznymi standardami, wymaganiami klientów oraz normami i regulacjami zewnętrznymi (np. ISO 9001, normy branżowe). Celem jest minimalizacja ryzyka, ciągłe doskonalenie i budowanie kultury jakości.
+●	Dostawca i Rozwiązanie: Sparta Systems TrackWise Digital (platforma oparta na Salesforce, obecnie część Honeywell).
+●	Skala: Około 1 500 użytkowników w działach Jakości, R&D, Produkcji, Logistyki, Zakupów i Obsługi Klienta. System zarządza ponad 50 000 zdarzeń jakościowych rocznie (odchylenia, niezgodności, działania korygujące/zapobiegawcze - CAPA, reklamacje, audyty, zmiany). Zapewnia zgodność z normą ISO 9001 oraz specyficznymi wymaganiami branżowymi (np. IATF 16949 dla motoryzacji, GMP dla farmacji/żywności - jeśli dotyczy).
+●	Technologia: Platforma chmurowa (SaaS) zbudowana na Salesforce Platform. Integracja z SAP S/4HANA (dane materiałowe, partie produkcyjne, dane dostawców) poprzez konektory lub platformę integracyjną (np. MuleSoft). Integracja z systemem MES (Siemens Opcenter) do pobierania danych jakościowych z produkcji (wyniki kontroli, SPC). Integracja z systemem PLM (Siemens Teamcenter) do powiązania zdarzeń jakościowych ze specyfikacjami produktu. Integracja z Salesforce Service Cloud do zarządzania reklamacjami.
+●	Lista głównych komponentów i modułów:
+○	Moduł zarządzania dokumentacją jakościową (SOPs, instrukcje - często zintegrowany z DMS)
+○	Moduł kontroli jakości i inspekcji (plany kontroli, rejestracja wyników - częściowo w MES/ERP)
+○	Moduł zarządzania niezgodnościami (Deviations, Non-conformances)
+○	Moduł działań korygujących i zapobiegawczych (CAPA Management)
+○	Moduł zarządzania audytami (wewnętrznymi, dostawców, certyfikującymi)
+○	Moduł zarządzania reklamacjami (Complaint Handling)
+○	Moduł zarządzania jakością dostawców (Supplier Quality Management)
+○	Moduł statystycznej kontroli procesów (SPC - często realizowany w MES)
+●	Opis kluczowych funkcjonalności:
+○	Zarządzanie cyklem życia dokumentacji systemu zarządzania jakością.
+○	Planowanie i dokumentowanie wyników kontroli jakości na różnych etapach (od przyjęcia surowców po produkt końcowy).
+○	Systematyczna rejestracja, ocena i obsługa niezgodności i odchyleń od standardów.
+○	Zarządzanie całym procesem CAPA, od identyfikacji przyczyny źródłowej po weryfikację skuteczności działań.
+○	Planowanie, przeprowadzanie i dokumentowanie audytów oraz zarządzanie wynikającymi z nich działaniami.
+○	Kompleksowa obsługa reklamacji klientów, w tym analiza przyczyn i komunikacja z klientem.
+○	Ocena i monitorowanie jakości dostawców, zarządzanie audytami dostawców.
+○	Monitorowanie i analiza statystyczna stabilności procesów produkcyjnych (jeśli nie w MES).
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Integracja z SAP S/4HANA (dane materiałowe, partie, dostawcy, klienci, zlecenia produkcyjne).
+○	Integracja z systemem MES (Siemens Opcenter) do pobierania danych z kontroli w procesie, danych SPC, informacji o odchyleniach produkcyjnych.
+○	Integracja z systemami laboratoryjnymi (LIMS) do pobierania wyników testów laboratoryjnych.
+○	Integracja z systemem PLM (Siemens Teamcenter) do powiązania danych jakościowych ze specyfikacją produktu i zarządzania zmianami.
+○	Integracja z systemem DMS (OpenText) do zarządzania dokumentacją jakościową (SOP, instrukcje).
+○	Integracja z Salesforce Service Cloud do dwukierunkowej wymiany danych o reklamacjach klientów.
+○	Integracja z systemem SCM/SRM (SAP Ariba) do zarządzania jakością dostawców.
+○	Integracja z systemami pomiarowymi i kontrolnymi na produkcji (np. CMM - maszyny współrzędnościowe).
+●	Informacje o przetwarzanych danych:
+○	Dane dotyczące wyników kontroli jakości, testów i inspekcji.
+○	Szczegółowe informacje o niezgodnościach, odchyleniach i działaniach korygujących/zapobiegawczych (CAPA).
+○	Dane dotyczące reklamacji klientów (opisy, analizy przyczyn, podjęte działania).
+○	Informacje o planach audytów, listach kontrolnych, wynikach audytów i niezgodnościach poaudytowych.
+○	Dane dotyczące kwalifikacji, ocen i audytów dostawców.
+○	Informacje podlegające regulacjom branżowym (np. dokumentacja serii dla GMP) i normom (np. zapisy wymagane przez ISO 9001).
+○	Dane dotyczące certyfikatów jakości produktów i procesów, świadectw zgodności.
+○	Informacje o zgodności z wymaganiami prawnymi dotyczącymi jakości i bezpieczeństwa produktów.
+11. Document Management System (DMS)
+●	Ogólny opis systemu i jego przeznaczenia: System DMS służy do centralnego zarządzania, przechowywania, wersjonowania, udostępniania i archiwizacji dokumentów elektronicznych oraz zdigitalizowanych dokumentów papierowych w całej organizacji. Celem jest zapewnienie łatwego dostępu do informacji, usprawnienie przepływu pracy z dokumentami, kontrola wersji oraz zapewnienie zgodności z politykami retencji i wymogami prawnymi.
+●	Dostawca i Rozwiązanie: OpenText Content Suite Platform, w tym moduł OpenText Extended ECM for SAP do ścisłej integracji z systemem ERP.
+●	Skala: System dostępny dla wszystkich ~15 000 pracowników (z różnymi poziomami uprawnień). Zarządza repozytorium zawierającym ponad 100 milionów dokumentów (faktury, umowy, dokumentacja techniczna, dokumenty HR, procedury, itp.). Zapewnia zintegrowane archiwum dla dokumentów generowanych w SAP S/4HANA, Salesforce i Teamcenter. Rocznie do systemu trafia kilka milionów nowych dokumentów.
+●	Technologia: Platforma OpenText Content Suite działająca on-premise, z możliwością wykorzystania Azure Blob Storage jako warstwy archiwizacyjnej (storage tiering). Głęboka integracja z SAP S/4HANA poprzez certyfikowany interfejs ArchiveLink. Integracja z Salesforce poprzez dedykowane konektory OpenText. Integracja z Microsoft 365 (SharePoint Online, Teams, Outlook) umożliwiająca zarządzanie treścią z poziomu aplikacji Microsoft. Integracja z Siemens Teamcenter. Wykorzystanie OpenText Capture Center do skanowania i automatycznego rozpoznawania treści (OCR/ICR) oraz klasyfikacji dokumentów przychodzących (np. faktur).
+●	Lista głównych komponentów i modułów:
+○	Moduł repozytorium dokumentów (Content Server)
+○	Moduł zarządzania wersjami dokumentów (Versioning)
+○	Moduł workflow i obiegu dokumentów (Workflow)
+○	Moduł skanowania i OCR (OpenText Capture Center)
+○	Moduł zarządzania uprawnieniami (Security, Access Control)
+○	Moduł wyszukiwania i indeksowania (Full-text search, Metadata search)
+○	Moduł archiwizacji (Records Management, Archiving)
+○	Moduł raportowy i audytowy (Audit Trails)
+●	Opis kluczowych funkcjonalności:
+○	Bezpieczne, centralne repozytorium dla wszystkich typów dokumentów firmowych.
+○	Automatyczna kontrola wersji i śledzenie historii zmian w dokumentach.
+○	Modelowanie i automatyzacja procesów obiegu dokumentów (np. akceptacja faktur, zatwierdzanie umów).
+○	Masowe skanowanie dokumentów papierowych, automatyczne rozpoznawanie tekstu (OCR) i indeksowanie metadanych.
+○	Granularne zarządzanie dostępem i uprawnieniami do dokumentów w oparciu o role i polityki.
+○	Zaawansowane wyszukiwanie pełnotekstowe oraz wg metadanych.
+○	Zarządzanie cyklem życia dokumentów, w tym długoterminowa archiwizacja zgodna z wymogami prawnymi (polityki retencji).
+○	Pełne śledzenie historii dostępu i modyfikacji dokumentów (ślad audytowy).
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Integracja z SAP S/4HANA (archiwizacja dokumentów SAP, dostęp do dokumentów z poziomu transakcji SAP - np. faktury, zamówienia).
+○	Integracja z Salesforce (dołączanie i dostęp do dokumentów związanych z klientami, sprawami serwisowymi).
+○	Integracja z systemami poczty elektronicznej (archiwizacja e-maili jako dokumentów, np. z Microsoft Outlook).
+○	Integracja z pakietami biurowymi (Microsoft 365 - Word, Excel, PowerPoint, Teams, SharePoint).
+○	Integracja z systemami workflow i BPM (np. Appian) do zarządzania dokumentami w procesach.
+○	Integracja z systemami podpisu elektronicznego (np. DocuSign, Adobe Sign).
+○	Integracja z systemem QMS (TrackWise Digital) do zarządzania dokumentacją jakościową.
+○	Integracja z systemem PLM (Siemens Teamcenter) do zarządzania dokumentacją techniczną i projektową.
+●	Informacje o przetwarzanych danych:
+○	Dokumenty firmowe mogące zawierać dane osobowe (np. CV, umowy o pracę, dokumenty klientów) podlegające RODO.
+○	Dokumentacja finansowa i księgowa (faktury, wyciągi bankowe, raporty) podlegająca przepisom rachunkowym i podatkowym.
+○	Dokumenty kadrowe i płacowe (umowy, świadectwa pracy, listy płac).
+○	Umowy handlowe, prawne i inne dokumenty o charakterze poufnym.
+○	Dokumentacja techniczna, projektowa i produktowa (rysunki, specyfikacje).
+○	Informacje stanowiące tajemnicę handlową przedsiębiorstwa.
+○	Dokumenty podlegające specyficznym wymogom archiwizacyjnym (np. dokumentacja medyczna pracowników, dokumentacja podatkowa).
+○	Dokumenty wymagane podczas audytów wewnętrznych i zewnętrznych.
+12. Enterprise Asset Management (EAM)
+●	Ogólny opis systemu i jego przeznaczenia: System EAM służy do zarządzania całym cyklem życia fizycznych aktywów firmy, w tym maszyn produkcyjnych, urządzeń, budynków, infrastruktury i floty pojazdów. Celem jest optymalizacja wykorzystania majątku trwałego, maksymalizacja dostępności operacyjnej, minimalizacja kosztów utrzymania ruchu oraz zapewnienie bezpieczeństwa i zgodności. W EuroProdTrade EAM jest ściśle powiązany z produkcją i finansami.
+●	Dostawca i Rozwiązanie: SAP S/4HANA Asset Management (moduł w ramach systemu ERP, dawniej znany jako SAP Plant Maintenance - PM).
+●	Skala: Około 1 000 użytkowników (technicy utrzymania ruchu, planiści, inżynierowie, magazynierzy części zamiennych) we wszystkich 25 zakładach produkcyjnych i 50 centrach dystrybucyjnych. System zarządza ponad 100 000 rekordów wyposażenia (equipment master records) i lokalizacji technicznych (functional locations). Rocznie przetwarzanych jest ponad 200 000 zleceń pracy utrzymania ruchu (konserwacja prewencyjna i korekcyjna).
+●	Technologia: Jest to integralny moduł systemu SAP S/4HANA, wykorzystujący tę samą bazę danych SAP HANA i platformę technologiczną. Integracja z modułami FI/CO (rozliczanie kosztów UR), MM (zarządzanie częściami zamiennymi), PP (wpływ na planowanie produkcji). Integracja z systemem MES (Siemens Opcenter) do automatycznego pobierania danych o stanie maszyn, licznikach pracy i zgłaszania awarii. Integracja z systemami SCADA poprzez MES lub bezpośrednio (OPC). Wykorzystanie platformy Azure IoT Hub do zbierania danych z czujników na maszynach w celu realizacji strategii konserwacji predykcyjnej (PdM). Dostęp mobilny dla techników poprzez aplikację SAP Asset Manager.
+●	Lista głównych komponentów i modułów (w ramach SAP S/4HANA AM):
+○	Moduł zarządzania strukturą techniczną (Functional Locations, Equipment)
+○	Moduł zarządzania konserwacją prewencyjną (Maintenance Plans, Task Lists)
+○	Moduł zarządzania naprawami (Maintenance Notifications, Maintenance Orders)
+○	Moduł zarządzania częściami zamiennymi (integracja z MM - Material Management)
+○	Moduł planowania i harmonogramowania prac (Maintenance Planning & Scheduling)
+○	Moduł zarządzania personelem technicznym (integracja z HR/CATs)
+○	Moduł monitorowania i diagnostyki (Measurement Points, Counters, Condition Monitoring)
+○	Moduł analizy kosztów i raportowania (Maintenance Costing, Reporting)
+●	Opis kluczowych funkcjonalności:
+○	Prowadzenie szczegółowej ewidencji i hierarchicznej struktury aktywów fizycznych.
+○	Planowanie, harmonogramowanie i automatyczne generowanie zleceń konserwacji prewencyjnej w oparciu o czas lub stan.
+○	Zarządzanie zgłoszeniami awarii (Notifications) i pełnym cyklem realizacji napraw (Orders).
+○	Zarządzanie zapasami części zamiennych i materiałów eksploatacyjnych potrzebnych do prac UR.
+○	Planowanie zasobów (ludzkich i materiałowych) oraz harmonogramowanie prac obsługowych.
+○	Rejestracja czasu pracy personelu technicznego przy zleceniach UR.
+○	Monitorowanie stanu technicznego aktywów poprzez odczyty liczników, pomiary i dane z czujników (Condition Based Maintenance, Predictive Maintenance).
+○	Analiza kosztów utrzymania ruchu, awaryjności (MTBF, MTTR) i efektywności działań prewencyjnych.
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Natywna integracja z innymi modułami SAP S/4HANA (FI, CO, MM, PP, PS, HR).
+○	Integracja z systemem MES (Siemens Opcenter) do wymiany danych o statusie maszyn, licznikach, zgłoszeniach awarii.
+○	Integracja z systemami SCADA i automatyki przemysłowej (bezpośrednio lub przez MES) do zbierania danych operacyjnych.
+○	Integracja z platformami IoT (Azure IoT Hub) do zbierania danych z czujników dla PdM.
+○	Integracja z systemami zarządzania magazynem części zamiennych (jeśli dedykowany, inaczej MM w SAP).
+○	Integracja z systemami finansowo-księgowymi (rozliczanie kosztów UR, aktywacja środków trwałych).
+○	Integracja z systemem DMS (OpenText) do zarządzania dokumentacją techniczną maszyn (instrukcje, schematy).
+○	Integracja z aplikacjami mobilnymi (SAP Asset Manager) dla techników w terenie.
+●	Informacje o przetwarzanych danych:
+○	Dane techniczne dotyczące aktywów fizycznych (specyfikacje, historia, lokalizacja).
+○	Szczegółowe informacje o przeprowadzonych konserwacjach, przeglądach i naprawach (zakres prac, zużyte części, czas pracy).
+○	Dane dotyczące awarii, przyczyn przestojów i czasów naprawy (MTTR).
+○	Informacje o kosztach utrzymania aktywów (koszty pracy, materiałów, usług zewnętrznych).
+○	Dane dotyczące personelu technicznego (kwalifikacje, dostępność, przypisane zadania).
+○	Informacje o częściach zamiennych (stany magazynowe, zużycie, koszty).
+○	Dane podlegające regulacjom branżowym (np. przeglądy UDT) i normom bezpieczeństwa (np. inspekcje BHP).
+○	Informacje dotyczące amortyzacji i wartości księgowej aktywów (z modułu FI-AA).
+13. Product Information Management (PIM)
+●	Ogólny opis systemu i jego przeznaczenia: System PIM jest centralnym repozytorium do zarządzania wszystkimi informacjami marketingowymi i technicznymi o produktach. Umożliwia gromadzenie, wzbogacanie, zarządzanie i dystrybuowanie spójnych i dokładnych danych produktowych do różnych kanałów sprzedaży (e-commerce, katalogi drukowane, aplikacje mobilne, marketplace'y). Celem jest poprawa jakości danych produktowych, przyspieszenie wprowadzania produktów na rynek i zapewnienie spójnego doświadczenia klienta we wszystkich kanałach.
+●	Dostawca i Rozwiązanie: Akeneo PIM (Enterprise Edition, w modelu PaaS/SaaS).
+●	Skala: Około 200 użytkowników w działach marketingu, zarządzania produktem, e-commerce, sprzedaży i R&D. System centralnie zarządza informacjami dla ponad 500 000 SKU. Dla każdego produktu zarządzanych jest średnio ponad 1 000 atrybutów (technicznych, marketingowych, logistycznych). Dane są lokalizowane i dostosowywane dla 15 rynków/języków europejskich.
+●	Technologia: Platforma Akeneo PIM oparta na PHP/Symfony, działająca w chmurze (PaaS/SaaS). Integracja z SAP S/4HANA (pobieranie podstawowych danych materiałowych) poprzez dedykowane konektory lub pliki wymiany. Integracja z systemem PLM (Siemens Teamcenter) do pobierania danych technicznych i specyfikacji. Integracja z systemem DAM (Digital Asset Management - np. wbudowany w Akeneo lub zewnętrzny jak Bynder/Celum) do zarządzania zasobami cyfrowymi (zdjęcia, filmy, dokumenty). Integracja z platformą E-commerce (Salesforce Commerce Cloud) poprzez API REST do publikacji danych produktowych. Integracja z systemami do tworzenia katalogów drukowanych (np. InDesign z pluginem EasyCatalog).
+●	Lista głównych komponentów i modułów:
+○	Moduł zarządzania danymi podstawowymi produktów (Product Model, Attributes)
+○	Moduł zarządzania hierarchią i klasyfikacją produktów (Categories, Families)
+○	Moduł zarządzania atrybutami i specyfikacjami (Attribute Groups, Validation Rules)
+○	Moduł zarządzania multimediami produktowymi (Assets - zdjęcia, filmy, PDFy)
+○	Moduł zarządzania tłumaczeniami i lokalizacjami (Localization)
+○	Moduł zarządzania wersjami i zmianami (Versioning, Workflow)
+○	Moduł dystrybucji danych produktowych (Channels, Exports)
+○	Moduł importu i eksportu danych (Imports, Data Quality Insights)
+●	Opis kluczowych funkcjonalności:
+○	Centralne zarządzanie wszystkimi atrybutami produktów w jednym miejscu.
+○	Elastyczne tworzenie i zarządzanie strukturą katalogu produktów (kategorie, rodziny).
+○	Definiowanie i zarządzanie różnorodnymi atrybutami (tekstowe, liczbowe, listy wyboru, pliki).
+○	Zarządzanie zasobami cyfrowymi powiązanymi z produktami i ich automatyczne dopasowywanie do kanałów.
+○	Usprawnienie procesu tłumaczenia i lokalizacji danych produktowych dla rynków międzynarodowych.
+○	Kontrola jakości danych, śledzenie kompletności informacji i zarządzanie procesem wzbogacania danych (workflow).
+○	Łatwa dystrybucja spersonalizowanych zestawów danych produktowych do różnych kanałów sprzedaży i marketingu.
+○	Możliwość importu danych z różnych źródeł (ERP, PLM, pliki dostawców) i eksportu w różnych formatach.
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Integracja z SAP S/4HANA (pobieranie danych podstawowych materiałów, synchronizacja wybranych atrybutów).
+○	Integracja z platformą E-commerce (Salesforce Commerce Cloud) do publikacji katalogu online.
+○	Integracja z systemem PLM (Siemens Teamcenter) do pobierania danych technicznych i rysunków.
+○	Integracja z systemami DAM (wbudowany lub zewnętrzny) do zarządzania multimediami.
+○	Integracja z systemami DTP (Desktop Publishing) jak Adobe InDesign do tworzenia katalogów drukowanych.
+○	Integracja z marketplace'ami (Amazon, eBay) i porównywarkami cen (Google Shopping) poprzez API lub formaty plików.
+○	Integracja z aplikacjami mobilnymi dla przedstawicieli handlowych lub klientów.
+○	Integracja z systemem CRM (Salesforce) do udostępniania informacji o produktach zespołom sprzedaży.
+●	Informacje o przetwarzanych danych:
+○	Szczegółowe dane dotyczące specyfikacji produktów (techniczne, fizyczne, chemiczne).
+○	Informacje o cenach (cenniki bazowe, ceny promocyjne - często zarządzane w ERP/Ecomm, ale mogą być referencje w PIM).
+○	Dane marketingowe (opisy, cechy, korzyści, słowa kluczowe SEO).
+○	Informacje o klasyfikacji produktów (kategorie, rodziny, typy).
+○	Dane dotyczące składników, materiałów, alergenów (szczególnie w branży spożywczej/kosmetycznej).
+○	Informacje podlegające regulacjom branżowym (np. etykietowanie energetyczne, informacje o składzie, ostrzeżenia).
+○	Dane dotyczące praw autorskich i licencji do wykorzystanych multimediów.
+○	Informacje o pochodzeniu produktów, certyfikatach ekologicznych lub jakościowych.
+14. Enterprise Content Management (ECM)
+●	Ogólny opis systemu i jego przeznaczenia: System ECM zarządza całym cyklem życia nieustrukturyzowanych treści w organizacji, wykraczając poza tradycyjne dokumenty (DMS). Obejmuje zarządzanie dokumentami, treścią internetową (WCM), zasobami cyfrowymi (DAM), rekordami (RM) oraz procesami i współpracą związanymi z treścią. Celem jest ujednolicenie zarządzania informacją, poprawa współpracy i wykorzystania wiedzy oraz zapewnienie zgodności i bezpieczeństwa. W EuroProdTrade strategia ECM opiera się na połączeniu platformy Microsoft 365 do współpracy i codziennej pracy z treścią oraz OpenText do zarządzania dokumentami o znaczeniu formalnym i archiwalnym.
+●	Dostawca i Rozwiązanie: Microsoft 365 (obejmujący SharePoint Online, Teams, OneDrive for Business) dla współpracy, komunikacji i zarządzania treścią roboczą. OpenText Content Suite (jak w DMS) dla zarządzania rekordami, archiwizacji i treści o znaczeniu regulacyjnym.
+●	Skala: Platforma Microsoft 365 jest wykorzystywana przez wszystkich ~15 000 pracowników do codziennej pracy, komunikacji i współpracy. SharePoint Online hostuje ponad 50 TB treści (dokumenty, strony witryn, listy). Microsoft Teams jest głównym narzędziem komunikacji i współpracy zespołowej. OpenText (jak w DMS) zarządza >100 milionami rekordów i dokumentów archiwalnych.
+●	Technologia: Microsoft 365 to platforma chmurowa (SaaS). OpenText działa on-premise z możliwością archiwizacji w chmurze Azure. Istnieją konektory i możliwości integracji między SharePoint Online/Teams a OpenText Content Suite, umożliwiające np. przenoszenie dokumentów do archiwum OpenText lub wyszukiwanie w obu repozytoriach. Wykorzystanie narzędzi Microsoft Purview do zarządzania cyklem życia danych, etykietowania i ochrony informacji w M365.
+●	Lista głównych komponentów i modułów:
+○	Moduł zarządzania dokumentami (w SharePoint Online i OpenText)
+○	Moduł zarządzania treścią internetową (SharePoint Online - strony intranetowe, witryny komunikacyjne)
+○	Moduł zarządzania zasobami cyfrowymi (funkcjonalności DAM w SharePoint i/lub dedykowany system zintegrowany z PIM/OpenText)
+○	Moduł zarządzania rekordami i archiwizacją (Microsoft Purview Records Management w M365, OpenText Records Management)
+○	Moduł workflow i procesów biznesowych (Power Automate w M365, OpenText Workflow)
+○	Moduł współpracy i komunikacji (Microsoft Teams, SharePoint Online, Viva Engage)
+○	Moduł wyszukiwania i indeksowania (Microsoft Search w M365, OpenText Search)
+○	Moduł zarządzania prawami dostępu (Azure Active Directory, uprawnienia SharePoint, uprawnienia OpenText)
+●	Opis kluczowych funkcjonalności:
+○	Zarządzanie dokumentami roboczymi, ich współtworzenie i wersjonowanie w czasie rzeczywistym (M365).
+○	Tworzenie i zarządzanie treścią portali intranetowych, witryn zespołowych i komunikacyjnych (SharePoint Online).
+○	Przechowywanie i zarządzanie zasobami multimedialnymi (zdjęcia, filmy, prezentacje).
+○	Definiowanie polityk retencji i zarządzanie archiwizacją dokumentów i rekordów zgodnie z wymogami prawnymi (Purview, OpenText RM).
+○	Automatyzacja prostych przepływów pracy i procesów związanych z treścią (Power Automate, OpenText Workflow).
+○	Wspieranie efektywnej współpracy i komunikacji w zespołach i w całej organizacji (Teams, SharePoint).
+○	Zaawansowane wyszukiwanie treści we wszystkich zarządzanych repozytoriach.
+○	Zarządzanie bezpieczeństwem treści poprzez uprawnienia, etykiety poufności i polityki DLP (Data Loss Prevention).
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Integracja OpenText z SAP S/4HANA i Salesforce (jak w DMS).
+○	Integracja Microsoft 365 z Azure Active Directory (tożsamość i dostęp).
+○	Integracja Microsoft Teams z wieloma aplikacjami biznesowymi (w tym SAP, Salesforce - poprzez konektory i boty).
+○	Integracja SharePoint Online z Power BI (osadzanie raportów), Power Apps (formularze i aplikacje).
+○	Integracja systemów poczty elektronicznej (Exchange Online) z archiwizacją (w M365 lub OpenText).
+○	Integracja z systemami E-commerce (np. osadzanie treści marketingowych z ECM).
+○	Integracja z systemami workflow/BPM (np. Appian może orkiestrować procesy wykorzystujące treści z M365/OpenText).
+○	Możliwość integracji z systemami archiwizacji zewnętrznej.
+●	Informacje o przetwarzanych danych:
+○	Dokumenty i treści mogące zawierać dane osobowe (jak w DMS) podlegające RODO.
+○	Treści o charakterze prawnym, regulacyjnym i proceduralnym.
+○	Dokumentacja marketingowa, handlowa, komunikacyjna.
+○	Materiały szkoleniowe, bazy wiedzy, materiały wdrożeniowe.
+○	Treści chronione prawami własności intelektualnej.
+○	Dokumentacja i rekordy podlegające wymogom archiwizacyjnym.
+○	Treści specyficzne dla branży, podlegające odrębnym regulacjom.
+○	Informacje stanowiące tajemnicę handlową, dane strategiczne.
+15. Master Data Management (MDM)
+●	Ogólny opis systemu i jego przeznaczenia: System MDM ma na celu zapewnienie jednej, spójnej i wiarygodnej wersji kluczowych danych podstawowych (master data) w całej organizacji. Dane podstawowe to najważniejsze obiekty biznesowe, takie jak Klienci, Dostawcy, Produkty, Pracownicy, Dane finansowe. MDM zarządza procesami tworzenia, utrzymania, harmonizacji i dystrybucji tych danych do systemów operacyjnych i analitycznych. Celem jest poprawa jakości danych, eliminacja redundancji, usprawnienie procesów biznesowych i analityki.
+●	Dostawca i Rozwiązanie: SAP Master Data Governance (MDG) on S/4HANA. Wykorzystuje platformę S/4HANA do zarządzania danymi podstawowymi.
+●	Skala: System centralnie zarządza kluczowymi domenami danych: Klient (Customer), Dostawca (Supplier), Produkt (Material/Product), Finanse (Financials). Procesy zarządzania danymi są obsługiwane przez dedykowany zespół około 100 data stewardów w różnych działach. System zarządza jakością i spójnością ponad 5 milionów rekordów klientów, ponad 100 000 rekordów dostawców, ponad 500 000 rekordów produktów oraz kluczowych danych finansowych (np. plan kont, centra kosztów).
+●	Technologia: SAP MDG jest rozwiązaniem wbudowanym w platformę SAP S/4HANA, wykorzystującym jej bazę danych SAP HANA, silnik workflow oraz model danych. Procesy zarządzania danymi (tworzenie, zmiana, blokowanie) są oparte na konfigurowalnych przepływach pracy (workflow). Integracja i replikacja danych do innych systemów (SAP i non-SAP) odbywa się za pomocą technologii takich jak SAP Data Replication Framework (DRF), IDocs, Web Services, SAP CPI. Jakość danych jest monitorowana i zarządzana z wykorzystaniem SAP Information Steward (zintegrowanego z MDG).
+●	Lista głównych komponentów i modułów (w ramach SAP MDG):
+○	Moduł zarządzania danymi klientów (MDG-C)
+○	Moduł zarządzania danymi produktów (MDG-M)
+○	Moduł zarządzania danymi dostawców (MDG-S)
+○	Moduł zarządzania danymi pracowników (zwykle zarządzane w HRMS, ale MDG może zarządzać niektórymi atrybutami)
+○	Moduł zarządzania danymi finansowymi (MDG-F - plan kont, centra kosztów, itp.)
+○	Moduł zarządzania jakością danych (Data Quality Management - integracja z Information Steward)
+○	Moduł integracji i replikacji danych (Data Replication Framework - DRF)
+○	Moduł zarządzania hierarchiami i relacjami
+●	Opis kluczowych funkcjonalności:
+○	Centralne tworzenie, walidacja i zatwierdzanie nowych rekordów danych podstawowych poprzez workflow.
+○	Zapewnienie spójności i deduplikacja danych w procesie tworzenia i zmiany.
+○	Zarządzanie całym cyklem życia danych podstawowych, od utworzenia do archiwizacji/usunięcia.
+○	Definiowanie, monitorowanie i egzekwowanie reguł jakości danych.
+○	Wzbogacanie danych poprzez integrację z zewnętrznymi źródłami (np. dane adresowe, dane firm).
+○	Zarządzanie złożonymi hierarchiami (np. klientów, produktów) i relacjami między obiektami.
+○	Kontrolowana dystrybucja zatwierdzonych danych podstawowych do systemów docelowych.
+○	Monitorowanie wskaźników jakości danych i podejmowanie działań naprawczych.
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Natywna integracja z modułami SAP S/4HANA (SD, MM, FI, CO, PP, etc.).
+○	Replikacja danych klientów do Salesforce CRM.
+○	Replikacja danych dostawców do SAP Ariba.
+○	Replikacja danych produktów do Siemens Teamcenter PLM (wybrane atrybuty).
+○	Replikacja danych produktów do Akeneo PIM (jako źródło danych podstawowych).
+○	Integracja z systemem HR (SAP SuccessFactors) w zakresie danych pracowniczych.
+○	Replikacja danych produktów do Salesforce Commerce Cloud (przez PIM).
+○	Zasilanie Hurtowni Danych (SAP BW/4HANA) i systemów BI (Power BI) spójnymi danymi podstawowymi.
+●	Informacje o przetwarzanych danych:
+○	Dane osobowe klientów (jako dane podstawowe) podlegające RODO.
+○	Dane osobowe pracowników (w ograniczonym zakresie zarządzanym przez MDG).
+○	Szczegółowe informacje o dostawcach i partnerach biznesowych (dane rejestrowe, finansowe, kontaktowe).
+○	Dane podstawowe produktów (numery materiałowe, opisy, jednostki miary, klasyfikacje) podlegające standardom wewnętrznym i zewnętrznym.
+○	Dane finansowe (plan kont, centra kosztów, centra zysku) podlegające przepisom rachunkowości.
+○	Informacje o strukturze organizacyjnej firmy (jednostki gospodarcze, zakłady).
+○	Dane dotyczące lokalizacji geograficznych (kraje, regiony, adresy).
+○	Definicje kluczowych kodów, klasyfikacji i jednostek miar używanych w organizacji.
+16. Learning Management System (LMS)
+●	Ogólny opis systemu i jego przeznaczenia: System LMS służy do zarządzania, dostarczania, śledzenia i raportowania działań szkoleniowych i rozwojowych w organizacji. Umożliwia pracownikom dostęp do materiałów edukacyjnych, kursów e-learningowych i szkoleń stacjonarnych, wspierając rozwój kompetencji, onboarding oraz realizację obowiązkowych szkoleń (np. BHP, RODO).
+●	Dostawca i Rozwiązanie: Cornerstone OnDemand Learning Suite (w modelu SaaS).
+●	Skala: System dostępny dla wszystkich ~15 000 pracowników oraz wybranych grup partnerów zewnętrznych i klientów. W katalogu znajduje się ponad 5 000 różnorodnych zasobów szkoleniowych (kursy e-learning SCORM/xAPI, filmy, dokumenty, webinary, szkolenia stacjonarne). Rocznie system rejestruje ponad 100 000 ukończeń kursów i szkoleń. Zarządza obowiązkowymi szkoleniami z zakresu zgodności (compliance) dla wszystkich pracowników.
+●	Technologia: Platforma chmurowa Cornerstone OnDemand (SaaS). Integracja z systemem HR (SAP SuccessFactors) poprzez standardowe konektory do synchronizacji danych o pracownikach, strukturze organizacyjnej i kompetencjach. Integracja z Microsoft Teams do prowadzenia wirtualnych szkoleń (VILT - Virtual Instructor-Led Training). Możliwość integracji z zewnętrznymi bibliotekami treści (np. LinkedIn Learning, Skillsoft) poprzez standardy AICC, SCORM lub API. Zgodność ze standardami SCORM 1.2/2004 oraz xAPI (Tin Can API). Dostęp mobilny poprzez dedykowaną aplikację Cornerstone Learn.
+●	Lista głównych komponentów i modułów:
+○	Moduł zarządzania treściami szkoleniowymi (Content Management)
+○	Moduł zarządzania kursami i programami szkoleniowymi (Curriculum Management)
+○	Moduł zarządzania uczestnikami i ich kompetencjami (User Management, Competency Management)
+○	Moduł oceny i testowania (Assessments, Quizzes)
+○	Moduł raportowania i analiz (Reporting, Analytics)
+○	Moduł zarządzania certyfikacjami (Certifications)
+○	Moduł społecznościowy i współpracy (Social Learning, Communities of Practice)
+○	Moduł mobilnego uczenia się (Mobile Learning)
+●	Opis kluczowych funkcjonalności:
+○	Tworzenie, importowanie i zarządzanie różnorodnymi treściami szkoleniowymi.
+○	Definiowanie i zarządzanie katalogiem kursów, ścieżkami rozwoju i programami szkoleniowymi.
+○	Zarządzanie profilami użytkowników, przypisywanie szkoleń i śledzenie postępów w nauce.
+○	Tworzenie i przeprowadzanie testów wiedzy, ankiet ewaluacyjnych i ocen.
+○	Generowanie raportów dotyczących ukończenia szkoleń, wyników testów, zgodności (compliance).
+○	Zarządzanie cyklem życia certyfikatów i przypominanie o konieczności ich odnowienia.
+○	Wspieranie nieformalnego uczenia się poprzez fora dyskusyjne, blogi, wiki.
+○	Umożliwienie dostępu do szkoleń i materiałów z dowolnego urządzenia mobilnego.
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Integracja z systemem HR (SAP SuccessFactors) do synchronizacji danych pracowników i kompetencji.
+○	Integracja z systemami zarządzania talentami (jeśli oddzielne od SuccessFactors).
+○	Integracja z systemami oceny pracowniczej (do powiązania szkoleń z celami rozwojowymi).
+○	Integracja z systemami komunikacji wewnętrznej (np. SharePoint, Teams) do promowania szkoleń.
+○	Integracja z systemem DMS (OpenText) do przechowywania materiałów szkoleniowych.
+○	Integracja z systemami wideokonferencyjnymi (Microsoft Teams, Zoom) do prowadzenia szkoleń VILT.
+○	Integracja z zewnętrznymi dostawcami treści szkoleniowych (LinkedIn Learning, Coursera, etc.).
+○	Integracja z systemem KMS (Confluence/SharePoint) do powiązania wiedzy z materiałami szkoleniowymi.
+●	Informacje o przetwarzanych danych:
+○	Dane osobowe pracowników (imię, nazwisko, e-mail, stanowisko, dział) podlegające RODO.
+○	Informacje o posiadanych kwalifikacjach, kompetencjach i lukach kompetencyjnych.
+○	Dane dotyczące wyników testów, quizów i ocen uzyskanych w ramach szkoleń.
+○	Informacje o posiadanych certyfikatach, licencjach i uprawnieniach oraz ich terminach ważności.
+○	Dane o historii ukończonych szkoleń, postępach w nauce i aktywności w systemie.
+○	Informacje o realizacji obowiązkowych szkoleń BHP, RODO, compliance i innych wymaganych prawnie.
+○	Dane dotyczące szkoleń z zakresu ochrony danych osobowych i bezpieczeństwa informacji.
+○	Informacje o preferencjach szkoleniowych i zainteresowaniach rozwojowych pracowników.
+17. Enterprise Project Management (EPM)
+●	Ogólny opis systemu i jego przeznaczenia: System EPM (Enterprise Project Management) jest kluczowym narzędziem dla EuroProdTrade do strategicznego zarządzania całym cyklem życia projektów – od inicjacji, przez planowanie, realizację, aż po zamknięcie i analizę. Umożliwia centralne zarządzanie zróżnicowanym portfelem inicjatyw, obejmującym projekty inwestycyjne (np. budowa nowych linii produkcyjnych), R&D (wprowadzanie nowych produktów), IT (wdrożenia systemów), optymalizacyjne (usprawnienia procesów logistycznych) oraz marketingowe (kampanie w nowych krajach). System zapewnia spójne metodyki zarządzania, ułatwia alokację zasobów między projektami w skali całej organizacji (15 krajów), monitoruje harmonogramy i budżety w czasie rzeczywistym oraz wspiera zarządzanie ryzykiem, zapewniając zgodność realizacji projektów z celami strategicznymi firmy.
+●	Dostawca i Rozwiązanie: Microsoft Project Online (w ramach subskrypcji Microsoft 365 E5), hostowany na platformie Microsoft Azure. Wykorzystuje integrację z Microsoft Teams do współpracy i komunikacji w zespołach projektowych oraz SharePoint Online do zarządzania dokumentacją.
+●	Skala: Około 1 500 użytkowników, w tym kierownicy projektów, członkowie zespołów projektowych, menedżerowie zasobów, komitety sterujące i kadra zarządzająca w działach Inżynierii, Produkcji, IT, R&D, Marketingu, Sprzedaży i Finansów. System zarządza portfelem około 300-400 aktywnych projektów rocznie o różnej skali i złożoności. Baza danych przechowuje plany projektów, raporty statusowe, rejestry ryzyk, dokumentację i dane o alokacji zasobów (ok. 2 TB danych).
+●	Technologia: Platforma Microsoft Project Online (SaaS), baza danych Azure SQL Database, interfejs użytkownika webowy oraz integracja z klientem Project Professional, Microsoft Teams i Power BI. Integracje realizowane za pomocą Project Online API, Power Automate oraz standardowych konektorów Microsoft 365.
+●	Lista głównych komponentów i modułów:
+○	Moduł zarządzania portfelem projektów (Project Portfolio Management - PPM)
+○	Moduł planowania i harmonogramowania (Project Scheduling)
+○	Moduł zarządzania zasobami (Resource Management)
+○	Moduł zarządzania budżetem i kosztami (Cost Management)
+○	Moduł zarządzania ryzykiem i problemami (Risk & Issue Management)
+○	Moduł komunikacji i współpracy (Collaboration - via Teams/SharePoint)
+○	Moduł raportowania i analiz (Reporting & Analytics - via Power BI)
+○	Moduł zarządzania czasem pracy (Timesheet Management)
+○	Moduł zarządzania dokumentacją projektową (Document Management - via SharePoint)
+●	Opis kluczowych funkcjonalności:
+○	Zarządzanie portfelem projektów, analiza scenariuszy "what-if" i priorytetyzacja w oparciu o kryteria strategiczne.
+○	Tworzenie szczegółowych harmonogramów (WBS, diagramy Gantta, ścieżka krytyczna).
+○	Planowanie zapotrzebowania na zasoby, zarządzanie pulą zasobów, alokacja i analiza obciążenia (capacity planning).
+○	Śledzenie kosztów projektowych, integracja z budżetami z systemu ERP.
+○	Identyfikacja, ocena, mitygacja i monitorowanie ryzyk projektowych.
+○	Współpraca w zespołach projektowych z wykorzystaniem dedykowanych przestrzeni w MS Teams.
+○	Monitorowanie postępów, raportowanie statusu (dashboardy Power BI), śledzenie kamieni milowych.
+○	Rejestracja czasu pracy poświęconego na zadania projektowe (timesheeting).
+○	Centralne repozytorium dokumentacji projektowej w SharePoint Online.
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Integracja z SAP S/4HANA (ERP) poprzez API/SAP CPI: synchronizacja danych o kosztach rzeczywistych projektów, pobieranie danych budżetowych, synchronizacja elementów WBS.
+○	Integracja z SAP SuccessFactors (HRMS) poprzez API: synchronizacja danych o pracownikach (zasobach), ich dostępności i stawkach kosztowych.
+○	Integracja z Microsoft Teams/SharePoint Online (Collaboration/DMS): natywna integracja w ramach Microsoft 365 do współpracy i przechowywania dokumentów.
+○	Integracja z Power BI (BI): natywna integracja do zaawansowanego raportowania i tworzenia dashboardów zarządczych.
+○	Integracja z Salesforce (CRM) poprzez Power Automate/API: możliwość inicjowania projektów na podstawie wygranych szans sprzedaży.
+○	Integracja z Jira/Azure DevOps (IT Development) poprzez konektory: dla projektów IT, synchronizacja zadań i postępów prac deweloperskich.
+●	Informacje o przetwarzanych danych:
+○	Dane projektowe (harmonogramy, budżety, zakresy) mogące stanowić tajemnicę handlową.
+○	Dane osobowe członków zespołów projektowych (imiona, nazwiska, role, alokacje) podlegające RODO.
+○	Informacje o alokacji zasobów, obciążeniu pracą i kosztach zasobów.
+○	Dane dotyczące budżetów, prognoz i kosztów rzeczywistych projektów (dane finansowe).
+○	Informacje o ryzykach projektowych i problemach (potencjalnie wrażliwe).
+○	Dokumentacja projektowa (specyfikacje, plany, raporty) mogąca zawierać informacje poufne lub strategiczne.
+18. Business Process Management System (BPMS)
+●	Ogólny opis systemu i jego przeznaczenia: System BPMS (Business Process Management System) jest platformą wspierającą cyfrową transformację i ciągłe doskonalenie operacyjne w EuroProdTrade Umożliwia on kompleksowe zarządzanie procesami biznesowymi – od ich odkrywania (process mining), przez modelowanie (zgodnie ze standardem BPMN 2.0), symulację, automatyzację (workflow, reguły biznesowe), aż po monitorowanie i analizę wydajności. BPMS pozwala na standaryzację kluczowych procesów (np. Order-to-Cash, Procure-to-Pay, zarządzanie zmianą produktu) w skali międzynarodowej, identyfikację wąskich gardeł, redukcję kosztów operacyjnych oraz zapewnienie zgodności z regulacjami i wewnętrznymi politykami.
+●	Dostawca i Rozwiązanie: SAP Signavio Process Transformation Suite (SaaS, działający na platformie SAP Business Technology Platform - BTP). Wybór podyktowany synergią z istniejącym systemem SAP S/4HANA i strategią rozwoju ekosystemu SAP.
+●	Skala: Około 500 aktywnych użytkowników w rolach analityków procesów, właścicieli procesów, kluczowych użytkowników biznesowych oraz IT. System obejmuje modelowanie i dokumentację kilkuset kluczowych procesów biznesowych. Około 50-70 procesów (lub ich fragmentów) jest zautomatyzowanych za pomocą silnika workflow, generując kilkadziesiąt tysięcy instancji procesów miesięcznie. Platforma analizuje dane procesowe z systemów źródłowych (np. SAP) w celu ich optymalizacji (Process Mining).
+●	Technologia: Platforma SAP Signavio (SaaS na SAP BTP), notacja BPMN 2.0, DMN (Decision Model and Notation), silnik workflow SAP BTP Workflow Management, integracja poprzez SAP CPI, API (OData, REST), konektory do systemów SAP i non-SAP. Wykorzystanie możliwości Process Mining i Process Intelligence.
+●	Lista głównych komponentów i modułów:
+○	Moduł modelowania procesów (Signavio Process Manager)
+○	Moduł analizy i odkrywania procesów (Signavio Process Intelligence)
+○	Moduł automatyzacji procesów (SAP BTP Workflow Management / Signavio Process Governance)
+○	Moduł zarządzania regułami biznesowymi (SAP Business Rules service / Decision Management)
+○	Moduł monitorowania procesów (Process Intelligence / Operational Dashboards)
+○	Moduł analityczny i raportowy (Signavio Process Intelligence / SAC)
+○	Moduł symulacji procesów (Signavio Process Manager)
+○	Moduł zarządzania współpracą przy procesach (Signavio Collaboration Hub)
+○	Moduł integracyjny (SAP Integration Suite - CPI)
+●	Opis kluczowych funkcjonalności:
+○	Graficzne modelowanie procesów biznesowych w standardzie BPMN 2.0.
+○	Automatyczne odkrywanie i analiza rzeczywistego przebiegu procesów na podstawie danych z systemów (Process Mining).
+○	Automatyzacja przepływów pracy, zarządzanie zadaniami i eskalacjami.
+○	Definiowanie, testowanie i wdrażanie reguł biznesowych (DMN).
+○	Monitorowanie kluczowych wskaźników wydajności (KPIs) procesów w czasie rzeczywistym.
+○	Analiza przyczyn źródłowych problemów, identyfikacja wąskich gardeł i możliwości optymalizacji.
+○	Symulacja wpływu proponowanych zmian na wydajność procesów ("what-if analysis").
+○	Integracja z systemami dziedzinowymi w celu orkiestracji procesów end-to-end.
+○	Centralne repozytorium procesów i udostępnianie wiedzy o procesach (Collaboration Hub).
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Integracja z SAP S/4HANA (ERP) poprzez API (OData, BAPI)/CPI: odczyt danych do analizy (Process Mining), wyzwalanie workflow, aktualizacja danych w SAP (np. status zamówienia).
+○	Integracja z Salesforce (CRM) poprzez API/CPI: orkiestracja procesów sprzedażowych i obsługowych, synchronizacja danych.
+○	Integracja z SharePoint Online / OpenText (DMS) poprzez API/Power Automate: dołączanie/odczyt dokumentów w ramach procesów.
+○	Integracja z Microsoft Teams/Outlook poprzez Power Automate/API: wysyłanie powiadomień, przydzielanie zadań.
+○	Integracja z Power BI / SAP Analytics Cloud (BI): eksport danych procesowych do zaawansowanej analizy i raportowania.
+○	Integracja z Siemens Opcenter (MES) poprzez API/Middleware: włączanie kroków produkcyjnych w szersze procesy biznesowe.
+○	Integracja z Portalami dla dostawców/klientów: możliwość włączenia partnerów zewnętrznych w zautomatyzowane procesy (np. onboarding dostawcy).
+●	Informacje o przetwarzanych danych:
+○	Dane o przebiegu procesów biznesowych (logi zdarzeń, czasy wykonania kroków).
+○	Informacje o wydajności procesów (KPIs) i pracy użytkowników w kontekście procesów.
+○	Dane transakcyjne przepływające przez procesy (np. dane zamówień, faktur, zgłoszeń).
+○	Dane osobowe przetwarzane w ramach specyficznych procesów (np. procesy HR, obsługa klienta) – podlegające RODO.
+○	Informacje o wyjątkach, błędach i odchyleniach od standardowego przebiegu procesów.
+○	Pełne ścieżki audytu dla zautomatyzowanych procesów (kto, co, kiedy zrobił).
+19. Electronic Data Interchange (EDI)
+●	Ogólny opis systemu i jego przeznaczenia: System EDI jest krytycznym komponentem infrastruktury IT EuroProdTrade S.A., umożliwiającym zautomatyzowaną, bezpieczną i ustandaryzowaną wymianę elektronicznych dokumentów biznesowych z tysiącami partnerów handlowych (dostawcy, klienci, operatorzy logistyczni) w całej Europie. Eliminuje potrzebę ręcznego wprowadzania danych z zamówień, faktur, awiz wysyłki (ASN), potwierdzeń zamówień itp., co znacząco redukuje koszty operacyjne, minimalizuje ryzyko błędów, przyspiesza cykle transakcyjne (np. order-to-cash, procure-to-pay) i zapewnia zgodność z wymaganiami prawnymi oraz specyfikacjami partnerów.
+●	Dostawca i Rozwiązanie: Platforma SAP Integration Suite (Cloud Integration - CPI) z dodatkiem B2B (B2B Add-on) do zarządzania specyficznymi standardami i protokołami EDI. Współpraca z zewnętrznym dostawcą usług sieciowych VAN (Value Added Network), np. OpenText Business Network, dla zapewnienia łączności z częścią partnerów preferujących ten model.
+●	Skala: Obsługa komunikacji z ponad 3 000 aktywnych partnerów handlowych (w tym kluczowi dostawcy surowców, główni odbiorcy detaliczni i hurtowi, firmy transportowe). Przetwarzanie średnio ponad 500 000 komunikatów EDI dziennie (w szczytach znacznie więcej). Wsparcie dla wielu standardów EDI (EDIFACT – podzbiory EANCOM, ODETTE; ANSI X12; VDA; UBL/XML) oraz różnych wersji w zależności od wymagań partnerów. Zarządzanie biblioteką ponad 1000 mapowań między formatami EDI a wewnętrznymi formatami SAP (IDoc/API).
+●	Technologia: Platforma SAP Integration Suite (SaaS na SAP BTP), narzędzia do mapowania graficznego i skryptowego (Groovy) w CPI, adaptery B2B dla protokołów komunikacyjnych (AS2, SFTP, OFTP2, HTTPS/API), narzędzia do monitorowania przepływów integracyjnych (CPI Monitoring), repozytorium mapowań i konfiguracji partnerów. Wykorzystanie certyfikatów cyfrowych do szyfrowania i podpisywania komunikatów.
+●	Lista głównych komponentów i modułów:
+○	Moduł konwersji i mapowania dokumentów (CPI Mapping Tools)
+○	Moduł komunikacyjny (CPI Adapters: AS2, SFTP, OFTP2, IDoc, SOAP, OData etc.)
+○	Moduł integracyjny z systemami back-end (CPI Integration Flows)
+○	Moduł bezpieczeństwa (Certificate Management, Encryption/Decryption)
+○	Moduł zarządzania partnerami biznesowymi (B2B Cockpit / Partner Directory)
+○	Moduł walidacji i wzbogacania danych
+○	Moduł monitorowania i śledzenia transakcji (CPI Monitoring)
+○	Moduł archiwizacji i audytu (Log Persistence, Integration with Archiving Solutions)
+○	Portal do samoobsługowego onboardingu partnerów (opcjonalnie)
+●	Opis kluczowych funkcjonalności:
+○	Automatyczna konwersja (mapowanie) danych pomiędzy standardami EDI a wewnętrznymi formatami SAP IDoc/API.
+○	Bezpieczna i niezawodna transmisja danych z wykorzystaniem standardowych protokołów B2B (AS2, SFTP, OFTP2).
+○	Ścisła integracja z modułami SAP S/4HANA (SD, MM, FI, LE-TRA) w celu automatycznego przetwarzania dokumentów.
+○	Zarządzanie konfiguracją partnerów EDI (dane kontaktowe, standardy, protokoły, certyfikaty).
+○	Walidacja składniowa i biznesowa komunikatów EDI, mechanizmy obsługi błędów i powiadomień.
+○	Szczegółowe monitorowanie statusu przetwarzania komunikatów, śledzenie end-to-end.
+○	Archiwizacja wymienianych dokumentów zgodnie z wymogami prawnymi (np. dotyczącymi faktur elektronicznych).
+○	Wsparcie dla specyficznych wymagań branżowych (np. motoryzacja - VDA, handel detaliczny - EANCOM).
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	SAP S/4HANA (ERP): Główny system źródłowy i docelowy dla dokumentów EDI (Zamówienia Klientów - ORDERS, Potwierdzenia Zamówień - ORDRSP, Awiza Wysyłki - DESADV, Faktury - INVOIC, Zamówienia Zakupu - ORDERS, etc.). Integracja poprzez IDoc i API.
+○	SAP IBP/Ariba (SCM): Wymiana prognoz (DELFOR), planów dostaw (DELJIT), zamówień (ORDERS) z dostawcami. Integracja przez CPI/API.
+○	Manhattan Associates (WMS): Wymiana awiz wysyłki (DESADV), potwierdzeń odbioru (RECADV), instrukcji transportowych (IFTMIN). Integracja przez IDoc/API.
+○	Systemy Transportowe (TMS/Przewoźnicy): Wymiana zleceń transportowych (IFTMIN), statusów przesyłek (IFTSTA). Integracja przez EDI lub API.
+○	Platformy B2B (np. Ariba Network, Transporeon): Integracja w celu wymiany dokumentów z partnerami obecnymi na tych platformach.
+○	Systemy Celne: Wymiana deklaracji celnych w formatach elektronicznych (jeśli dotyczy).
+○	Systemy Bankowe: Potencjalnie wymiana zleceń płatności lub wyciągów w specyficznych formatach (choć częściej realizowane przez inne moduły).
+●	Informacje o przetwarzanych danych:
+○	Dane transakcyjne i handlowe (numery zamówień, ilości, kody produktów) stanowiące podstawę operacji biznesowych.
+○	Informacje o cenach, rabatach i warunkach handlowych (poufne dane komercyjne).
+○	Dane finansowe w fakturach elektronicznych (kwoty, stawki VAT, terminy płatności) podlegające regulacjom podatkowym i archiwizacyjnym.
+○	Dane logistyczne (adresy dostaw, daty wysyłki/odbioru, numery partii/seryjne).
+○	Dane partnerów handlowych (numery GLN/DUNS, dane adresowe).
+○	Informacje podlegające specyficznym regulacjom branżowym lub krajowym (np. e-fakturowanie, przepisy celne).
+20. Knowledge Management System (KMS)
+●	Ogólny opis systemu i jego przeznaczenia: System KMS (Knowledge Management System) w EuroProdTrade jest strategiczną platformą mającą na celu efektywne zarządzanie kapitałem intelektualnym firmy. Umożliwia on systematyczne gromadzenie, strukturyzowanie, udostępnianie i ponowne wykorzystywanie wiedzy jawnej (dokumenty, procedury, najlepsze praktyki) oraz niejawnej (doświadczenia ekspertów) w skali całej, rozproszonej geograficznie organizacji. KMS wspiera innowacyjność (np. przez łatwy dostęp do wyników R&D), usprawnia procesy decyzyjne, przyspiesza onboarding i rozwój pracowników, minimalizuje ryzyko utraty wiedzy przy rotacji kadr oraz promuje kulturę dzielenia się wiedzą i ciągłego uczenia się.
+●	Dostawca i Rozwiązanie: Microsoft 365 z kluczowymi komponentami: SharePoint Online jako centralne repozytorium treści i platforma intranetowa, Microsoft Viva Topics do automatycznego odkrywania i organizowania wiedzy oraz identyfikacji ekspertów, Microsoft Teams do współpracy kontekstowej i dyskusji, oraz Microsoft Search do zaawansowanego wyszukiwania w całej platformie.
+●	Skala: System dostępny dla wszystkich 15 000 pracowników EuroProdTrade S.A., z różnymi poziomami uprawnień do tworzenia, edycji i konsumpcji treści. Zarządza milionami dokumentów (procedury operacyjne, specyfikacje techniczne, raporty, materiały szkoleniowe, dokumentacja projektowa), tysiącami artykułów w bazach wiedzy, setkami społeczności praktyków (Communities of Practice) oraz dynamicznie generowanymi stronami tematów (Viva Topics).
+●	Technologia: Platforma Microsoft 365 (SaaS), SharePoint Online, Microsoft Viva (Topics, Connections, Engage), Microsoft Teams, Microsoft Search (oparty na AI), Power Platform (Power Automate do workflow, Power Apps do prostych aplikacji wspierających procesy wiedzy). Integracja z Azure Active Directory (Entra ID) do zarządzania tożsamością i dostępem.
+●	Lista głównych komponentów i modułów:
+○	Moduł repozytorium treści i zarządzania dokumentami (SharePoint Online Document Libraries & Pages)
+○	Moduł współpracy i wymiany wiedzy (Microsoft Teams Channels & Chats, Viva Engage/Yammer)
+○	Moduł wyszukiwania korporacyjnego (Microsoft Search)
+○	Moduł odkrywania wiedzy i ekspertów (Microsoft Viva Topics)
+○	Moduł społeczności praktyków (SharePoint Communication Sites, Teams, Viva Engage)
+○	Moduł zarządzania treścią (Metadane, Typy Zawartości, Polityki Przechowywania)
+○	Moduł analityki wykorzystania wiedzy (Usage Analytics w SharePoint i Viva)
+○	Moduł integracji (Konektory Microsoft Graph, Power Platform)
+○	Portal intranetowy (SharePoint Online / Viva Connections)
+●	Opis kluczowych funkcjonalności:
+○	Centralne, ustrukturyzowane repozytorium dokumentów i artykułów bazy wiedzy z wersjonowaniem i kontrolą dostępu.
+○	Zaawansowane wyszukiwanie semantyczne obejmujące treści w SharePoint, Teams, Outlook i innych źródłach M365.
+○	Automatyczne identyfikowanie tematów w treściach firmowych, generowanie stron tematów z definicjami, powiązanymi zasobami i ekspertami (Viva Topics).
+○	Profile ekspertów z informacjami o ich kompetencjach i projektach (częściowo zintegrowane z HRMS).
+○	Platforma do tworzenia i zarządzania społecznościami praktyków w celu wymiany doświadczeń i rozwiązywania problemów.
+○	Integracja z codziennymi narzędziami pracy (Teams, Outlook) w celu łatwego dostępu do wiedzy i jej udostępniania.
+○	Możliwość tworzenia workflow zatwierdzania i publikacji treści (Power Automate).
+○	Analiza popularności i wykorzystania zasobów wiedzy.
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Microsoft 365 Suite (Teams, Outlook, etc.): Natywna, głęboka integracja.
+○	SAP SuccessFactors (HRMS): Integracja poprzez API/Microsoft Graph Connectors w celu pobierania danych o strukturze organizacyjnej, rolach i potencjalnie umiejętnościach pracowników do profili ekspertów.
+○	SAP S/4HANA (ERP): Możliwość linkowania do dokumentacji procesowej lub standardów jakościowych przechowywanych w KMS z poziomu transakcji SAP.
+○	Salesforce (CRM): Integracja poprzez konektory lub API w celu udostępniania materiałów sprzedażowych, studiów przypadku, najlepszych praktyk z KMS w kontekście pracy handlowców.
+○	Siemens Teamcenter (PLM): Potencjalna integracja w celu udostępniania zatwierdzonej dokumentacji technicznej lub R&D w szerszym kontekście KMS.
+○	Systemy Help Desk (np. ServiceNow): Integracja w celu wykorzystania bazy wiedzy KMS do wsparcia użytkowników i agentów help desk (np. poprzez osadzenie wyszukiwania).
+○	Systemy e-learningowe (LMS): Możliwość linkowania do materiałów szkoleniowych lub osadzania treści z KMS w kursach e-learningowych.
+●	Informacje o przetwarzanych danych:
+○	Dokumentacja techniczna, procedury operacyjne, standardy jakości (know-how firmy, potencjalnie tajemnica handlowa).
+○	Informacje o kompetencjach, doświadczeniach i projektach pracowników (dane osobowe podlegające RODO).
+○	Dane dotyczące innowacji, wyników badań i rozwoju (wrażliwa własność intelektualna).
+○	Najlepsze praktyki sprzedażowe, marketingowe, produkcyjne (strategiczne informacje biznesowe).
+○	Informacje o rozwiązanych problemach i zdobytych doświadczeniach ("lessons learned").
+○	Materiały szkoleniowe i edukacyjne.
+○	Dyskusje i wymiana informacji w ramach społeczności (mogą zawierać dane poufne).
+21. Information Security Management System (ISMS)
+●	Ogólny opis systemu i jego przeznaczenia: ISMS (Information Security Management System) w EuroProdTrade to nie pojedynczy system, lecz kompleksowy zestaw polityk, procedur, standardów, procesów i technologii, zaprojektowany w celu systematycznego zarządzania ryzykiem bezpieczeństwa informacji w całej organizacji. Jego celem jest ochrona poufności, integralności i dostępności wszystkich aktywów informacyjnych firmy (danych klientów, danych finansowych, własności intelektualnej, danych operacyjnych IT/OT) zgodnie z najlepszymi praktykami (np. norma ISO/IEC 27001) i wymogami prawnymi (RODO, NIS2, lokalne regulacje). ISMS obejmuje zarządzanie ryzykiem, incydentami, podatnościami, dostępem, zgodnością oraz ciągłością działania, wspierane przez zintegrowane narzędzia technologiczne.
+●	Dostawca i Rozwiązanie: Zintegrowany ekosystem narzędzi bezpieczeństwa, głównie oparty na platformie Microsoft Azure i Microsoft 365, w połączeniu ze specjalistycznymi rozwiązaniami i ustrukturyzowanymi procesami. Kluczowe technologie:
+○	SIEM/SOAR: Microsoft Sentinel (zbieranie i analiza logów, wykrywanie zagrożeń, automatyzacja odpowiedzi).
+○	Endpoint Security (EDR/XDR): Microsoft Defender for Endpoint, Defender for Cloud, Defender for Identity.
+○	Zarządzanie Podatnościami: Microsoft Defender Vulnerability Management (zintegrowane z Defender for Endpoint) lub dedykowany skaner (np. Qualys/Tenable) zintegrowany z Sentinel.
+○	Zarządzanie Tożsamością i Dostępem (IAM): Azure Active Directory (Entra ID) - PIM (Privileged Identity Management), Conditional Access, Identity Protection.
+○	Ochrona Danych i Zgodność: Microsoft Purview (Information Protection, Data Loss Prevention, Compliance Manager).
+○	Zarządzanie Ryzykiem i Zgodnością (GRC): Moduł GRC w ramach platformy ServiceNow (używanej również do ITSM) lub dedykowane narzędzie GRC zintegrowane z ekosystemem Microsoft.
+○	Bezpieczeństwo Sieci: Zapory sieciowe nowej generacji (np. Palo Alto, Fortinet), segmentacja sieci, Azure Network Security Groups.
+○	Zarządzanie Politykami i Dokumentacją: SharePoint Online jako repozytorium polityk i procedur ISMS.
+●	Skala: System obejmuje całą infrastrukturę IT i OT (Operational Technology w zakładach produkcyjnych) EuroProdTrade w 15 krajach. Dotyczy wszystkich 15 000 pracowników, partnerów i systemów. Dedykowany zespół bezpieczeństwa informacji (SOC, GRC, Inżynierowie Bezpieczeństwa) liczący ok. 25-30 osób. Przetwarzanie miliardów zdarzeń bezpieczeństwa (logów) dziennie w systemie SIEM. Zarządzanie tysiącami polityk, kontroli, ryzyk i incydentów.
+●	Technologia: Głównie technologie chmurowe Microsoft (Azure, M365), integracje poprzez API i standardowe protokoły (Syslog, CEF, LEAF), platforma ServiceNow (SaaS), narzędzia do skanowania podatności, rozwiązania sieciowe. Procesy zarządzania oparte na frameworku ISO/IEC 27001 i NIST Cybersecurity Framework.
+●	Lista głównych komponentów i modułów (w ramach ekosystemu):
+○	Moduł zarządzania ryzykiem bezpieczeństwa informacji (GRC Tool / Purview / Sentinel)
+○	Moduł zarządzania politykami i standardami bezpieczeństwa (SharePoint / GRC Tool)
+○	Moduł zarządzania incydentami bezpieczeństwa (SIEM/SOAR - Sentinel, ITSM - ServiceNow)
+○	Moduł zarządzania kontrolami bezpieczeństwa (GRC Tool / Purview Compliance Manager)
+○	Moduł zarządzania zgodnością (Purview Compliance Manager / GRC Tool)
+○	Moduł zarządzania ciągłością działania i odtwarzania po awarii (BCM/DR Planning Tools & Processes)
+○	Moduł zarządzania tożsamością i uprawnieniami dostępu (Azure AD/Entra ID)
+○	Moduł audytu i monitorowania (SIEM - Sentinel, Log Analytics, EDR/XDR - Defender)
+○	Moduł zarządzania podatnościami (Defender Vulnerability Management / Qualys/Tenable)
+○	Moduł Security Orchestration, Automation, and Response (SOAR - Sentinel Logic Apps)
+○	Moduł Data Loss Prevention (DLP - Microsoft Purview)
+●	Opis kluczowych funkcjonalności:
+○	Ciągłe monitorowanie infrastruktury IT/OT pod kątem zagrożeń i anomalii (Sentinel).
+○	Automatyczne wykrywanie, analiza i reagowanie na incydenty bezpieczeństwa (SOAR).
+○	Systematyczna identyfikacja, ocena i zarządzanie ryzykiem bezpieczeństwa informacji.
+○	Skanowanie i zarządzanie podatnościami w systemach i aplikacjach.
+○	Wdrażanie, monitorowanie i testowanie kontroli bezpieczeństwa (technicznych i organizacyjnych).
+○	Zarządzanie cyklem życia tożsamości użytkowników i ich uprawnieniami (zasada najmniejszych uprawnień, regularne przeglądy dostępu).
+○	Zapewnienie zgodności z regulacjami (RODO, NIS2) i standardami (ISO 27001) poprzez mapowanie kontroli i audyty.
+○	Planowanie i testowanie planów ciągłości działania (BCP) i odtwarzania po awarii (DRP).
+○	Ochrona przed wyciekiem danych (DLP).
+○	Prowadzenie audytów wewnętrznych i wsparcie audytów zewnętrznych.
+●	Identyfikacja interfejsów i integracji z innymi systemami:
+○	Azure AD/Entra ID (IAM): Podstawowe źródło informacji o tożsamościach i kontekście użytkownika dla SIEM i innych narzędzi bezpieczeństwa.
+○	Systemy Operacyjne, Aplikacje, Urządzenia Sieciowe: Zbieranie logów poprzez agentów lub protokoły (Syslog, API) do SIEM (Sentinel).
+○	Microsoft Defender Suite (XDR): Natywna integracja z Sentinel w celu korelacji zdarzeń i odpowiedzi.
+○	Skanery Podatności (Qualys/Tenable): Integracja z Sentinel/GRC Tool w celu importu wyników skanowania i zarządzania ryzykiem.
+○	ServiceNow (ITSM/GRC): Integracja z Sentinel do tworzenia incydentów, integracja z GRC do zarządzania ryzykiem i zgodnością.
+○	SharePoint Online (DMS): Repozytorium polityk, procedur, dokumentacji ISMS.
+○	SAP SuccessFactors (HRMS): Integracja w celu automatyzacji procesów związanych z dostępem dla nowych/odchodzących pracowników.
+○	Narzędzia OT Security (np. Claroty, Nozomi): Integracja z Sentinel w celu monitorowania bezpieczeństwa środowiska produkcyjnego.
+●	Informacje o przetwarzanych danych:
+○	Dane o ryzykach bezpieczeństwa, podatnościach i zagrożeniach (wysoce poufne).
+○	Szczegółowe logi zdarzeń z systemów IT i OT (mogą zawierać dane techniczne i śladowe dane osobowe).
+○	Informacje o incydentach bezpieczeństwa, w tym potencjalnie o naruszeniach danych osobowych (podlegające RODO, wymagające zgłaszania).
+○	Dane konfiguracyjne systemów i kontroli bezpieczeństwa.
+○	Wyniki audytów bezpieczeństwa i testów penetracyjnych (poufne).
+○	Dane dotyczące zgodności z regulacjami i normami.
+○	Informacje o uprawnieniach dostępu użytkowników.
+○	Dane identyfikowane przez systemy DLP jako potencjalnie wrażliwe (finansowe, osobowe, IP).
+○	

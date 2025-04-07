@@ -13,8 +13,29 @@ export class TextUtils {
       // Sprawdź czy plik istnieje
       await fs.access(filePath);
       
-      // Odczytaj plik jako tekst
-      const content = await fs.readFile(filePath, 'utf-8');
+      // Odczytaj plik jako buffer, aby mieć kontrolę nad kodowaniem
+      const buffer = await fs.readFile(filePath);
+      
+      // Spróbuj wykryć kodowanie znaków lub użyj UTF-8
+      // Najpierw próbujemy UTF-8, jeśli występują problemy, próbujemy innych kodowań
+      let content = '';
+      try {
+        content = buffer.toString('utf-8');
+        
+        // Sprawdź czy występują znaki zastępcze (znak � pojawia się przy niepoprawnym zdekodowaniu)
+        if (content.includes('�')) {
+          // Próbujemy innych kodowań, np. latin1/ISO-8859-1 lub windows-1250
+          console.log(`Wykryto problemy z kodowaniem UTF-8, próbuję alternatywnego kodowania dla pliku ${filePath}`);
+          content = buffer.toString('latin1');
+        }
+      } catch (encodingError) {
+        console.error(`Błąd podczas dekodowania pliku ${filePath}:`, encodingError);
+        // Awaryjnie próbujemy latin1
+        content = buffer.toString('latin1');
+      }
+      
+      // Normalizuj końce linii
+      content = content.replace(/\r\n/g, '\n');
       
       // Plik tekstowy może zostać bezpośrednio przekazany do analizy
       console.log(`Odczytano ${content.length} znaków tekstu z pliku ${filePath}`);

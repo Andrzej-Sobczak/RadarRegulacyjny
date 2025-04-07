@@ -70,9 +70,13 @@ class FileService {
         const systemCapabilities = this.extractSystemCapabilitiesFromText(text);
         const systemDependencies = this.extractSystemDependenciesFromText(text);
         
+        // Pobierz oryginalną nazwę pliku bez znaczników czasowych
+        const originalFileName = path.basename(filePath);
+        
         // Tworzenie nowego systemu bazując na zawartości pliku
         const newSystem: InsertSystem = {
-          name: systemName,
+          // Użyj wykrytej nazwy systemu z treści, jeśli znaleziona, albo nazwę pliku
+          name: systemName || originalFileName.replace(/\.txt$/i, ''),
           description: systemDescription,
           function: systemFunction,
           capabilities: systemCapabilities,
@@ -95,16 +99,28 @@ class FileService {
         const errorMessage = textError instanceof Error ? textError.message : String(textError);
         console.error(`Błąd podczas odczytu pliku tekstowego systemu: ${errorMessage}`);
         
-        // Jeśli nie można odczytać pliku, tworzymy przykładowy system bazując na nazwie pliku
+        // Jeśli nie można odczytać pliku, tworzymy system bazując na oryginalnej nazwie pliku
         let fileName = path.basename(filePath);
         const extPattern = /\.(txt|TXT)$/;
         if (extPattern.test(fileName)) {
           fileName = fileName.replace(extPattern, "");
         }
         
-        // Tworzenie systemu z nazwą bazującą na nazwie pliku
+        // Usuwamy timestampy i inne prefiksy, aby uzyskać czystą nazwę
+        // Wzorzec: 1744012776903-724632174-NazwaSystemu
+        const cleanNamePattern = /^\d+-\d+-(.+)$/;
+        let cleanName = fileName;
+        
+        if (cleanNamePattern.test(fileName)) {
+          const match = fileName.match(cleanNamePattern);
+          if (match && match[1]) {
+            cleanName = match[1];
+          }
+        }
+        
+        // Tworzenie systemu z czystą nazwą pliku
         const sampleSystem: InsertSystem = {
-          name: `System ${fileName}`,
+          name: cleanName,
           description: "System informatyczny wspierający procesy biznesowe",
           function: "Zarządzanie danymi i procesami biznesowymi",
           capabilities: "Przechowywanie danych, raportowanie, integracja",
@@ -141,13 +157,31 @@ class FileService {
       if (match && match[1] && match[1].trim().length > 0) {
         const name = match[1].trim();
         if (name.length > 5 && name.length < 100) {
+          // Wyczyść nazwę z timestampów i innych niepożądanych prefiksów, jeśli istnieją
+          const cleanNamePattern = /^\d+-\d+-(.+)$/;
+          if (cleanNamePattern.test(name)) {
+            const cleanMatch = name.match(cleanNamePattern);
+            if (cleanMatch && cleanMatch[1]) {
+              return cleanMatch[1].trim().substring(0, 100);
+            }
+          }
+          
           return name.substring(0, 100); // Ogranicz do 100 znaków
         }
       }
     }
     
-    // Jeśli nie znaleziono nazwy, użyj nazwy pliku
-    return `System ${defaultName}`;
+    // Wyczyść nazwę pliku z timestampów i innych prefiksów
+    const cleanNamePattern = /^\d+-\d+-(.+)$/;
+    if (cleanNamePattern.test(defaultName)) {
+      const match = defaultName.match(cleanNamePattern);
+      if (match && match[1]) {
+        return match[1].trim();
+      }
+    }
+    
+    // Jeśli nie znaleziono nazwy, użyj nazwy pliku bez prefiksu "System"
+    return defaultName;
   }
   
   private extractSystemDescriptionFromText(text: string): string {
